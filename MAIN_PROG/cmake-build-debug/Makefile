@@ -122,32 +122,32 @@ MAIN_PROG/fast:
 	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/build
 .PHONY : MAIN_PROG/fast
 
-2.obj: 2.cpp.obj
+cursorSets.obj: cursorSets.cpp.obj
 
-.PHONY : 2.obj
+.PHONY : cursorSets.obj
 
 # target to build an object file
-2.cpp.obj:
-	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/2.cpp.obj
-.PHONY : 2.cpp.obj
+cursorSets.cpp.obj:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj
+.PHONY : cursorSets.cpp.obj
 
-2.i: 2.cpp.i
+cursorSets.i: cursorSets.cpp.i
 
-.PHONY : 2.i
+.PHONY : cursorSets.i
 
 # target to preprocess a source file
-2.cpp.i:
-	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/2.cpp.i
-.PHONY : 2.cpp.i
+cursorSets.cpp.i:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.i
+.PHONY : cursorSets.cpp.i
 
-2.s: 2.cpp.s
+cursorSets.s: cursorSets.cpp.s
 
-.PHONY : 2.s
+.PHONY : cursorSets.s
 
 # target to generate assembly for a file
-2.cpp.s:
-	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/2.cpp.s
-.PHONY : 2.cpp.s
+cursorSets.cpp.s:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.s
+.PHONY : cursorSets.cpp.s
 
 main.obj: main.cpp.obj
 
@@ -185,9 +185,9 @@ help:
 	@echo ... rebuild_cache
 	@echo ... MAIN_PROG
 	@echo ... edit_cache
-	@echo ... 2.obj
-	@echo ... 2.i
-	@echo ... 2.s
+	@echo ... cursorSets.obj
+	@echo ... cursorSets.i
+	@echo ... cursorSets.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s

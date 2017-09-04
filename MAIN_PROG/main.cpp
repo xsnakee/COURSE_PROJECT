@@ -1,9 +1,13 @@
 #include <iostream>
 #include <conio.h>
-#include "1.h"
-using namespace std;
-int readTheKey();
+#include "prototypes.h"
 
+using namespace std;
+
+int readTheKey();
+/*int drawInterface(char *Items);
+int drawInterface(table *Items);
+//*/
 int main() {
     std::cout << "Hello, World!" << std::endl;
     readTheKey();
@@ -16,12 +20,10 @@ int main() {
 int readTheKey(){
     while (int key=getch()) {
         cout << key << endl;
-        gotoxy(1,1);
-        SetColor(1,1);
 
         if (key == 13) {
             cout<<"Will exit";
-            return 1;
+            return 0;
         }
     }
 }

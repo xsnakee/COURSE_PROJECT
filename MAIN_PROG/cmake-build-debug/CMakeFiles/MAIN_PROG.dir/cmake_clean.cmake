@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/MAIN_PROG.dir/main.cpp.obj"
-  "CMakeFiles/MAIN_PROG.dir/2.cpp.obj"
+  "CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj"
   "MAIN_PROG.pdb"
   "MAIN_PROG.exe"
   "MAIN_PROG.exe.manifest"

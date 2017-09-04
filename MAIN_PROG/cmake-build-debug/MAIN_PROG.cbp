@@ -80,13 +80,13 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/1.h">
-			<Option target="MAIN_PROG"/>
-		</Unit>
-		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/2.cpp">
+		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/cursorSets.cpp">
 			<Option target="MAIN_PROG"/>
 		</Unit>
 		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/main.cpp">
+			<Option target="MAIN_PROG"/>
+		</Unit>
+		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/prototypes.h">
 			<Option target="MAIN_PROG"/>
 		</Unit>
 		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/CMakeLists.txt">
