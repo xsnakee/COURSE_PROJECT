@@ -6,11 +6,17 @@
 
 #IncludeRegexTransform: 
 
+D:/COURSE_PROJECT/MAIN_PROG/1.h
+
+D:/COURSE_PROJECT/MAIN_PROG/2.cpp
+windows.h
+-
+
 D:/COURSE_PROJECT/MAIN_PROG/main.cpp
 iostream
 -
 conio.h
 -
-windows.h
--
+1.h
+D:/COURSE_PROJECT/MAIN_PROG/1.h
 

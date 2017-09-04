@@ -1,11 +1,8 @@
 #include <iostream>
 #include <conio.h>
-#include <windows.h>
-
+#include "1.h"
 using namespace std;
 int readTheKey();
-void gotoxy(short x, short y);
-void SetColor(int text, int background);
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
@@ -19,6 +16,9 @@ int main() {
 int readTheKey(){
     while (int key=getch()) {
         cout << key << endl;
+        gotoxy(1,1);
+        SetColor(1,1);
+
         if (key == 13) {
             cout<<"Will exit";
             return 1;
@@ -26,14 +26,3 @@ int readTheKey(){
     }
 }
 
-/*Функция позиционирования курсора в консоли*/
-void gotoxy(short x, short y){
-    HANDLE StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    COORD coord = {x, y};
-    SetConsoleCursorPosition(StdOut, coord);
-}
-/*Функция выбора цвета текста и фона в консоли*/
-void SetColor(int text, int background){
-    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hStdOut, (WORD)((background << 4) | text));
-}
