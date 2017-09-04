@@ -77,12 +77,14 @@ void readTheKey(){
  */
 tableData newRecord(){
     tableData newElement;
-    cin>>newElement.fio;
-    cin>>newElement.tokenNum;
+    cin >> newElement.fio;
+    cin >> newElement.tokenNum;
     (!newElement.num) ? newElement.num = 0 : newElement.num++;
     return newElement;
 }
 
-/*list *organizeList(list &Top,list &End){
+list *organizeList(list &Top,tableData userData){
+    list *newAdress=new list;
+    newAdress.inf=userData;
 
-}*/
+}

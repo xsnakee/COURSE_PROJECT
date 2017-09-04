@@ -6,25 +6,7 @@
 
 #IncludeRegexTransform: 
 
-D:/COURSE_PROJECT/MAIN_PROG/anyFunctions.cpp
-prototypes.h
-D:/COURSE_PROJECT/MAIN_PROG/prototypes.h
-
-D:/COURSE_PROJECT/MAIN_PROG/cursorSets.cpp
-prototypes.h
-D:/COURSE_PROJECT/MAIN_PROG/prototypes.h
-
-D:/COURSE_PROJECT/MAIN_PROG/listfeat.cpp
-prototypes.h
-D:/COURSE_PROJECT/MAIN_PROG/prototypes.h
-
 D:/COURSE_PROJECT/MAIN_PROG/main.cpp
-prototypes.h
-D:/COURSE_PROJECT/MAIN_PROG/prototypes.h
-iostream
--
-
-D:/COURSE_PROJECT/MAIN_PROG/prototypes.h
 stdio.h
 -
 conio.h

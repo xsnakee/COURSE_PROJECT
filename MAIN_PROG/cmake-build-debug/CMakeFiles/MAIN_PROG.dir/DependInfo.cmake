@@ -4,9 +4,6 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "D:/COURSE_PROJECT/MAIN_PROG/anyFunctions.cpp" "D:/COURSE_PROJECT/MAIN_PROG/cmake-build-debug/CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj"
-  "D:/COURSE_PROJECT/MAIN_PROG/cursorSets.cpp" "D:/COURSE_PROJECT/MAIN_PROG/cmake-build-debug/CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj"
-  "D:/COURSE_PROJECT/MAIN_PROG/listfeat.cpp" "D:/COURSE_PROJECT/MAIN_PROG/cmake-build-debug/CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj"
   "D:/COURSE_PROJECT/MAIN_PROG/main.cpp" "D:/COURSE_PROJECT/MAIN_PROG/cmake-build-debug/CMakeFiles/MAIN_PROG.dir/main.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
