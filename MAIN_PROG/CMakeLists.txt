@@ -3,5 +3,5 @@ project(MAIN_PROG)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp prototypes.h cursorSets.cpp)
+set(SOURCE_FILES main.cpp)
 add_executable(MAIN_PROG ${SOURCE_FILES})

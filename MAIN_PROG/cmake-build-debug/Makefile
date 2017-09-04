@@ -122,6 +122,33 @@ MAIN_PROG/fast:
 	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/build
 .PHONY : MAIN_PROG/fast
 
+anyFunctions.obj: anyFunctions.cpp.obj
+
+.PHONY : anyFunctions.obj
+
+# target to build an object file
+anyFunctions.cpp.obj:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj
+.PHONY : anyFunctions.cpp.obj
+
+anyFunctions.i: anyFunctions.cpp.i
+
+.PHONY : anyFunctions.i
+
+# target to preprocess a source file
+anyFunctions.cpp.i:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.i
+.PHONY : anyFunctions.cpp.i
+
+anyFunctions.s: anyFunctions.cpp.s
+
+.PHONY : anyFunctions.s
+
+# target to generate assembly for a file
+anyFunctions.cpp.s:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.s
+.PHONY : anyFunctions.cpp.s
+
 cursorSets.obj: cursorSets.cpp.obj
 
 .PHONY : cursorSets.obj
@@ -148,6 +175,33 @@ cursorSets.s: cursorSets.cpp.s
 cursorSets.cpp.s:
 	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.s
 .PHONY : cursorSets.cpp.s
+
+listfeat.obj: listfeat.cpp.obj
+
+.PHONY : listfeat.obj
+
+# target to build an object file
+listfeat.cpp.obj:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj
+.PHONY : listfeat.cpp.obj
+
+listfeat.i: listfeat.cpp.i
+
+.PHONY : listfeat.i
+
+# target to preprocess a source file
+listfeat.cpp.i:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/listfeat.cpp.i
+.PHONY : listfeat.cpp.i
+
+listfeat.s: listfeat.cpp.s
+
+.PHONY : listfeat.s
+
+# target to generate assembly for a file
+listfeat.cpp.s:
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/listfeat.cpp.s
+.PHONY : listfeat.cpp.s
 
 main.obj: main.cpp.obj
 
@@ -185,9 +239,15 @@ help:
 	@echo ... rebuild_cache
 	@echo ... MAIN_PROG
 	@echo ... edit_cache
+	@echo ... anyFunctions.obj
+	@echo ... anyFunctions.i
+	@echo ... anyFunctions.s
 	@echo ... cursorSets.obj
 	@echo ... cursorSets.i
 	@echo ... cursorSets.s
+	@echo ... listfeat.obj
+	@echo ... listfeat.i
+	@echo ... listfeat.s
 	@echo ... main.obj
 	@echo ... main.i
 	@echo ... main.s

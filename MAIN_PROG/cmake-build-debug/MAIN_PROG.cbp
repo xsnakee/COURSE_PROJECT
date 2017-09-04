@@ -80,7 +80,13 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/anyFunctions.cpp">
+			<Option target="MAIN_PROG"/>
+		</Unit>
 		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/cursorSets.cpp">
+			<Option target="MAIN_PROG"/>
+		</Unit>
+		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/listfeat.cpp">
 			<Option target="MAIN_PROG"/>
 		</Unit>
 		<Unit filename="D:/COURSE_PROJECT/MAIN_PROG/main.cpp">

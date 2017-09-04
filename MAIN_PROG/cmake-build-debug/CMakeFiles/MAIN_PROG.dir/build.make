@@ -104,21 +104,73 @@ CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj.provides: CMakeFiles/MAIN_PROG.dir/c
 CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj.provides.build: CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj
 
 
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj: CMakeFiles/MAIN_PROG.dir/flags.make
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj: ../anyFunctions.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\COURSE_PROJECT\MAIN_PROG\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj"
+	C:\MinGW\bin\g++.exe   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\MAIN_PROG.dir\anyFunctions.cpp.obj -c D:\COURSE_PROJECT\MAIN_PROG\anyFunctions.cpp
+
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.i"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\COURSE_PROJECT\MAIN_PROG\anyFunctions.cpp > CMakeFiles\MAIN_PROG.dir\anyFunctions.cpp.i
+
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.s"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\COURSE_PROJECT\MAIN_PROG\anyFunctions.cpp -o CMakeFiles\MAIN_PROG.dir\anyFunctions.cpp.s
+
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.requires:
+
+.PHONY : CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.requires
+
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.provides: CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.requires
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.provides.build
+.PHONY : CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.provides
+
+CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.provides.build: CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj
+
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj: CMakeFiles/MAIN_PROG.dir/flags.make
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj: ../listfeat.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=D:\COURSE_PROJECT\MAIN_PROG\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj"
+	C:\MinGW\bin\g++.exe   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\MAIN_PROG.dir\listfeat.cpp.obj -c D:\COURSE_PROJECT\MAIN_PROG\listfeat.cpp
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MAIN_PROG.dir/listfeat.cpp.i"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\COURSE_PROJECT\MAIN_PROG\listfeat.cpp > CMakeFiles\MAIN_PROG.dir\listfeat.cpp.i
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MAIN_PROG.dir/listfeat.cpp.s"
+	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\COURSE_PROJECT\MAIN_PROG\listfeat.cpp -o CMakeFiles\MAIN_PROG.dir\listfeat.cpp.s
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.requires:
+
+.PHONY : CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.requires
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.provides: CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.requires
+	$(MAKE) -f CMakeFiles\MAIN_PROG.dir\build.make CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.provides.build
+.PHONY : CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.provides
+
+CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.provides.build: CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj
+
+
 # Object files for target MAIN_PROG
 MAIN_PROG_OBJECTS = \
 "CMakeFiles/MAIN_PROG.dir/main.cpp.obj" \
-"CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj"
+"CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj" \
+"CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj" \
+"CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj"
 
 # External object files for target MAIN_PROG
 MAIN_PROG_EXTERNAL_OBJECTS =
 
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/main.cpp.obj
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj
+MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj
+MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/build.make
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/linklibs.rsp
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/objects1.rsp
 MAIN_PROG.exe: CMakeFiles/MAIN_PROG.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\COURSE_PROJECT\MAIN_PROG\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable MAIN_PROG.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=D:\COURSE_PROJECT\MAIN_PROG\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable MAIN_PROG.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\MAIN_PROG.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -128,6 +180,8 @@ CMakeFiles/MAIN_PROG.dir/build: MAIN_PROG.exe
 
 CMakeFiles/MAIN_PROG.dir/requires: CMakeFiles/MAIN_PROG.dir/main.cpp.obj.requires
 CMakeFiles/MAIN_PROG.dir/requires: CMakeFiles/MAIN_PROG.dir/cursorSets.cpp.obj.requires
+CMakeFiles/MAIN_PROG.dir/requires: CMakeFiles/MAIN_PROG.dir/anyFunctions.cpp.obj.requires
+CMakeFiles/MAIN_PROG.dir/requires: CMakeFiles/MAIN_PROG.dir/listfeat.cpp.obj.requires
 
 .PHONY : CMakeFiles/MAIN_PROG.dir/requires
 
