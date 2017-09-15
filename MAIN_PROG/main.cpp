@@ -9,11 +9,11 @@ using namespace std;
  */
 const int mainMenuItemsCount = 12;
 const char *mainMenu[mainMenuItemsCount] = {
+        "ADD USER DATA",
+        "VIEW & NAVIGATE",
         "ORGANIZE LIST",
         "VIEW LIST",
-        "ADD USER DATA",
-        "DELETE USER DATA",
-        "CLEAR LIST",
+        "GET_KEY",
         "EDIT USER DATA",
         "SORT LIST",
         "SAVE IN FILE",
