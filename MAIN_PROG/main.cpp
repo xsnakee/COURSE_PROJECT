@@ -329,82 +329,35 @@ void viewList(list *top) {
 }
 
 int menu(const char **menuItems, const int itemsCount) {
-    int currentItem = 0, i = 0, key, Item;
-    int x_middle, x_1_5, x_7_11, x_2_4, x_8_10, x_mid_left, x_mid_right;
+    int currentItem = 0, i = 0, key;
     while (1) {
         system("cls");
-        for (i = 0, Item = currentItem; i < itemsCount; Item++, i++) {
-            x_middle = 40 - strlen(menuItems[Item])/2;
-            x_1_5 = 50 -  strlen(menuItems[Item])/2;
-            x_7_11 = 30 -  strlen(menuItems[Item])/2;
-            x_2_4 = 55 - strlen(menuItems[Item])/2;
-            x_8_10 = 25 - strlen(menuItems[Item])/2;
-            x_mid_right = 60 - strlen(menuItems[Item])/2;
-            x_mid_left = 20 - strlen(menuItems[Item])/2;
+        for (i = 0; i < itemsCount; i++) {
 
-            switch (i) {
-                case 0: {
-                    gotoxy(x_middle, 6);break;
-                };
-                case 1: {
-                    gotoxy(x_1_5, 8);break;
-                };
-                case 2: {
-                    gotoxy(x_2_4, 10);break;
-                };
-                case 3: {
-                    gotoxy(x_mid_right, 12);break;
-                };
-                case 4: {
-                    gotoxy(x_2_4, 14);break;
-                };
-                case 5: {
-                    gotoxy(x_1_5, 16);break;
-                };
-                case 6: {
-                    gotoxy(x_middle, 18);break;
-                };
-                case 7: {
-                    gotoxy(x_7_11, 16);break;
-                };
-                case 8: {
-                    gotoxy(x_8_10, 14);break;
-                };
-                case 9: {
-                    gotoxy(x_mid_left, 12);break;
-                };
-                case 10: {
-                    gotoxy(x_8_10, 10);break;
-                };
-                case 11: {
-                    gotoxy(x_7_11, 8);break;
-                };}
-                    if (Item == currentItem) {
-                        SetColor(0, 8);
-                    }
-                    cout << menuItems[Item] << endl;
-                    SetColor(7, 0);
-
-            if ((Item >= itemsCount) || (Item < 0)) Item = 0;
+            if (i == currentItem) {
+                SetColor(0, 8);
             }
+            cout << menuItems[i] << endl;
+            SetColor(7, 0);
+        }
 
-            switch (key = getch()) {
-                case 13: {
-                    return currentItem;
-                }
-                case 77: {
-                    if (currentItem >= itemsCount - 1) currentItem = 0;
-                    else currentItem++;
-                    break;
-                }
-                case 75: {
-                    if (currentItem <= 0) currentItem = itemsCount - 1;
-                    else currentItem--;
-                    break;
-                }
-                case 27: {
-                    exit(0);
-                }
+        switch (key = getch()) {
+            case 13: {
+                return currentItem;
+            }
+            case 80: {
+                if (currentItem >= itemsCount - 1) currentItem = 0;
+                else currentItem++;
+                break;
+            }
+            case 72: {
+                if (currentItem <= 0) currentItem = itemsCount - 1;
+                else currentItem--;
+                break;
+            }
+            case 27: {
+                exit(0);
             }
         }
     }
+}
