@@ -67,11 +67,6 @@ void viewList(list *top);
 
 int menu(const char **menuItems, const int itemsCount);
 
-/*int drawInterface(char *Items);
-int drawInterface(table *Items);
-//*/
-
-
 
 /*
  * MAIN FUNCTION
@@ -208,7 +203,6 @@ list *organizeList(list *top) {
         newAdress->pred = NULL;
         top = newAdress;
     }
-
     return top;
 }
 
@@ -227,8 +221,8 @@ int deleteList(list *top) {
         if (top == NULL && temp == NULL) return 1;
         else return 0;
     }
-
 }
+
 
 /*
  * Добавление записи в список
@@ -313,13 +307,12 @@ void viewList(list *top) {
                 }
                 if (currentNum < 0) {
                     currentNum = countOfDisplayRecords - 1;
-                    currentL = currentL->pred;
+
                     for (i = 0, temp = currentL;
                          (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
                     startDisplay = temp;
                 } else if (currentNum > countOfDisplayRecords - 1 && currentL != NULL) {
                     currentNum = 0;
-                    currentL = currentL->next;
                     startDisplay = currentL;
                 }
             }
@@ -328,12 +321,12 @@ void viewList(list *top) {
 
 }
 
+
 int menu(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0, key;
     while (1) {
         system("cls");
         for (i = 0; i < itemsCount; i++) {
-
             if (i == currentItem) {
                 SetColor(0, 8);
             }
