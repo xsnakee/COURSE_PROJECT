@@ -19,7 +19,7 @@ const char *mainMenu[mainMenuItemsCount] = {
         "SAVE IN FILE",
         "LOAD FROM FILE",
         "SEARCH USER",
-        "SEARCH GROUP",
+        "CHECK NUMERAL",
         "EXIT"
 };
 
@@ -30,14 +30,16 @@ const char *acceptMessage[acceptMessageItemsCount] = {
         "ACCEPT"
 };
 int GLOBAL_COUNTER_ID = 0;
+const int FIO_LENGTH = 20;
+const int PROF_LENGTH = 10;
 struct tableData {
     int ID;
-    int tableNumber;
-    char fio[30];
+    long int tableNumber;
+    char fio[FIO_LENGTH];
     int birth_year;
     bool sex;
-    char prof[10];
-    int staj;
+    char prof[PROF_LENGTH];
+    int exp;
     int rang;
     int roomNumber;
     int bigRoomNumber;
@@ -76,6 +78,9 @@ void viewList(list *top);
 
 int menu(const char **menuItems, const int itemsCount);
 
+long int checkNumeral(long int num);
+
+char *enterFIO(char *fio);
 
 /*
  * MAIN FUNCTION
@@ -140,6 +145,7 @@ int main() {
                 break;
             }
             case 10: {
+                checkNumeral(0);
                 cout << "10";
                 getch();
                 break;
@@ -192,11 +198,44 @@ void readTheKey() {
 tableData newRecord() {
     tableData newElement;
     cout << "FIO: ";
-    cin >> newElement.fio;
-    cout << "TABLE*: ";
+    char fio[FIO_LENGTH];
+    cin.getline(fio,FIO_LENGTH);
+    strcpy(newElement.fio,fio);
+    cout << "TABLE: ";
     cin >> newElement.tableNumber;
     newElement.ID = GLOBAL_COUNTER_ID++;
-    //(!newElement.num) ? newElement.num = 0 : newElement.num++;
+
+    cout << "BIRTH YEAR: ";
+    cin >> newElement.birth_year;
+
+    cout << "SEX: ";
+    cin >> newElement.sex;
+
+    cout << "PROF: ";
+    char prof[PROF_LENGTH];
+    cin.getline(prof, PROF_LENGTH);
+    strcpy(newElement.prof,prof);
+
+
+    cout << "EXPERIENCE: ";
+    cin >> newElement.exp;
+
+
+    cout << "RANG: ";
+    cin >> newElement.rang;
+
+    cout << "ROOM: ";
+    cin >> newElement.roomNumber;
+
+    cout << "LARGE ROOM: ";
+    cin >> newElement.bigRoomNumber;
+
+    cout << "PLACE: ";
+    cin >> newElement.placeNumber;
+
+    cout << "SALARY: ";
+    cin >> newElement.salary;
+
     return newElement;
 }
 
@@ -316,10 +355,7 @@ void viewList(list *top) {
                 }
                 if (currentNum < 0) {
                     currentNum = countOfDisplayRecords - 1;
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                     for (i = 0, temp = currentL;
                          (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
                     startDisplay = temp;
@@ -366,3 +402,69 @@ int menu(const char **menuItems, const int itemsCount) {
         }
     }
 }
+
+
+//*/
+long int checkNumeral(long int num){
+    int key;
+    long int tempNum = num;
+    int currentDigitCount, maxDigitCount = 6, minDigitCount = 1;
+
+    system("cls");
+    for (currentDigitCount=0; tempNum >= 1; currentDigitCount++){
+        tempNum = tempNum / 10;
+    }
+
+    tempNum = num;
+
+    while (key=getch()){
+        switch (key){
+
+            case '0':case '1':case '2':case '3':case '4':
+            case '5':case '6':case '7':case '8':case '9':{
+                if (currentDigitCount <7) {
+                    tempNum = tempNum * 10 + (key - '0');
+                    currentDigitCount++;
+                }
+                break;
+            }
+
+            case 8: {
+                if(currentDigitCount >0){
+                    tempNum = tempNum / 10;
+                    currentDigitCount--;
+                }
+                break;
+            }
+
+            case 13:{
+                getch();
+                return num = tempNum;
+            }
+
+            case 27: {
+                return num;
+            }
+        }
+    }
+}
+//*/
+
+char *toFormatFIO(char *str, const int length){
+    int i;
+
+    for(i = 0; i < length; i++){
+
+    }
+}
+/*/
+char *enterFIO(char *str, const int length){
+    system("cls");
+    int key;
+    cout << "FIO: " << str;
+
+    char fio[FIO_LENGTH];
+    cin.getline(fio,FIO_LENGTH);
+    strcpy(newElement.fio,fio);
+}
+//*/
