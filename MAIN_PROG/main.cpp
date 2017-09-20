@@ -78,7 +78,9 @@ void viewList(list *top);
 
 int menu(const char **menuItems, const int itemsCount);
 
-long int checkNumeral(long int num);
+long int checkNumeral(short X = 0, short Y = 0, int maxDigitCount = 4, long int num = 0 );
+
+char *strToFormat(char *str, const int length);
 
 char *enterFIO(char *fio);
 
@@ -145,7 +147,7 @@ int main() {
                 break;
             }
             case 10: {
-                checkNumeral(0);
+
                 cout << "10";
                 getch();
                 break;
@@ -196,27 +198,56 @@ void readTheKey() {
  * Функция создания записи
  */
 tableData newRecord() {
+
+    system("cls");
+    short coordY = 0, coordX=0;
+
     tableData newElement;
     cout << "FIO: ";
+
     char fio[FIO_LENGTH];
-    cin.getline(fio,FIO_LENGTH);
-    strcpy(newElement.fio,fio);
-    cout << "TABLE: ";
-    cin >> newElement.tableNumber;
+    cin.getline(fio, FIO_LENGTH);
+    strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
+    coordY++;
+
     newElement.ID = GLOBAL_COUNTER_ID++;
 
-    cout << "BIRTH YEAR: ";
-    cin >> newElement.birth_year;
 
-    cout << "SEX: ";
-    cin >> newElement.sex;
+
+
+    int exp;
+    int rang;
+    int roomNumber;
+    int bigRoomNumber;
+    int placeNumber;
+    float salary;
+
+    cout << "TABLE: ";
+    coordX = 7;
+    newElement.tableNumber = checkNumeral(coordX, coordY, 6);
+    coordY++;
+
+
+    cout << "BIRTH YEAR: ";
+    coordX = 12;
+    newElement.birth_year = checkNumeral(coordX,coordY);
+    coordY++;
+
+
+    cout << "SEX(0-male,1-female): ";
+    coordX = 24;
+    newElement.sex = checkNumeral(coordX, coordY,1);
+    coordY++;
+
 
     cout << "PROF: ";
+    coordX = 6;
     char prof[PROF_LENGTH];
     cin.getline(prof, PROF_LENGTH);
-    strcpy(newElement.prof,prof);
+    strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
+    coordY++;
 
-
+/*
     cout << "EXPERIENCE: ";
     cin >> newElement.exp;
 
@@ -234,7 +265,7 @@ tableData newRecord() {
     cin >> newElement.placeNumber;
 
     cout << "SALARY: ";
-    cin >> newElement.salary;
+    cin >> newElement.salary;*/
 
     return newElement;
 }
@@ -302,7 +333,8 @@ void view(list *top) {
         list *temp;
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.rang << endl;
+            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " " << temp->inf.birth_year <<
+                 " " << temp->inf.sex << " " << temp->inf.prof << endl;
         }
     }
     return;
@@ -323,7 +355,7 @@ void viewList(list *top) {
                     if (i++ == currentNum) {
                         SetColor(0, 8);
                     }
-                    cout << temp->inf.placeNumber << " " << temp->inf.salary << " " << temp->inf.rang << endl;
+                    cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
                     SetColor(7, 0);
                 }
 
@@ -405,24 +437,31 @@ int menu(const char **menuItems, const int itemsCount) {
 
 
 //*/
-long int checkNumeral(long int num){
+long int checkNumeral(short X, short Y, int maxDigitCount, long int num) {
     int key;
-    long int tempNum = num;
-    int currentDigitCount, maxDigitCount = 6, minDigitCount = 1;
+    int tempNum = num;
+    int currentDigitCount, minDigitCount = 0;
 
-    system("cls");
-    for (currentDigitCount=0; tempNum >= 1; currentDigitCount++){
+    for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
         tempNum = tempNum / 10;
     }
 
     tempNum = num;
 
-    while (key=getch()){
-        switch (key){
+    while (key = getch()) {
+        switch (key) {
 
-            case '0':case '1':case '2':case '3':case '4':
-            case '5':case '6':case '7':case '8':case '9':{
-                if (currentDigitCount <7) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                if (currentDigitCount < maxDigitCount) {
                     tempNum = tempNum * 10 + (key - '0');
                     currentDigitCount++;
                 }
@@ -430,15 +469,14 @@ long int checkNumeral(long int num){
             }
 
             case 8: {
-                if(currentDigitCount >0){
+                if (currentDigitCount > minDigitCount) {
                     tempNum = tempNum / 10;
                     currentDigitCount--;
                 }
                 break;
             }
 
-            case 13:{
-                getch();
+            case 13: {
                 return num = tempNum;
             }
 
@@ -446,16 +484,50 @@ long int checkNumeral(long int num){
                 return num;
             }
         }
+
+        gotoxy(X,Y);
+        cout << "       ";
+        gotoxy(X,Y);
+        cout << tempNum << endl;
     }
 }
 //*/
 
-char *toFormatFIO(char *str, const int length){
+
+
+/*
+ * ПРИВЕДЕНИЕ СИМВОЛОВ ФАМИЛИИ И ИНИЦИАЛОВ К ВЕРХНЕМУ РЕЕСТРУ
+ */
+char *strToFormat(char *str, const int length) {
     int i;
 
-    for(i = 0; i < length; i++){
 
+    for (i = 0; i < length; i++) {
+
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
+
+            continue;
+        } else {
+            str[i] = toupper(str[i]);
+        }
     }
+    //ДЛЯ ПРИВЕДЕНИЯ СИМВОЛОВ К НИЖНЕМУ РЕЕСТРУ
+
+    /*bool spaceCheck = true;
+
+    for (i = 0; i < length; i++) {
+
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
+            spaceCheck = true;
+            continue;
+        } else if (spaceCheck) {
+            spaceCheck = false;
+            str[i] = toupper(str[i]);
+        } else {
+            str[i] = tolower(str[i]);
+        }
+    }*/
+    return str;
 }
 /*/
 char *enterFIO(char *str, const int length){
