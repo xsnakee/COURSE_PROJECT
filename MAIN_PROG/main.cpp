@@ -313,13 +313,11 @@ void viewList(list *top) {
                 }
                 if (currentNum < 0) {
                     currentNum = countOfDisplayRecords - 1;
-                    currentL = currentL->pred;
                     for (i = 0, temp = currentL;
                          (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
                     startDisplay = temp;
                 } else if (currentNum > countOfDisplayRecords - 1 && currentL != NULL) {
                     currentNum = 0;
-                    currentL = currentL->next;
                     startDisplay = currentL;
                 }
             }
