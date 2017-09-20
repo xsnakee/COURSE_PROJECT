@@ -29,11 +29,20 @@ const char *acceptMessage[acceptMessageItemsCount] = {
         "DECLINE",
         "ACCEPT"
 };
-int GLOBAL_COUNTER = 0;
+int GLOBAL_COUNTER_ID = 0;
 struct tableData {
+    int ID;
+    int tableNumber;
     char fio[30];
-    int num;
-    int tokenNum;
+    int birth_year;
+    bool sex;
+    char prof[10];
+    int staj;
+    int rang;
+    int roomNumber;
+    int bigRoomNumber;
+    int placeNumber;
+    float salary;
 };
 
 struct list {
@@ -66,11 +75,6 @@ void view(list *top);
 void viewList(list *top);
 
 int menu(const char **menuItems, const int itemsCount);
-
-/*int drawInterface(char *Items);
-int drawInterface(table *Items);
-//*/
-
 
 
 /*
@@ -189,9 +193,9 @@ tableData newRecord() {
     tableData newElement;
     cout << "FIO: ";
     cin >> newElement.fio;
-    cout << "TOKEN: ";
-    cin >> newElement.tokenNum;
-    newElement.num = GLOBAL_COUNTER++;
+    cout << "TABLE*: ";
+    cin >> newElement.tableNumber;
+    newElement.ID = GLOBAL_COUNTER_ID++;
     //(!newElement.num) ? newElement.num = 0 : newElement.num++;
     return newElement;
 }
@@ -208,7 +212,6 @@ list *organizeList(list *top) {
         newAdress->pred = NULL;
         top = newAdress;
     }
-
     return top;
 }
 
@@ -227,8 +230,8 @@ int deleteList(list *top) {
         if (top == NULL && temp == NULL) return 1;
         else return 0;
     }
-
 }
+
 
 /*
  * Добавление записи в список
@@ -260,7 +263,7 @@ void view(list *top) {
         list *temp;
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.num << " " << temp->inf.tokenNum << " " << temp->inf.fio << endl;
+            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.rang << endl;
         }
     }
     return;
@@ -281,13 +284,13 @@ void viewList(list *top) {
                     if (i++ == currentNum) {
                         SetColor(0, 8);
                     }
-                    cout << temp->inf.num << " " << temp->inf.tokenNum << " " << temp->inf.fio << endl;
+                    cout << temp->inf.placeNumber << " " << temp->inf.salary << " " << temp->inf.rang << endl;
                     SetColor(7, 0);
                 }
 
                 switch (key = getch()) {
                     case 72: {
-                        if (currentL->inf.num != top->inf.num) {
+                        if (currentL->inf.ID != top->inf.ID) {
                             currentNum--;
                             currentL = currentL->pred;
                         }
@@ -313,6 +316,10 @@ void viewList(list *top) {
                 }
                 if (currentNum < 0) {
                     currentNum = countOfDisplayRecords - 1;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                     for (i = 0, temp = currentL;
                          (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
                     startDisplay = temp;
@@ -326,12 +333,12 @@ void viewList(list *top) {
 
 }
 
+
 int menu(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0, key;
     while (1) {
         system("cls");
         for (i = 0; i < itemsCount; i++) {
-
             if (i == currentItem) {
                 SetColor(0, 8);
             }
