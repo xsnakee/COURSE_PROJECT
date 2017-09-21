@@ -2,6 +2,8 @@
 #include <conio.h>
 #include <iostream>
 #include <windows.h>
+#include <iomanip>
+#include <math.h>
 
 using namespace std;
 /*
@@ -78,7 +80,9 @@ void viewList(list *top);
 
 int menu(const char **menuItems, const int itemsCount);
 
-long int checkNumeral(short X = 0, short Y = 0, int maxDigitCount = 4, long int num = 0 );
+long int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 4);
+
+float checkNumeralFloat(short X = 0, short Y = 0, float num = 0, int maxDigitCount = 8);
 
 char *strToFormat(char *str, const int length);
 
@@ -200,7 +204,7 @@ void readTheKey() {
 tableData newRecord() {
 
     system("cls");
-    short coordY = 0, coordX=0;
+    short coordY = 0, coordX = 0;
 
     tableData newElement;
     cout << "FIO: ";
@@ -213,8 +217,6 @@ tableData newRecord() {
     newElement.ID = GLOBAL_COUNTER_ID++;
 
 
-
-
     int exp;
     int rang;
     int roomNumber;
@@ -224,19 +226,19 @@ tableData newRecord() {
 
     cout << "TABLE: ";
     coordX = 7;
-    newElement.tableNumber = checkNumeral(coordX, coordY, 6);
+    newElement.tableNumber = checkNumeral(coordX, coordY, 0, 6);
     coordY++;
 
 
     cout << "BIRTH YEAR: ";
     coordX = 12;
-    newElement.birth_year = checkNumeral(coordX,coordY);
+    newElement.birth_year = checkNumeral(coordX, coordY);
     coordY++;
 
 
     cout << "SEX(0-male,1-female): ";
     coordX = 24;
-    newElement.sex = checkNumeral(coordX, coordY,1);
+    newElement.sex = checkNumeral(coordX, coordY, 0, 1);
     coordY++;
 
 
@@ -247,25 +249,35 @@ tableData newRecord() {
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
     coordY++;
 
-/*
-    cout << "EXPERIENCE: ";
-    cin >> newElement.exp;
 
+    cout << "EXPERIENCE: ";
+    coordX = 12;
+    newElement.exp = checkNumeral(coordX, coordY, 0, 2);
+    coordY++;
 
     cout << "RANG: ";
-    cin >> newElement.rang;
+    coordX = 6;
+    newElement.rang = checkNumeral(coordX, coordY, 0, 2);
+    coordY++;
 
     cout << "ROOM: ";
-    cin >> newElement.roomNumber;
+    coordX = 6;
+    newElement.roomNumber = checkNumeral(coordX, coordY, 0, 2);
+    coordY++;
 
     cout << "LARGE ROOM: ";
-    cin >> newElement.bigRoomNumber;
+    coordX = 12;
+    newElement.bigRoomNumber = checkNumeral(coordX, coordY, 0, 2);
+    coordY++;
 
     cout << "PLACE: ";
-    cin >> newElement.placeNumber;
+    coordX = 7;
+    newElement.placeNumber = checkNumeral(coordX, coordY, 0, 2);
+    coordY++;
 
     cout << "SALARY: ";
-    cin >> newElement.salary;*/
+    coordX = 8;
+    cin >> newElement.salary;
 
     return newElement;
 }
@@ -333,8 +345,9 @@ void view(list *top) {
         list *temp;
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " " << temp->inf.birth_year <<
-                 " " << temp->inf.sex << " " << temp->inf.prof << endl;
+            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " " << temp->inf.birth_year
+                 <<
+                 " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
         }
     }
     return;
@@ -437,9 +450,9 @@ int menu(const char **menuItems, const int itemsCount) {
 
 
 //*/
-long int checkNumeral(short X, short Y, int maxDigitCount, long int num) {
+long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
     int key;
-    int tempNum = num;
+    long int tempNum = num;
     int currentDigitCount, minDigitCount = 0;
 
     for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
@@ -485,50 +498,103 @@ long int checkNumeral(short X, short Y, int maxDigitCount, long int num) {
             }
         }
 
-        gotoxy(X,Y);
+        gotoxy(X, Y);
         cout << "       ";
-        gotoxy(X,Y);
+        gotoxy(X, Y);
         cout << tempNum << endl;
     }
 }
+
 //*/
+float checkNumeralFloat(short X, short Y, float num, int maxDigitCount) {
+    int key;
+    float tempNum = num, tempFract = 0;
+    bool point = false;
+    int currentDigitCount, tempDigitCount, minDigitCount = 0;
 
-
-
-/*
- * ПРИВЕДЕНИЕ СИМВОЛОВ ФАМИЛИИ И ИНИЦИАЛОВ К ВЕРХНЕМУ РЕЕСТРУ
- */
-char *strToFormat(char *str, const int length) {
-    int i;
-
-
-    for (i = 0; i < length; i++) {
-
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
-
-            continue;
-        } else {
-            str[i] = toupper(str[i]);
-        }
+    for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
+        tempNum = tempNum / 10;
     }
-    //ДЛЯ ПРИВЕДЕНИЯ СИМВОЛОВ К НИЖНЕМУ РЕЕСТРУ
 
-    /*bool spaceCheck = true;
+    tempNum = num;
+    tempDigitCount = currentDigitCount;
 
-    for (i = 0; i < length; i++) {
+    while (key = getch()) {
+        switch (key) {
 
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
-            spaceCheck = true;
-            continue;
-        } else if (spaceCheck) {
-            spaceCheck = false;
-            str[i] = toupper(str[i]);
-        } else {
-            str[i] = tolower(str[i]);
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                if (currentDigitCount < maxDigitCount) {
+                    if (!point) {
+                        tempNum = tempNum * 10 + (key - '0');
+                    } else {
+                        tempFract = (key - '0') / 10;
+                        tempNum += tempFract;
+                    }
+                    ++currentDigitCount;
+                }
+                break;
+            }
+
+            case 46: {
+                if (!point) {
+                    point = true;
+                    tempDigitCount = currentDigitCount;
+                    currentDigitCount = maxDigitCount - 3;
+                }
+                break;
+            }
+
+            case 8: {
+                if (currentDigitCount > minDigitCount) {
+                    if (!point) {
+                        tempNum = floor(tempNum / 10);
+                        tempDigitCount = --currentDigitCount;
+                    } else {
+                        if (currentDigitCount == maxDigitCount - 3) {
+                            point = false;
+                            currentDigitCount = tempDigitCount;
+                        } else if (currentDigitCount == maxDigitCount - 2) {
+                            tempFract = tempNum - floor(tempNum);
+                            tempNum -= tempFract;
+                            tempDigitCount = --currentDigitCount;
+                        } else {
+                            tempFract = tempNum - (floor(tempNum * 10) / 10);
+                            tempNum -= tempFract;
+                            tempDigitCount = --currentDigitCount;
+                        }
+
+                    }
+                }
+
+                break;
+            }
+
+            case 13: {
+                return tempNum;
+            }
+
+            case 27: {
+                return num;
+            }
         }
-    }*/
-    return str;
+
+        gotoxy(X, Y);
+        cout << "            " << setprecision(2);
+        gotoxy(X, Y);
+        cout << fixed << tempNum << endl;
+    }
 }
+
+
 /*/
 char *enterFIO(char *str, const int length){
     system("cls");
