@@ -74,19 +74,19 @@ int check(list *top);
 
 int deleteList(list *top);
 
+int deletePersonalData(list *&current);
+
 void view(list *top);
 
-void viewList(list *top);
+void viewList(list *&top);
 
 int menu(const char **menuItems, const int itemsCount);
 
 long int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 4);
 
-float checkNumeralFloat(short X = 0, short Y = 0, float num = 0, int maxDigitCount = 8);
-
 char *strToFormat(char *str, const int length);
 
-char *enterFIO(char *fio);
+void helpMenu();
 
 /*
  * MAIN FUNCTION
@@ -164,8 +164,6 @@ int main() {
             }
         }
     }
-    getchar();
-    return 0;
 }
 
 /*
@@ -207,22 +205,14 @@ tableData newRecord() {
     short coordY = 0, coordX = 0;
 
     tableData newElement;
-    cout << "FIO: ";
 
+    cout << "FIO: ";
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
     coordY++;
 
     newElement.ID = GLOBAL_COUNTER_ID++;
-
-
-    int exp;
-    int rang;
-    int roomNumber;
-    int bigRoomNumber;
-    int placeNumber;
-    float salary;
 
     cout << "TABLE: ";
     coordX = 7;
@@ -243,7 +233,6 @@ tableData newRecord() {
 
 
     cout << "PROF: ";
-    coordX = 6;
     char prof[PROF_LENGTH];
     cin.getline(prof, PROF_LENGTH);
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
@@ -277,7 +266,7 @@ tableData newRecord() {
 
     cout << "SALARY: ";
     coordX = 8;
-    cin >> newElement.salary;
+    newElement.salary = (float)checkNumeral(coordX, coordY, 0, 8);
 
     return newElement;
 }
@@ -314,6 +303,31 @@ int deleteList(list *top) {
     }
 }
 
+int deletePersonalData(list *&top, list *&current){
+
+    if (!check(current)){
+       if ( (current->pred == NULL) && (current->next == NULL) ){
+           delete current;
+           top = current = NULL;
+           return 0;
+       } else if (current->pred == NULL){
+           list *temp = current;
+           current = current->next;
+           current->pred = NULL;
+           top = current;
+           delete temp;
+           return 0;
+       } else {
+           list *temp = current;
+           temp->pred->next = current->next;
+           current = temp->pred;
+           delete temp;
+           return 0;
+       }
+    }
+    return 1;
+}
+
 
 /*
  * Добавление записи в список
@@ -334,7 +348,6 @@ list *addPerson(list *top) {
 
 int check(list *top) {
     if (top == NULL) {
-        cout << "Empty list!";
         return 1;
     }
     return 0;
@@ -346,21 +359,20 @@ void view(list *top) {
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
             cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " " << temp->inf.birth_year
-                 <<
-                 " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
+                 << " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
         }
     }
     return;
 }
 
-void viewList(list *top) {
+void viewList(list *&top) {
 
     while (1) {
         if (!check(top)) {
             list *currentL = top, *temp, *startDisplay = top;
             int countOfDisplayRecords = 10, i, currentNum = 0, key;
 
-            while (1) {
+            while (!check(top)) {
 
                 system("cls");
                 cout << "TABLE HEAD" << endl << endl << endl;
@@ -371,6 +383,7 @@ void viewList(list *top) {
                     cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
                     SetColor(7, 0);
                 }
+                helpMenu();
 
                 switch (key = getch()) {
                     case 72: {
@@ -388,7 +401,11 @@ void viewList(list *top) {
                         }
                         break;
                     }
-
+                    case 83:{
+                        deletePersonalData(top,currentL);
+                        currentNum--;
+                        break;
+                    }
                     case 13: {
                         //edit(currentL, currentNum+3);
                         break;
@@ -398,7 +415,7 @@ void viewList(list *top) {
                         return;
                     }
                 }
-                if (currentNum < 0) {
+                if (currentNum < 0 && currentL != NULL) {
                     currentNum = countOfDisplayRecords - 1;
 
                     for (i = 0, temp = currentL;
@@ -409,11 +426,17 @@ void viewList(list *top) {
                     startDisplay = currentL;
                 }
             }
+            cout << "EMPTY" << endl;
         } else return;
     }
 
 }
 
+void helpMenu(){
+    SetColor(7,1);
+    cout << endl << endl << "ESC - MENU | ENTER - EDIT | DEL - DELETE | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE";
+    SetColor(7,0);
+}
 
 int menu(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0, key;
@@ -461,8 +484,8 @@ long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
     tempNum = num;
 
-    while (key = getch()) {
-        switch (key) {
+    while (1) {
+        switch (key = getch()) {
 
             case '0':
             case '1':
@@ -499,110 +522,47 @@ long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
         }
 
         gotoxy(X, Y);
-        cout << "       ";
+        cout << "                   ";
         gotoxy(X, Y);
         cout << tempNum << endl;
     }
 }
 
 //*/
-float checkNumeralFloat(short X, short Y, float num, int maxDigitCount) {
-    int key;
-    float tempNum = num, tempFract = 0;
-    bool point = false;
-    int currentDigitCount, tempDigitCount, minDigitCount = 0;
 
-    for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
-        tempNum = tempNum / 10;
-    }
 
-    tempNum = num;
-    tempDigitCount = currentDigitCount;
 
-    while (key = getch()) {
-        switch (key) {
+/*
+ * ПРИВЕДЕНИЕ СИМВОЛОВ ФАМИЛИИ И ИНИЦИАЛОВ К ВЕРХНЕМУ РЕГИСТРУ
+ */
+char *strToFormat(char *str, const int length) {
+    int i;
 
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9': {
-                if (currentDigitCount < maxDigitCount) {
-                    if (!point) {
-                        tempNum = tempNum * 10 + (key - '0');
-                    } else {
-                        tempFract = (key - '0') / 10;
-                        tempNum += tempFract;
-                    }
-                    ++currentDigitCount;
-                }
-                break;
-            }
 
-            case 46: {
-                if (!point) {
-                    point = true;
-                    tempDigitCount = currentDigitCount;
-                    currentDigitCount = maxDigitCount - 3;
-                }
-                break;
-            }
+    for (i = 0; i < length; i++) {
 
-            case 8: {
-                if (currentDigitCount > minDigitCount) {
-                    if (!point) {
-                        tempNum = floor(tempNum / 10);
-                        tempDigitCount = --currentDigitCount;
-                    } else {
-                        if (currentDigitCount == maxDigitCount - 3) {
-                            point = false;
-                            currentDigitCount = tempDigitCount;
-                        } else if (currentDigitCount == maxDigitCount - 2) {
-                            tempFract = tempNum - floor(tempNum);
-                            tempNum -= tempFract;
-                            tempDigitCount = --currentDigitCount;
-                        } else {
-                            tempFract = tempNum - (floor(tempNum * 10) / 10);
-                            tempNum -= tempFract;
-                            tempDigitCount = --currentDigitCount;
-                        }
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
 
-                    }
-                }
-
-                break;
-            }
-
-            case 13: {
-                return tempNum;
-            }
-
-            case 27: {
-                return num;
-            }
+            continue;
+        } else {
+            str[i] = toupper(str[i]);
         }
-
-        gotoxy(X, Y);
-        cout << "            " << setprecision(2);
-        gotoxy(X, Y);
-        cout << fixed << tempNum << endl;
     }
+    //ДЛЯ ПРИВЕДЕНИЯ СИМВОЛОВ К НИЖНЕМУ РЕЕСТРУ
+
+    /*bool spaceCheck = true;
+
+    for (i = 0; i < length; i++) {
+
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //если i-тый элемент пробел или знак - пропуск
+            spaceCheck = true;
+            continue;
+        } else if (spaceCheck) {
+            spaceCheck = false;
+            str[i] = toupper(str[i]);
+        } else {
+            str[i] = tolower(str[i]);
+        }
+    }*/
+    return str;
 }
-
-
-/*/
-char *enterFIO(char *str, const int length){
-    system("cls");
-    int key;
-    cout << "FIO: " << str;
-
-    char fio[FIO_LENGTH];
-    cin.getline(fio,FIO_LENGTH);
-    strcpy(newElement.fio,fio);
-}
-//*/
