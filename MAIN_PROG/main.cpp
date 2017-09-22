@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <iostream>
+#include <fstream>
 #include <windows.h>
 #include <iomanip>
 #include <math.h>
@@ -31,9 +32,26 @@ const char *acceptMessage[acceptMessageItemsCount] = {
         "DECLINE",
         "ACCEPT"
 };
-int GLOBAL_COUNTER_ID = 0;
+
+const int saveFileMessageItemsCount = 2;
+const char *saveFileMessage[saveFileMessageItemsCount] = {
+        "SAVE",
+        "SAVE AS"
+};
+
+const int saveRequestItemsCount = 2;
+const char *saveRequest[saveFileMessageItemsCount] = {
+        "BINARY FILE",
+        "TEXT FILE"
+};
+
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
+const int FILE_NAME_LENGTH = 256;
+char fileName[FILE_NAME_LENGTH];
+
+int GLOBAL_COUNTER_ID = 0;
+int key;
 struct tableData {
     int ID;
     long int tableNumber;
@@ -48,6 +66,8 @@ struct tableData {
     int placeNumber;
     float salary;
 };
+
+const int TABLE_DATA_SIZE = sizeof(tableData);
 
 struct list {
     tableData inf;
@@ -66,6 +86,8 @@ void readTheKey();
 
 tableData newRecord();
 
+int saveBinaryFile(list *&top, char *fileName);
+
 list *organizeList(list *top);
 
 list *addPerson(list *top);
@@ -74,7 +96,7 @@ int check(list *top);
 
 int deleteList(list *top);
 
-int deletePersonalData(list *&current);
+list *deletePersonalData(list *&top, list *current);
 
 void view(list *top);
 
@@ -136,6 +158,68 @@ int main() {
                 break;
             }
             case 7: {
+                switch (menu(saveRequest, saveRequestItemsCount)) {
+                    case 0: {
+                        switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
+                            case 0: {
+                                if (!saveBinaryFile(listHead, fileName)) {
+                                    cout << "FILE SAVED" << endl;
+                                }
+                                break;
+                            }
+                            case 1: {
+                                char newFileName[FILE_NAME_LENGTH];
+                                cout << "ENTER FILE NAME: ";
+                                cin.getline(newFileName, FILE_NAME_LENGTH);
+
+                                if (!saveBinaryFile(listHead, fileName)) {
+                                    cout << "FILE SAVED" << endl;
+                                    strcpy(fileName, newFileName);
+                                } else {
+                                    cout << "FILE NOT SAVED!" << endl;
+                                }
+                                break;
+                            }
+                            case 27:{
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+                    /*/
+                     case 1: {
+                        switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
+                            case 0: {
+                                if (!saveTextFile(listHead, fileName)) {
+                                    cout << "FILE SAVED" << endl;
+                                }
+                                break;
+                            }
+                            case 1: {
+                                char newFileName[FILE_NAME_LENGTH];
+                                cout << "ENTER FILE NAME: ";
+                                cin.getline(newFileName, FILE_NAME_LENGTH);
+
+                                if (!saveTextFile(listHead, fileName)) {
+                                    cout << "FILE SAVED" << endl;
+                                    strcpy(fileName, newFileName);
+                                } else {
+                                    cout << "FILE NOT SAVED!" << endl;
+                                }
+                                    break;
+                            }
+                            case 27:{
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    //*/
+                    case 27:{
+                        break;
+                    }
+                }
                 cout << "7";
                 getch();
                 break;
@@ -266,9 +350,29 @@ tableData newRecord() {
 
     cout << "SALARY: ";
     coordX = 8;
-    newElement.salary = (float)checkNumeral(coordX, coordY, 0, 8);
+    newElement.salary = (float) checkNumeral(coordX, coordY, 0, 8);
 
     return newElement;
+}
+
+
+/*
+ * СОХРАНЕНИЕ В ФАЙЛ
+ */
+int saveBinaryFile(list *&top, char *fileName) {
+    system("cls");
+    if (!check(top)) {
+        list *temp;
+        ofstream _InBynaryFile(fileName, ios::binary);
+        for (temp = top; temp != NULL; temp = temp->next) {
+            _InBynaryFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+        }
+        _InBynaryFile.close();
+        return 0;
+    } else {
+        return 1;
+    }
+
 }
 
 /*
@@ -303,29 +407,28 @@ int deleteList(list *top) {
     }
 }
 
-int deletePersonalData(list *&top, list *&current){
+list *deletePersonalData(list *&top, list *current) {
 
-    if (!check(current)){
-       if ( (current->pred == NULL) && (current->next == NULL) ){
-           delete current;
-           top = current = NULL;
-           return 0;
-       } else if (current->pred == NULL){
-           list *temp = current;
-           current = current->next;
-           current->pred = NULL;
-           top = current;
-           delete temp;
-           return 0;
-       } else {
-           list *temp = current;
-           temp->pred->next = current->next;
-           current = temp->pred;
-           delete temp;
-           return 0;
-       }
+    if (!check(current)) {
+        if ((current->pred == NULL) && (current->next == NULL)) {
+            delete current;
+            top = current = NULL;
+            return current;
+        } else if (current->pred == NULL) {
+            list *temp = current;
+            current = current->next;
+            current->pred = NULL;
+            top = current;
+            delete temp;
+            return current;
+        } else {
+            list *temp = current;
+            temp->pred->next = current->next;
+            current = temp->pred;
+            delete temp;
+            return current;
+        }
     }
-    return 1;
 }
 
 
@@ -358,7 +461,8 @@ void view(list *top) {
         list *temp;
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " " << temp->inf.birth_year
+            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " "
+                 << temp->inf.birth_year
                  << " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
         }
     }
@@ -370,7 +474,7 @@ void viewList(list *&top) {
     while (1) {
         if (!check(top)) {
             list *currentL = top, *temp, *startDisplay = top;
-            int countOfDisplayRecords = 10, i, currentNum = 0, key;
+            int countOfDisplayRecords = 10, i, currentNum = 0;
 
             while (!check(top)) {
 
@@ -401,8 +505,8 @@ void viewList(list *&top) {
                         }
                         break;
                     }
-                    case 83:{
-                        deletePersonalData(top,currentL);
+                    case 83: {
+                        currentL = deletePersonalData(top, currentL);
                         currentNum--;
                         break;
                     }
@@ -432,14 +536,14 @@ void viewList(list *&top) {
 
 }
 
-void helpMenu(){
-    SetColor(7,1);
+void helpMenu() {
+    SetColor(7, 1);
     cout << endl << endl << "ESC - MENU | ENTER - EDIT | DEL - DELETE | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE";
-    SetColor(7,0);
+    SetColor(7, 0);
 }
 
 int menu(const char **menuItems, const int itemsCount) {
-    int currentItem = 0, i = 0, key;
+    int currentItem = 0, i = 0;
     while (1) {
         system("cls");
         for (i = 0; i < itemsCount; i++) {
@@ -465,7 +569,7 @@ int menu(const char **menuItems, const int itemsCount) {
                 break;
             }
             case 27: {
-                exit(0);
+                return 27;
             }
         }
     }
@@ -474,7 +578,7 @@ int menu(const char **menuItems, const int itemsCount) {
 
 //*/
 long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
-    int key;
+
     long int tempNum = num;
     int currentDigitCount, minDigitCount = 0;
 
