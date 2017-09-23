@@ -48,7 +48,7 @@ const char *saveRequest[saveFileMessageItemsCount] = {
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
-char fileName[FILE_NAME_LENGTH];
+char openFileName[FILE_NAME_LENGTH];
 
 int GLOBAL_COUNTER_ID = 0;
 int key;
@@ -86,7 +86,7 @@ void readTheKey();
 
 tableData newRecord();
 
-int saveBinaryFile(list *&top, char *fileName);
+int saveFile(list *top, char *fileName, bool mode = 1);
 
 list *organizeList(list *top);
 
@@ -162,7 +162,7 @@ int main() {
                     case 0: {
                         switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
                             case 0: {
-                                if (!saveBinaryFile(listHead, fileName)) {
+                                if (!saveFile(listHead, openFileName, 1)) {
                                     cout << "FILE SAVED" << endl;
                                 }
                                 break;
@@ -172,26 +172,26 @@ int main() {
                                 cout << "ENTER FILE NAME: ";
                                 cin.getline(newFileName, FILE_NAME_LENGTH);
 
-                                if (!saveBinaryFile(listHead, fileName)) {
+                                if (!saveFile(listHead, newFileName, 1)) {
                                     cout << "FILE SAVED" << endl;
-                                    strcpy(fileName, newFileName);
+                                    strcpy(openFileName, newFileName);
                                 } else {
                                     cout << "FILE NOT SAVED!" << endl;
                                 }
                                 break;
                             }
-                            case 27:{
+                            case 27: {
                                 break;
                             }
                         }
 
                         break;
                     }
-                    /*/
-                     case 1: {
+
+                    case 1: {
                         switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
                             case 0: {
-                                if (!saveTextFile(listHead, fileName)) {
+                                if (!saveFile(listHead, openFileName, 0)) {
                                     cout << "FILE SAVED" << endl;
                                 }
                                 break;
@@ -201,22 +201,22 @@ int main() {
                                 cout << "ENTER FILE NAME: ";
                                 cin.getline(newFileName, FILE_NAME_LENGTH);
 
-                                if (!saveTextFile(listHead, fileName)) {
+                                if (!saveFile(listHead, newFileName, 0)) {
                                     cout << "FILE SAVED" << endl;
-                                    strcpy(fileName, newFileName);
+                                    strcpy(openFileName, newFileName);
                                 } else {
                                     cout << "FILE NOT SAVED!" << endl;
                                 }
-                                    break;
+                                break;
                             }
-                            case 27:{
+                            case 27: {
                                 break;
                             }
                         }
                         break;
                     }
-                    //*/
-                    case 27:{
+                        //*/
+                    case 27: {
                         break;
                     }
                 }
@@ -358,17 +358,34 @@ tableData newRecord() {
 
 /*
  * СОХРАНЕНИЕ В ФАЙЛ
+ * mode:
+    * 0 - текстовый файл
+    * 1 - бинарный
  */
-int saveBinaryFile(list *&top, char *fileName) {
+int saveFile(list *top, char *fileName, bool mode) {
     system("cls");
     if (!check(top)) {
         list *temp;
-        ofstream _InBynaryFile(fileName, ios::binary);
-        for (temp = top; temp != NULL; temp = temp->next) {
-            _InBynaryFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+        ofstream outFile;//(fileName, ios::out | ios::binary);
+
+        if (mode) {
+            strcpy(fileName, ".bin");
+            outFile.open(fileName, ios::out | ios::binary);
+        } else {
+            strcpy(fileName, ".txt");
+            outFile.open(fileName, ios::out);
         }
-        _InBynaryFile.close();
-        return 0;
+
+        if (outFile) {
+            for (temp = top; temp != NULL; temp = temp->next) {
+                outFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+            }
+
+            outFile.close();
+            return 0;
+        } else {
+            return 1;
+        }
     } else {
         return 1;
     }
