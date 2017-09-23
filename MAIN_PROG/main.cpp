@@ -1,10 +1,8 @@
-#include <stdio.h>
 #include <conio.h>
 #include <iostream>
 #include <fstream>
 #include <windows.h>
 #include <iomanip>
-#include <math.h>
 
 using namespace std;
 /*
@@ -88,19 +86,21 @@ tableData newRecord();
 
 int saveFile(list *top, char *fileName, bool mode = 1);
 
-list *organizeList(list *top, tableData personalData);
+int loadFile(list *&top, char *fileName);
 
-list *addPerson(list *top, tableData personalData);
+list *organizeList(list *&top, tableData personalData);
+
+list *addPerson(list *&top, tableData personalData);
 
 int check(list *top);
 
 int deleteList(list *top);
 
-int deletePersonalData(list *&current);
+list *deletePersonalData(list *current);
 
 void view(list *top);
 
-void viewList(list *&top);
+void viewList(list *&listHead);
 
 int menu(const char **menuItems, const int itemsCount);
 
@@ -114,11 +114,16 @@ void helpMenu();
  * MAIN FUNCTION
  */
 int main() {
-    cout << "Hello, World!" << std::endl;
+
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
-                listHead = organizeList(listHead, newRecord());
+                if (check(listHead)) {
+                    organizeList(listHead, newRecord());
+                    cout << "DATA ADD!" << endl;
+                } else {
+                    cout << "LIST WAS CREATED!" << endl;
+                }
                 cout << "0";
                 getch();
                 break;
@@ -130,7 +135,12 @@ int main() {
                 break;
             }
             case 0: {
-                listHead = addPerson(listHead, newRecord());
+                if (!check(listHead)) {
+                    addPerson(listHead, newRecord());
+                    cout << "DATA ADD!" << endl;
+                } else {
+                    cout << "LIST NOT CREATED!" << endl;
+                }
                 cout << "2";
                 getch();
                 break;
@@ -225,7 +235,13 @@ int main() {
                 break;
             }
             case 8: {
-                cout << "8";
+                cout << "ENTER FILE NAME: ";
+                cin.getline(openFileName, FILE_NAME_LENGTH);
+                if (!loadFile(listHead, openFileName)) {
+                    cout << "FILE IS OPENED!" << endl;
+                } else {
+                    cout << "FILE NOT OPENED!" << endl;
+                }
                 getch();
                 break;
             }
@@ -393,9 +409,47 @@ int saveFile(list *top, char *fileName, bool mode) {
 }
 
 /*
+ * ЗАГРУЗКА ИЗ ФАЙЛА
+ * mode:
+    * 0 - текстовый файл
+    * 1 - бинарный файл
+ */
+
+int loadFile(list *&top, char *fileName) {
+
+    if (check(top)) {
+        ifstream InFile;
+
+        if (strstr(fileName, ".txt") != NULL) {
+            InFile.open(fileName, ios::in);
+        } else {
+            InFile.open(fileName, ios::in | ios::binary);
+        }
+
+        if (InFile) {
+            tableData tempInfo;
+            while (InFile.readsome((char *) &tempInfo, TABLE_DATA_SIZE)) {
+                if (check(top)) {
+                    organizeList(top, tempInfo);
+                } else {
+                    addPerson(top, tempInfo);
+                }
+            }
+            InFile.close();
+            return 0;
+        } else {
+            return -1;
+        }
+    } else {
+        return 1;
+    }
+}
+
+
+/*
  * Организация списка
  */
-list *organizeList(list *top, tableData personalData) {
+list *organizeList(list *&top, tableData personalData) {
     if (top == NULL) {
         struct list *newAdress = new list;
         newAdress->inf = personalData;
@@ -423,39 +477,37 @@ int deleteList(list *top) {
     }
 }
 
-int deletePersonalData(list *&current) {
+list *deletePersonalData(list *current) {
 
     if (!check(current)) {
         if ((current->pred == NULL) && (current->next == NULL)) {
             delete current;
             current = NULL;
-            return 0;
         } else if ((current->pred == NULL) && (current->next != NULL)) {
             list *temp = current;
             current = current->next;
             current->pred = NULL;
             delete temp;
-            return 1;
         } else if (current->next == NULL) {
             list *temp = current;
             current = current->pred;
             delete temp;
-            return 2;
         } else {
             list *temp = current;
             current->pred->next = current->next;
             current = temp->pred;
             delete temp;
-            return 3;
         }
     }
+
+    return current;
 }
 
 
 /*
  * Добавление записи в список
  */
-list *addPerson(list *top, tableData personalData) {
+list *addPerson(list *&top, tableData personalData) {
     if (!check(top)) {
         list *temp;
         for (temp = top; temp->next != NULL; temp = temp->next);
@@ -488,12 +540,12 @@ void view(list *top) {
     return;
 }
 
-void viewList(list *&top) {
-    if (!check(top)) {
-        list *currentL = top, *temp, *startDisplay = top;
+void viewList(list *&listHead) {
+    if (!check(listHead)) {
+        list *currentL = listHead, *temp, *startDisplay = listHead;
         int countOfDisplayRecords = 10, i, currentNum = 0;
 
-        while (!check(currentL)) {
+        while (!check(listHead)) {
 
             system("cls");
             cout << "TABLE HEAD" << endl << endl << endl;
@@ -508,7 +560,7 @@ void viewList(list *&top) {
 
             switch (key = getch()) {
                 case 72: {
-                    if (currentL->inf.ID != top->inf.ID) {
+                    if (currentL->inf.ID != listHead->inf.ID) {
                         currentNum--;
                         currentL = currentL->pred;
                     }
@@ -516,24 +568,14 @@ void viewList(list *&top) {
                 }
 
                 case 80: {
-                    if (currentL->next != NULL) {
+                    if (!check(currentL->next)) {
                         currentNum++;
                         currentL = currentL->next;
                     }
                     break;
                 }
                 case 83: {
-                    /*short int result = deletePersonalData(currentL);
-                    if ((result == 0) | (result == 1)){
-                        cout << "EMPTY LIST!" << endl;
-                        return;
-                    } else {
-                        currentNum--;
-                    }*/
-                    list *deletedTemp = currentL;
-                    currentL = currentL->pred;
-                    currentNum--;
-                    delete deletedTemp;
+                    currentL = deletePersonalData(*&currentL);
                     break;
                 }
                 case 13: {
@@ -658,8 +700,6 @@ long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 }
 
 //*/
-
-
 
 /*
  * ПРИВЕДЕНИЕ СИМВОЛОВ ФАМИЛИИ И ИНИЦИАЛОВ К ВЕРХНЕМУ РЕГИСТРУ
