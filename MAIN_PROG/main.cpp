@@ -41,8 +41,8 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
 
 const int saveRequestItemsCount = 2;
 const char *saveRequest[saveFileMessageItemsCount] = {
-        "BINARY FILE",
-        "TEXT FILE"
+        "BINARY FILE(.bin)",
+        "TEXT FILE(.txt)"
 };
 
 const int FIO_LENGTH = 20;
@@ -88,15 +88,15 @@ tableData newRecord();
 
 int saveFile(list *top, char *fileName, bool mode = 1);
 
-list *organizeList(list *top);
+list *organizeList(list *top, tableData personalData);
 
-list *addPerson(list *top);
+list *addPerson(list *top, tableData personalData);
 
 int check(list *top);
 
 int deleteList(list *top);
 
-list *deletePersonalData(list *&top, list *current);
+int deletePersonalData(list *&current);
 
 void view(list *top);
 
@@ -118,7 +118,7 @@ int main() {
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
-                listHead = organizeList(listHead);
+                listHead = organizeList(listHead, newRecord());
                 cout << "0";
                 getch();
                 break;
@@ -130,7 +130,7 @@ int main() {
                 break;
             }
             case 0: {
-                listHead = addPerson(listHead);
+                listHead = addPerson(listHead, newRecord());
                 cout << "2";
                 getch();
                 break;
@@ -366,7 +366,7 @@ int saveFile(list *top, char *fileName, bool mode) {
     system("cls");
     if (!check(top)) {
         list *temp;
-        ofstream outFile;//(fileName, ios::out | ios::binary);
+        ofstream outFile;
 
         if (mode) {
             strcpy(fileName, ".bin");
@@ -395,9 +395,8 @@ int saveFile(list *top, char *fileName, bool mode) {
 /*
  * Организация списка
  */
-list *organizeList(list *top) {
+list *organizeList(list *top, tableData personalData) {
     if (top == NULL) {
-        tableData personalData = newRecord();
         struct list *newAdress = new list;
         newAdress->inf = personalData;
         newAdress->next = NULL;
@@ -424,26 +423,30 @@ int deleteList(list *top) {
     }
 }
 
-list *deletePersonalData(list *&top, list *current) {
+int deletePersonalData(list *&current) {
 
     if (!check(current)) {
         if ((current->pred == NULL) && (current->next == NULL)) {
             delete current;
-            top = current = NULL;
-            return current;
-        } else if (current->pred == NULL) {
+            current = NULL;
+            return 0;
+        } else if ((current->pred == NULL) && (current->next != NULL)) {
             list *temp = current;
             current = current->next;
             current->pred = NULL;
-            top = current;
             delete temp;
-            return current;
+            return 1;
+        } else if (current->next == NULL) {
+            list *temp = current;
+            current = current->pred;
+            delete temp;
+            return 2;
         } else {
             list *temp = current;
-            temp->pred->next = current->next;
+            current->pred->next = current->next;
             current = temp->pred;
             delete temp;
-            return current;
+            return 3;
         }
     }
 }
@@ -452,11 +455,10 @@ list *deletePersonalData(list *&top, list *current) {
 /*
  * Добавление записи в список
  */
-list *addPerson(list *top) {
+list *addPerson(list *top, tableData personalData) {
     if (!check(top)) {
         list *temp;
-        for (temp = top; temp->next != NULL; temp = temp->next) {}
-        tableData personalData = newRecord();
+        for (temp = top; temp->next != NULL; temp = temp->next);
         list *New = new list;
         New->inf = personalData;
         New->next = NULL;
@@ -487,69 +489,75 @@ void view(list *top) {
 }
 
 void viewList(list *&top) {
+    if (!check(top)) {
+        list *currentL = top, *temp, *startDisplay = top;
+        int countOfDisplayRecords = 10, i, currentNum = 0;
 
-    while (1) {
-        if (!check(top)) {
-            list *currentL = top, *temp, *startDisplay = top;
-            int countOfDisplayRecords = 10, i, currentNum = 0;
+        while (!check(currentL)) {
 
-            while (!check(top)) {
-
-                system("cls");
-                cout << "TABLE HEAD" << endl << endl << endl;
-                for (i = 0, temp = startDisplay; (i < countOfDisplayRecords) && (temp != NULL); temp = temp->next) {
-                    if (i++ == currentNum) {
-                        SetColor(0, 8);
-                    }
-                    cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
-                    SetColor(7, 0);
+            system("cls");
+            cout << "TABLE HEAD" << endl << endl << endl;
+            for (i = 0, temp = startDisplay; (i < countOfDisplayRecords) && (temp != NULL); temp = temp->next) {
+                if (i++ == currentNum) {
+                    SetColor(0, 8);
                 }
-                helpMenu();
+                cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
+                SetColor(7, 0);
+            }
+            helpMenu();
 
-                switch (key = getch()) {
-                    case 72: {
-                        if (currentL->inf.ID != top->inf.ID) {
-                            currentNum--;
-                            currentL = currentL->pred;
-                        }
-                        break;
-                    }
-
-                    case 80: {
-                        if (currentL->next != NULL) {
-                            currentNum++;
-                            currentL = currentL->next;
-                        }
-                        break;
-                    }
-                    case 83: {
-                        currentL = deletePersonalData(top, currentL);
+            switch (key = getch()) {
+                case 72: {
+                    if (currentL->inf.ID != top->inf.ID) {
                         currentNum--;
-                        break;
+                        currentL = currentL->pred;
                     }
-                    case 13: {
-                        //edit(currentL, currentNum+3);
-                        break;
-                    }
-
-                    case 27: {
-                        return;
-                    }
+                    break;
                 }
-                if (currentNum < 0 && currentL != NULL) {
-                    currentNum = countOfDisplayRecords - 1;
 
-                    for (i = 0, temp = currentL;
-                         (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
-                    startDisplay = temp;
-                } else if (currentNum > countOfDisplayRecords - 1 && currentL != NULL) {
-                    currentNum = 0;
-                    startDisplay = currentL;
+                case 80: {
+                    if (currentL->next != NULL) {
+                        currentNum++;
+                        currentL = currentL->next;
+                    }
+                    break;
+                }
+                case 83: {
+                    /*short int result = deletePersonalData(currentL);
+                    if ((result == 0) | (result == 1)){
+                        cout << "EMPTY LIST!" << endl;
+                        return;
+                    } else {
+                        currentNum--;
+                    }*/
+                    list *deletedTemp = currentL;
+                    currentL = currentL->pred;
+                    currentNum--;
+                    delete deletedTemp;
+                    break;
+                }
+                case 13: {
+                    //edit(currentL, currentNum+3);
+                    break;
+                }
+
+                case 27: {
+                    return;
                 }
             }
-            cout << "EMPTY" << endl;
-        } else return;
-    }
+            if (currentNum < 0 && currentL != NULL) {
+                currentNum = countOfDisplayRecords - 1;
+
+                for (i = 0, temp = currentL;
+                     (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
+                startDisplay = temp;
+            } else if (currentNum > countOfDisplayRecords - 1 && currentL != NULL) {
+                currentNum = 0;
+                startDisplay = currentL;
+            }
+        }
+        cout << "EMPTY" << endl;
+    } else return;
 
 }
 
