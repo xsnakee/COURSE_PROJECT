@@ -47,6 +47,7 @@ const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
 char openFileName[FILE_NAME_LENGTH];
+const short int countOfDisplayRecords = 10;
 
 int GLOBAL_COUNTER_ID = 0;
 int key;
@@ -96,11 +97,15 @@ int check(list *top);
 
 int deleteList(list *top);
 
-list *deletePersonalData(list *current);
+list *deletePersonalData(list *&current);
 
 void view(list *top);
 
 void viewList(list *&listHead);
+
+int showAndEditList (list *&top);
+
+list *viewOnePage(list *firstRec);
 
 int menu(const char **menuItems, const int itemsCount);
 
@@ -130,6 +135,7 @@ int main() {
             }
             case 1: {
                 viewList(listHead);
+                //showAndEditList(listHead);
                 cout << "1";
                 getch();
                 break;
@@ -168,76 +174,35 @@ int main() {
                 break;
             }
             case 7: {
-                switch (menu(saveRequest, saveRequestItemsCount)) {
-                    case 0: {
-                        switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
-                            case 0: {
-                                if (!saveFile(listHead, openFileName, 1)) {
-                                    cout << "FILE SAVED" << endl;
-                                }
-                                break;
-                            }
-                            case 1: {
-                                char newFileName[FILE_NAME_LENGTH];
-                                cout << "ENTER FILE NAME: ";
-                                cin.getline(newFileName, FILE_NAME_LENGTH);
-
-                                if (!saveFile(listHead, newFileName, 1)) {
-                                    cout << "FILE SAVED" << endl;
-                                    strcpy(openFileName, newFileName);
-                                } else {
-                                    cout << "FILE NOT SAVED!" << endl;
-                                }
-                                break;
-                            }
-                            case 27: {
-                                break;
-                            }
-                        }
-
-                        break;
+                if (strlen(openFileName) > 1) {
+                    if (!saveFile(listHead, openFileName)) {
+                        cout << "FILE SAVED" << endl;
+                    } else {
+                        cout << "FILE NOT SAVED!" << endl;
                     }
-
-                    case 1: {
-                        switch (menu(saveFileMessage, saveFileMessageItemsCount)) {
-                            case 0: {
-                                if (!saveFile(listHead, openFileName, 0)) {
-                                    cout << "FILE SAVED" << endl;
-                                }
-                                break;
-                            }
-                            case 1: {
-                                char newFileName[FILE_NAME_LENGTH];
-                                cout << "ENTER FILE NAME: ";
-                                cin.getline(newFileName, FILE_NAME_LENGTH);
-
-                                if (!saveFile(listHead, newFileName, 0)) {
-                                    cout << "FILE SAVED" << endl;
-                                    strcpy(openFileName, newFileName);
-                                } else {
-                                    cout << "FILE NOT SAVED!" << endl;
-                                }
-                                break;
-                            }
-                            case 27: {
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                        //*/
-                    case 27: {
-                        break;
+                } else {
+                    char newFileName[FILE_NAME_LENGTH];
+                    cout << "ENTER FILE NAME: ";
+                    cin.getline(newFileName, FILE_NAME_LENGTH);
+                    if (!saveFile(listHead, newFileName, 1)) {
+                        cout << "FILE SAVED" << endl;
+                        strcpy(openFileName, newFileName);
+                    } else {
+                        cout << "FILE NOT SAVED!" << endl;
                     }
                 }
+                getch();
+                break;
+
+
                 cout << "7";
                 getch();
                 break;
             }
             case 8: {
-                cout << "ENTER FILE NAME: ";
-                cin.getline(openFileName, FILE_NAME_LENGTH);
-                if (!loadFile(listHead, openFileName)) {
+                //cout << "ENTER FILE NAME: ";
+                //cin.getline(openFileName, FILE_NAME_LENGTH);
+                if (!loadFile(listHead, /*openFileName*/ "2.bin")) {
                     cout << "FILE IS OPENED!" << endl;
                 } else {
                     cout << "FILE NOT OPENED!" << endl;
@@ -264,6 +229,7 @@ int main() {
             }
         }
     }
+
 }
 
 /*
@@ -384,12 +350,11 @@ int saveFile(list *top, char *fileName, bool mode) {
         list *temp;
         ofstream outFile;
 
-        if (mode) {
-            strcpy(fileName, ".bin");
-            outFile.open(fileName, ios::out | ios::binary);
-        } else {
-            strcpy(fileName, ".txt");
+        if (strstr(fileName, ".txt")) {
             outFile.open(fileName, ios::out);
+        } else {
+            strstr(fileName, ".bin");
+            outFile.open(fileName, ios::out | ios::binary);
         }
 
         if (outFile) {
@@ -477,7 +442,7 @@ int deleteList(list *top) {
     }
 }
 
-list *deletePersonalData(list *current) {
+list *deletePersonalData(list *&current) {
 
     if (!check(current)) {
         if ((current->pred == NULL) && (current->next == NULL)) {
@@ -542,40 +507,67 @@ void view(list *top) {
 
 void viewList(list *&listHead) {
     if (!check(listHead)) {
-        list *currentL = listHead, *temp, *startDisplay = listHead;
-        int countOfDisplayRecords = 10, i, currentNum = 0;
+        list *currentL, *temp, *startDisplay;
+        int i, currentNum = 0;
+        currentL = listHead;
+        startDisplay = currentL;
 
-        while (!check(listHead)) {
+        while (listHead != NULL) {
 
             system("cls");
-            cout << "TABLE HEAD" << endl << endl << endl;
-            for (i = 0, temp = startDisplay; (i < countOfDisplayRecords) && (temp != NULL); temp = temp->next) {
-                if (i++ == currentNum) {
-                    SetColor(0, 8);
+            temp = startDisplay;
+
+            for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->next){
+                if (i == currentNum){
+                    SetColor(0, 7);
                 }
                 cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
-                SetColor(7, 0);
-            }
+                SetColor(8, 0);
+            };
+
             helpMenu();
+
 
             switch (key = getch()) {
                 case 72: {
-                    if (currentL->inf.ID != listHead->inf.ID) {
-                        currentNum--;
+                    if (currentL->pred != NULL) {
+                        --currentNum;
                         currentL = currentL->pred;
                     }
                     break;
                 }
 
                 case 80: {
-                    if (!check(currentL->next)) {
-                        currentNum++;
+                    if (currentL->next != NULL) {
+                        ++currentNum;
                         currentL = currentL->next;
                     }
                     break;
                 }
+
+                case 75:{
+                    currentNum = 0;
+                    temp = startDisplay;
+                    for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                    if (check(temp)){
+                        temp = startDisplay;
+                    }
+                    startDisplay = currentL = temp;
+                    break;
+                }
+
+                case 77:{
+                    currentNum = 0;
+                    temp = startDisplay;
+                    for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->next);
+                    if (check(temp)){
+                        temp = startDisplay;
+                    }
+                    startDisplay = currentL = temp;
+                    break;
+                }
                 case 83: {
-                    currentL = deletePersonalData(*&currentL);
+                    deletePersonalData(currentL);
                     break;
                 }
                 case 13: {
@@ -587,20 +579,97 @@ void viewList(list *&listHead) {
                     return;
                 }
             }
-            if (currentNum < 0 && currentL != NULL) {
-                currentNum = countOfDisplayRecords - 1;
 
-                for (i = 0, temp = currentL;
-                     (i < countOfDisplayRecords) && (temp->pred != NULL); i++, temp = temp->pred);
-                startDisplay = temp;
-            } else if (currentNum > countOfDisplayRecords - 1 && currentL != NULL) {
+            if (currentNum > countOfDisplayRecords - 1){
                 currentNum = 0;
                 startDisplay = currentL;
+
+            } else if (currentNum < 0){
+                currentNum = countOfDisplayRecords;
+
+                temp = startDisplay;
+                for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                if (check(temp)){
+                    temp = startDisplay;
+                }
+                startDisplay = temp;
             }
+
+            /*if (currentNum < 0 && currentL != NULL) {
+                currentNum = countOfDisplayRecords - 1;
+
+                for (i = 1, temp = currentL;
+                     (i < countOfDisplayRecords+1) && (temp->pred != NULL); i++, temp = temp->pred);
+                startDisplay = temp;
+            } else if (currentNum > countOfDisplayRecords && currentL != NULL) {
+                currentNum = 0;
+                startDisplay = currentL;
+            }*/
         }
         cout << "EMPTY" << endl;
     } else return;
 
+}
+
+int showAndEditList(list *&top){
+    int i;
+    list *currentRec, *startRec;
+
+    if (check(top)){
+        cout << "EMPTY LIST" << endl;
+        return -1;
+    }
+
+    currentRec = top;
+
+    while (1){
+        startRec = currentRec;
+
+        currentRec = viewOnePage(currentRec);
+
+        switch (key = getch()){
+            case 27: {
+                return 0;
+            }
+            case 13: case 72: case 80:{
+                if (check(currentRec)) {
+                    currentRec = startRec;
+                }
+                break;
+            }
+            case 75:{
+                currentRec = startRec;
+                for (i=1; (i<countOfDisplayRecords) && (!check(currentRec)); i++){
+                    currentRec = currentRec->pred;
+                }
+                if (check(currentRec)) currentRec = top;
+                break;
+            }
+            case 77:{
+                currentRec = startRec;
+                for (i=1; (i<countOfDisplayRecords) && (!check(currentRec)); i++){
+                    currentRec = currentRec->next;
+                }
+                if (check(currentRec)) currentRec = top;
+                break;
+            }
+        }
+    }
+}
+
+list *viewOnePage(list *currentRec){
+    int i = 0;
+    system("cls");
+    cout << "TABLE HEAD" << endl << endl << endl;
+    while (!check(currentRec)) {
+        cout << currentRec->inf.ID << " " << currentRec->inf.fio << " " << currentRec->inf.tableNumber << endl;
+        currentRec = currentRec->next;
+        i++;
+        if (i>countOfDisplayRecords) {
+            break;
+        }
+    }
+    return currentRec;
 }
 
 void helpMenu() {
