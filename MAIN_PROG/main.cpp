@@ -103,10 +103,6 @@ void view(list *top);
 
 void viewList(list *&listHead);
 
-int showAndEditList(list *&top);
-
-list *viewOnePage(list *firstRec);
-
 int menu(const char **menuItems, const int itemsCount);
 
 long int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 4);
@@ -608,69 +604,6 @@ void viewList(list *&listHead) {
         cout << "EMPTY" << endl;
     } else return;
 
-}
-
-int showAndEditList(list *&top) {
-    int i;
-    list *currentRec, *startRec;
-
-    if (check(top)) {
-        cout << "EMPTY LIST" << endl;
-        return -1;
-    }
-
-    currentRec = top;
-
-    while (1) {
-        startRec = currentRec;
-
-        currentRec = viewOnePage(currentRec);
-
-        switch (key = getch()) {
-            case 27: {
-                return 0;
-            }
-            case 13:
-            case 72:
-            case 80: {
-                if (check(currentRec)) {
-                    currentRec = startRec;
-                }
-                break;
-            }
-            case 75: {
-                currentRec = startRec;
-                for (i = 1; (i < countOfDisplayRecords) && (!check(currentRec)); i++) {
-                    currentRec = currentRec->pred;
-                }
-                if (check(currentRec)) currentRec = top;
-                break;
-            }
-            case 77: {
-                currentRec = startRec;
-                for (i = 1; (i < countOfDisplayRecords) && (!check(currentRec)); i++) {
-                    currentRec = currentRec->next;
-                }
-                if (check(currentRec)) currentRec = top;
-                break;
-            }
-        }
-    }
-}
-
-list *viewOnePage(list *currentRec) {
-    int i = 0;
-    system("cls");
-    cout << "TABLE HEAD" << endl << endl << endl;
-    while (!check(currentRec)) {
-        cout << currentRec->inf.ID << " " << currentRec->inf.fio << " " << currentRec->inf.tableNumber << endl;
-        currentRec = currentRec->next;
-        i++;
-        if (i > countOfDisplayRecords) {
-            break;
-        }
-    }
-    return currentRec;
 }
 
 void helpMenu() {
