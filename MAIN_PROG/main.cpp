@@ -103,7 +103,7 @@ void view(list *top);
 
 void viewList(list *&listHead);
 
-int showAndEditList (list *&top);
+int showAndEditList(list *&top);
 
 list *viewOnePage(list *firstRec);
 
@@ -508,7 +508,7 @@ void view(list *top) {
 void viewList(list *&listHead) {
     if (!check(listHead)) {
         list *currentL, *temp, *startDisplay;
-        int i, currentNum = 0;
+        int i, currentNum = 1;
         currentL = listHead;
         startDisplay = currentL;
 
@@ -517,12 +517,12 @@ void viewList(list *&listHead) {
             system("cls");
             temp = startDisplay;
 
-            for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->next){
-                if (i == currentNum){
-                    SetColor(0, 7);
+            for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->next, i++) {
+                if (i == currentNum) {
+                    SetColor(0, 8);
                 }
                 cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
-                SetColor(8, 0);
+                SetColor(7, 0);
             };
 
             helpMenu();
@@ -545,22 +545,22 @@ void viewList(list *&listHead) {
                     break;
                 }
 
-                case 75:{
-                    currentNum = 0;
+                case 75: {
+                    currentNum = 1;
                     temp = startDisplay;
-                    for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
-                    if (check(temp)){
+                    for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                    if (check(temp)) {
                         temp = startDisplay;
                     }
                     startDisplay = currentL = temp;
                     break;
                 }
 
-                case 77:{
-                    currentNum = 0;
+                case 77: {
+                    currentNum = 1;
                     temp = startDisplay;
-                    for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->next);
-                    if (check(temp)){
+                    for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->next);
+                    if (check(temp)) {
                         temp = startDisplay;
                     }
                     startDisplay = currentL = temp;
@@ -580,16 +580,15 @@ void viewList(list *&listHead) {
                 }
             }
 
-            if (currentNum > countOfDisplayRecords - 1){
-                currentNum = 0;
+            if (currentNum > countOfDisplayRecords) {
+                currentNum = 1;
                 startDisplay = currentL;
-
-            } else if (currentNum < 0){
+            } else if (currentNum < 1) {
                 currentNum = countOfDisplayRecords;
 
                 temp = startDisplay;
-                for (i = 0; (i++ < countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
-                if (check(temp)){
+                for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                if (check(temp)) {
                     temp = startDisplay;
                 }
                 startDisplay = temp;
@@ -611,43 +610,45 @@ void viewList(list *&listHead) {
 
 }
 
-int showAndEditList(list *&top){
+int showAndEditList(list *&top) {
     int i;
     list *currentRec, *startRec;
 
-    if (check(top)){
+    if (check(top)) {
         cout << "EMPTY LIST" << endl;
         return -1;
     }
 
     currentRec = top;
 
-    while (1){
+    while (1) {
         startRec = currentRec;
 
         currentRec = viewOnePage(currentRec);
 
-        switch (key = getch()){
+        switch (key = getch()) {
             case 27: {
                 return 0;
             }
-            case 13: case 72: case 80:{
+            case 13:
+            case 72:
+            case 80: {
                 if (check(currentRec)) {
                     currentRec = startRec;
                 }
                 break;
             }
-            case 75:{
+            case 75: {
                 currentRec = startRec;
-                for (i=1; (i<countOfDisplayRecords) && (!check(currentRec)); i++){
+                for (i = 1; (i < countOfDisplayRecords) && (!check(currentRec)); i++) {
                     currentRec = currentRec->pred;
                 }
                 if (check(currentRec)) currentRec = top;
                 break;
             }
-            case 77:{
+            case 77: {
                 currentRec = startRec;
-                for (i=1; (i<countOfDisplayRecords) && (!check(currentRec)); i++){
+                for (i = 1; (i < countOfDisplayRecords) && (!check(currentRec)); i++) {
                     currentRec = currentRec->next;
                 }
                 if (check(currentRec)) currentRec = top;
@@ -657,7 +658,7 @@ int showAndEditList(list *&top){
     }
 }
 
-list *viewOnePage(list *currentRec){
+list *viewOnePage(list *currentRec) {
     int i = 0;
     system("cls");
     cout << "TABLE HEAD" << endl << endl << endl;
@@ -665,7 +666,7 @@ list *viewOnePage(list *currentRec){
         cout << currentRec->inf.ID << " " << currentRec->inf.fio << " " << currentRec->inf.tableNumber << endl;
         currentRec = currentRec->next;
         i++;
-        if (i>countOfDisplayRecords) {
+        if (i > countOfDisplayRecords) {
             break;
         }
     }
