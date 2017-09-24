@@ -71,7 +71,7 @@ const int TABLE_DATA_SIZE = sizeof(tableData);
 struct list {
     tableData inf;
     struct list *next, *pred;
-} *listHead = NULL;
+} *listHead = NULL, *listEnd = NULL;
 
 
 /*
@@ -87,17 +87,17 @@ tableData newRecord();
 
 int saveFile(list *top, char *fileName, bool mode = 1);
 
-int loadFile(list *&top, char *fileName);
+int loadFile(list *&top, list *&end, char *fileName);
 
-list *organizeList(list *&top, tableData personalData);
+list *organizeList(list *&top, list *&end, tableData personalData);
 
-list *addPerson(list *&top, tableData personalData);
+list *addPerson(list *&end, tableData personalData);
 
 int check(list *top);
 
 int deleteList(list *top);
 
-list *deletePersonalData(list *&current);
+void deletePersonalData(list *&current);
 
 void view(list *top);
 
@@ -120,7 +120,7 @@ int main() {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
                 if (check(listHead)) {
-                    organizeList(listHead, newRecord());
+                    organizeList(listHead, listEnd, newRecord());
                     cout << "DATA ADD!" << endl;
                 } else {
                     cout << "LIST WAS CREATED!" << endl;
@@ -138,7 +138,7 @@ int main() {
             }
             case 0: {
                 if (!check(listHead)) {
-                    addPerson(listHead, newRecord());
+                    addPerson(listEnd, newRecord());
                     cout << "DATA ADD!" << endl;
                 } else {
                     cout << "LIST NOT CREATED!" << endl;
@@ -198,7 +198,7 @@ int main() {
             case 8: {
                 //cout << "ENTER FILE NAME: ";
                 //cin.getline(openFileName, FILE_NAME_LENGTH);
-                if (!loadFile(listHead, /*openFileName*/ "2.bin")) {
+                if (!loadFile(listHead, listEnd, /*openFileName*/ "2.bin")) {
                     cout << "FILE IS OPENED!" << endl;
                 } else {
                     cout << "FILE NOT OPENED!" << endl;
@@ -376,7 +376,7 @@ int saveFile(list *top, char *fileName, bool mode) {
     * 1 - бинарный файл
  */
 
-int loadFile(list *&top, char *fileName) {
+int loadFile(list *&top, list *&end, char *fileName) {
 
     if (check(top)) {
         ifstream InFile;
@@ -391,9 +391,9 @@ int loadFile(list *&top, char *fileName) {
             tableData tempInfo;
             while (InFile.readsome((char *) &tempInfo, TABLE_DATA_SIZE)) {
                 if (check(top)) {
-                    organizeList(top, tempInfo);
+                    organizeList(top, end, tempInfo);
                 } else {
-                    addPerson(top, tempInfo);
+                    addPerson(end ,tempInfo);
                 }
             }
             InFile.close();
@@ -410,13 +410,13 @@ int loadFile(list *&top, char *fileName) {
 /*
  * Организация списка
  */
-list *organizeList(list *&top, tableData personalData) {
+list *organizeList(list *&top, list *&end, tableData personalData) {
     if (top == NULL) {
         struct list *newAdress = new list;
         newAdress->inf = personalData;
         newAdress->next = NULL;
         newAdress->pred = NULL;
-        top = newAdress;
+        end = top = newAdress;
     }
     return top;
 }
@@ -438,50 +438,48 @@ int deleteList(list *top) {
     }
 }
 
-list *deletePersonalData(list *&current) {
+void deletePersonalData(list *&current) {
 
-    if (!check(current)) {
-        if ((current->pred == NULL) && (current->next == NULL)) {
-            delete current;
-            current = NULL;
-        } else if ((current->pred == NULL) && (current->next != NULL)) {
-            list *temp = current;
-            current = current->next;
-            current->pred = NULL;
-            delete temp;
-        } else if (current->next == NULL) {
-            list *temp = current;
-            current = current->pred;
-            delete temp;
-        } else {
-            list *temp = current;
-            current->pred->next = current->next;
-            current = temp->pred;
-            delete temp;
-        }
+    if ((current->pred == NULL) && (current->next == NULL)) {
+        current = NULL;
+    } else if (current->pred == NULL) {
+        list *temp = current;
+        temp = temp->next;
+        temp->pred = NULL;
+
+    } else if (current->next == NULL) {
+
+        list *temp = current;
+        temp = temp->pred;
+        temp->next = NULL;
+
+    } else {
+        list *temp = current;
+        temp->pred->next = temp->next;
+        temp->next->pred = temp->pred;
     }
 
-    return current;
+    delete current;
+    return;
 }
 
 
 /*
  * Добавление записи в список
  */
-list *addPerson(list *&top, tableData personalData) {
-    if (!check(top)) {
-        list *temp;
-        for (temp = top; temp->next != NULL; temp = temp->next);
+list *addPerson(list *&end, tableData personalData) {
+    if (end != NULL) {
         list *New = new list;
         New->inf = personalData;
         New->next = NULL;
-        New->pred = temp;
-        temp->next = New;
+        New->pred = end;
+        end->next = New;
+        end = New;
     }
-    return top;
+    return end;
 }
 
-int check(list *top) {
+int check(list *&top) {
     if (top == NULL) {
         return 1;
     }
@@ -563,7 +561,15 @@ void viewList(list *&listHead) {
                     break;
                 }
                 case 83: {
-                    deletePersonalData(currentL);
+                    list *temp = currentL;
+                    currentL = currentL->pred;
+                    currentL->next = currentL->next->next;
+
+                    deletePersonalData(temp);
+
+                    gotoxy(0,30);
+                    view(listHead);
+                    getch();
                     break;
                 }
                 case 13: {
