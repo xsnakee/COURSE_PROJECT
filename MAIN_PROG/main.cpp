@@ -93,15 +93,15 @@ list *organizeList(list *&top, list *&end, tableData personalData);
 
 list *addPerson(list *&end, tableData personalData);
 
-int check(list *top);
+int check(list *&top);
 
 int deleteList(list *top);
 
-void deletePersonalData(list *&current);
+int deletePersonalData(list *&listHead, list *&listEnd, list *current);
 
-void view(list *top);
+void view(list *&top);
 
-void viewList(list *&listHead);
+void viewList(list *&listHead, list *&end);
 
 int menu(const char **menuItems, const int itemsCount);
 
@@ -130,7 +130,7 @@ int main() {
                 break;
             }
             case 1: {
-                viewList(listHead);
+                viewList(listHead, listEnd);
                 //showAndEditList(listHead);
                 cout << "1";
                 getch();
@@ -393,7 +393,7 @@ int loadFile(list *&top, list *&end, char *fileName) {
                 if (check(top)) {
                     organizeList(top, end, tempInfo);
                 } else {
-                    addPerson(end ,tempInfo);
+                    addPerson(end, tempInfo);
                 }
             }
             InFile.close();
@@ -438,7 +438,7 @@ int deleteList(list *top) {
     }
 }
 
-void deletePersonalData(list *&current) {
+/*void deletePersonalData(list *&current) {
 
     if ((current->pred == NULL) && (current->next == NULL)) {
         current = NULL;
@@ -461,8 +461,33 @@ void deletePersonalData(list *&current) {
 
     delete current;
     return;
-}
+}*/
 
+int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
+    if ((current == listHead) && (current == listEnd)) //удаление единственного элемента
+    {
+        listHead = NULL;
+        listEnd = NULL;
+        delete current;
+        return 0;
+    } else if (current == listHead) { //удаление из начала списка
+
+        listHead = listHead->next;
+        listHead->pred = NULL;
+        delete current;
+        return 1;
+    } else if (current == listEnd) {//удаление с конца
+        listEnd = listEnd->pred;
+        listEnd->next = NULL;
+        delete current;
+        return 2;
+    } else { //удаление из середины
+        current->pred->next = current->next; //связать предыдущий со следующим
+        current->next->pred = current->pred; //связать следующий с предыдущим
+        delete current;
+        return 3;
+    }
+}
 
 /*
  * Добавление записи в список
@@ -486,7 +511,7 @@ int check(list *&top) {
     return 0;
 }
 
-void view(list *top) {
+void view(list *&top) {
     if (!check(top)) {
         list *temp;
         system("cls");
@@ -499,12 +524,12 @@ void view(list *top) {
     return;
 }
 
-void viewList(list *&listHead) {
+void viewList(list *&listHead, list *&listEnd) {
     if (!check(listHead)) {
         list *currentL, *temp, *startDisplay;
         int i, currentNum = 1;
-        currentL = listHead;
-        startDisplay = currentL;
+        short int delResult;
+        startDisplay = currentL = listHead;
 
         while (listHead != NULL) {
 
@@ -561,15 +586,28 @@ void viewList(list *&listHead) {
                     break;
                 }
                 case 83: {
-                    list *temp = currentL;
-                    currentL = currentL->pred;
-                    currentL->next = currentL->next->next;
+                    /*if ((currentL == startDisplay) && (currentL->pred != NULL)){
+                        startDisplay = temp = currentL = currentL->next;
+                        deletePersonalData(listHead, listEnd, currentL->pred);
+                        currentNum = 1;
+                        delResult = -1;
+                    } else {*/
+                    if (currentL == listHead) {
+                        delResult = deletePersonalData(listHead, listEnd, currentL);
+                        currentL = startDisplay = listHead;
+                        currentNum = 1;
+                    } else {
+                        if (currentL == startDisplay) {
+                            temp = startDisplay;
+                            for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                            startDisplay = temp;
+                        }
+                        currentL = currentL->pred;
+                        delResult = deletePersonalData(listHead, listEnd, currentL->next);
+                        currentNum--;
 
-                    deletePersonalData(temp);
+                    }
 
-                    gotoxy(0,30);
-                    view(listHead);
-                    getch();
                     break;
                 }
                 case 13: {
@@ -585,8 +623,10 @@ void viewList(list *&listHead) {
             if (currentNum > countOfDisplayRecords) {
                 currentNum = 1;
                 startDisplay = currentL;
-            } else if (currentNum < 1) {
+            } else if ((currentNum < 1)) {
+
                 currentNum = countOfDisplayRecords;
+
 
                 temp = startDisplay;
                 for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
@@ -607,7 +647,9 @@ void viewList(list *&listHead) {
                 startDisplay = currentL;
             }*/
         }
-        cout << "EMPTY" << endl;
+
+        cout << "EMPTY" <<
+             endl;
     } else return;
 
 }
