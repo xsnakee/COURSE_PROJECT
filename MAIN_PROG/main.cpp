@@ -75,23 +75,19 @@ void SetColor(int text, int background);
 
 void readTheKey();
 
-void readTheAplpha();
-
 tableData newRecord();
 
 int saveFile(list *top, char *fileName, bool mode = 1);
 
 int loadFile(list *&top, list *&end, char *fileName);
 
-list *organizeList(list *&top, list *&end, tableData personalData);
+int organizeList(list *&top, list *&end, tableData personalData);
 
-list *addPerson(list *&end, tableData personalData);
+int addPerson(list *&end, tableData personalData);
 
 int deleteList(list *&top);
 
 int deletePersonalData(list *&listHead, list *&listEnd, list *current);
-
-void view(list *&top);
 
 void viewList(list *&listHead, list *&end);
 
@@ -119,12 +115,14 @@ int main() {
 
             case 0: {
                 if (listHead != NULL) {
-                    addPerson(listEnd, newRecord());
-                    printf("DATA ADDED!");
+                    if (!addPerson(listEnd, newRecord())){
+                        printf("DATA ADDED!");
+                        getch();
+                    }
                 } else {
                     printf("LIST NOT CREATED!");
+                    getch();
                 }
-                getch();
                 break;
             }
 
@@ -141,12 +139,14 @@ int main() {
 
             case 2: {
                 if (listHead == NULL) {
-                    organizeList(listHead, listEnd, newRecord());
-                    printf("DATA ADDED!");
+                    if (!organizeList(listHead, listEnd, newRecord())){
+                        printf("DATA ADDED!");
+                        getch();
+                    }
                 } else {
                     printf("LIST WAS CREATED!");
+                    getch();
                 }
-                getch();
                 break;
             }
 
@@ -164,7 +164,6 @@ int main() {
             }
 
             case 5: {
-                readTheAplpha();
                 cout << "5";
                 getch();
                 break;
@@ -296,18 +295,6 @@ void readTheKey() {
     }
 }
 
-/*
- * Функция проверки кода клавиш
- */
-void readTheAplpha() {
-    while (char key = getch()) {
-        cout << key << endl;
-        if (key == 13) {
-            printf("Will exit");
-            return;
-        }
-    }
-}
 
 
 /*
@@ -502,21 +489,22 @@ int loadFile(list *&top, list *&end, char *fileName) {
 /*
  * Организация списка
  */
-list *organizeList(list *&top, list *&end, tableData personalData) {
+int organizeList(list *&top, list *&end, tableData personalData) {
     if ((top == NULL) && (personalData.personalNumber != -1)) {
         struct list *newAdress = new list;
         newAdress->inf = personalData;
         newAdress->next = NULL;
         newAdress->pred = NULL;
         end = top = newAdress;
+        return 0;
     }
-    return top;
+    return 1;
 }
 
 /*
  * Добавление записи в список
  */
-list *addPerson(list *&end, tableData personalData) {
+int addPerson(list *&end, tableData personalData) {
     if ((end != NULL) && (personalData.personalNumber != -1)) {
         list *New = new list;
         New->inf = personalData;
@@ -524,8 +512,9 @@ list *addPerson(list *&end, tableData personalData) {
         New->pred = end;
         end->next = New;
         end = New;
+        return 0;
     }
-    return end;
+    return 1;
 }
 
 int deleteList(list *&top) {
