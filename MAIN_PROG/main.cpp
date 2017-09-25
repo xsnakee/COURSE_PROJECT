@@ -116,60 +116,71 @@ int main() {
 
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
-            case 2: {
-                if (listHead == NULL) {
-                    organizeList(listHead, listEnd, newRecord());
-                    printf("DATA ADD!");
-                } else {
-                    printf("LIST WAS CREATED!");
-                }
-                cout << "0";
-                getch();
-                break;
-            }
-            case 1: {
-                viewList(listHead, listEnd);
-                cout << "1";
-                getch();
-                break;
-            }
+
             case 0: {
                 if (listHead != NULL) {
                     addPerson(listEnd, newRecord());
-                    printf("DATA ADD!");
+                    printf("DATA ADDED!");
                 } else {
                     printf("LIST NOT CREATED!");
                 }
-                cout << "2";
                 getch();
                 break;
             }
+
+            case 1: {
+                if (listHead != NULL) {
+                    viewList(listHead, listEnd);
+                } else {
+                    printf("EMPTY LIST");
+                    getch();
+                }
+
+                break;
+            }
+
+            case 2: {
+                if (listHead == NULL) {
+                    organizeList(listHead, listEnd, newRecord());
+                    printf("DATA ADDED!");
+                } else {
+                    printf("LIST WAS CREATED!");
+                }
+                getch();
+                break;
+            }
+
             case 3: {
                 cout << "3";
                 getch();
                 break;
             }
+
             case 4: {
                 cout << "4";
                 readTheKey();
                 getch();
                 break;
             }
+
             case 5: {
                 readTheAplpha();
                 cout << "5";
                 getch();
                 break;
             }
+
             case 6: {
                 cout << "6";
                 getch();
                 break;
             }
+
             case 7: {
+                gotoxy(0,17);
                 if (listHead != NULL){
                     if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
-                        printf("REWRITE FILE?:");
+                        printf("REWRITE?:");
                         if(menuInterface(acceptMessage,acceptMessageItemsCount)){
                             if (!saveFile(listHead, openFileName)) {
                                 printf("FILE SAVED");
@@ -203,11 +214,15 @@ int main() {
                 getch();
                 break;
             }
+
+
             case 8: {
                 printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?");
                 if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-
                     deleteList(listHead);
+                    gotoxy(0,17);
+                    for (int k = 0 ; (k < (console_row_length )) ; k++) putch(' ');
+                    gotoxy(0,17);
 
                     printf("ENTER FILE NAME: ");
                     cin.getline(openFileName, FILE_NAME_LENGTH);
@@ -224,20 +239,21 @@ int main() {
                 getch();
                 break;
             }
+
             case 9: {
                 cout << "9";
                 getch();
                 break;
             }
-            case 10: {
 
+            case 10: {
                 cout << "10";
                 getch();
                 break;
             }
-            case 11: {
-                cout << "11";
-                getch();
+
+            case 11: case 27:{
+                printf("EXIT?");
                 if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                     deleteList(listHead);
                     exit(0);
@@ -299,12 +315,17 @@ void readTheAplpha() {
  */
 tableData newRecord() {
 
-    system("cls");
-    short coordY = 0, coordX = 0;
-
+    unsigned coordY = 0, coordX = 0;
     tableData newElement;
 
-    gotoxy(0, coordY);
+    system("cls");
+    printf("ENTER PERSONAL DATA OR PRESS ESC to main menu: \n");
+    if (getch() == 27) {
+        newElement.personalNumber = -1;
+        return newElement;
+    }
+
+
     printf("FIO: ");
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
@@ -317,8 +338,8 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("TABLE: ");
-    coordX = 7;
+    printf("PERSONAL NUMBER: ");
+    coordX = 17;
     int personal_number;
     int checkResult = 0;
     do {
@@ -482,7 +503,7 @@ int loadFile(list *&top, list *&end, char *fileName) {
  * Организация списка
  */
 list *organizeList(list *&top, list *&end, tableData personalData) {
-    if (top == NULL) {
+    if ((top == NULL) && (personalData.personalNumber != -1)) {
         struct list *newAdress = new list;
         newAdress->inf = personalData;
         newAdress->next = NULL;
@@ -490,6 +511,21 @@ list *organizeList(list *&top, list *&end, tableData personalData) {
         end = top = newAdress;
     }
     return top;
+}
+
+/*
+ * Добавление записи в список
+ */
+list *addPerson(list *&end, tableData personalData) {
+    if ((end != NULL) && (personalData.personalNumber != -1)) {
+        list *New = new list;
+        New->inf = personalData;
+        New->next = NULL;
+        New->pred = end;
+        end->next = New;
+        end = New;
+    }
+    return end;
 }
 
 int deleteList(list *&top) {
@@ -534,20 +570,7 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
     }
 }
 
-/*
- * Добавление записи в список
- */
-list *addPerson(list *&end, tableData personalData) {
-    if (end != NULL) {
-        list *New = new list;
-        New->inf = personalData;
-        New->next = NULL;
-        New->pred = end;
-        end->next = New;
-        end = New;
-    }
-    return end;
-}
+
 
 /*
  * РЕДАКТИРОВАНИЕ ЗАПИСИ
