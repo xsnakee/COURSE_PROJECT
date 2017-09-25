@@ -39,28 +39,28 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
 
 const int saveRequestItemsCount = 2;
 const char *saveRequest[saveFileMessageItemsCount] = {
-        "BINARY FILE(.bin)",
-        "TEXT FILE(.txt)"
+        "BINARY FILE(*.bin)",
+        "TEXT FILE(*.txt)"
 };
 
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
+unsigned console_row_length = 80;
 char openFileName[FILE_NAME_LENGTH];
 const unsigned countOfDisplayRecords = 10;
 
 int key;
 struct tableData {
-    long int tableNumber;
+    int personalNumber;
     char fio[FIO_LENGTH];
     int birth_year;
     bool sex;
     char prof[PROF_LENGTH];
     int exp;
-    int rang;
-    int roomNumber;
-    int bigRoomNumber;
-    int placeNumber;
+    int rank;
+    int factoryNumber;
+    int deportmentNumber;
     float salary;
 };
 
@@ -93,8 +93,6 @@ list *organizeList(list *&top, list *&end, tableData personalData);
 
 list *addPerson(list *&end, tableData personalData);
 
-int check(list *&top);
-
 int deleteList(list *top);
 
 int deletePersonalData(list *&listHead, list *&listEnd, list *current);
@@ -109,9 +107,11 @@ unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDig
 
 char *strToFormat(char *str, const int length);
 
-unsigned checkTableNum(int num, list *top);
+unsigned checkPersonalNumber(int num, list *top);
 
-void helpMenu();
+void drawHelpMenu();
+
+void drawFullInfoTable();
 
 /*
  * MAIN FUNCTION
@@ -119,10 +119,19 @@ void helpMenu();
 int main() {
 
     cout << setprecision(2) << fixed;
+    strcpy(openFileName, "test_2.bin");
+    if (!loadFile(listHead, listEnd, openFileName)) {
+        cout << "FILE IS OPENED!" << endl;
+    } else {
+        cout << "FILE NOT OPENED!" << endl;
+    }
+
+    view(listHead);
+    getch();
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
-                if (check(listHead)) {
+                if (listHead == NULL) {
                     organizeList(listHead, listEnd, newRecord());
                     cout << "DATA ADD!" << endl;
                 } else {
@@ -140,7 +149,7 @@ int main() {
                 break;
             }
             case 0: {
-                if (!check(listHead)) {
+                if (listHead != NULL) {
                     addPerson(listEnd, newRecord());
                     cout << "DATA ADD!" << endl;
                 } else {
@@ -188,6 +197,10 @@ int main() {
                     char newFileName[FILE_NAME_LENGTH];
                     cout << "ENTER FILE NAME: ";
                     cin.getline(newFileName, FILE_NAME_LENGTH);
+                    if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+                        cin.clear();            //СБОРС ОШИБКА ПОТОКА
+                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+                    }
                     if (!saveFile(listHead, newFileName, 1)) {
                         cout << "FILE SAVED" << endl;
                         strcpy(openFileName, newFileName);
@@ -197,16 +210,17 @@ int main() {
                 }
                 getch();
                 break;
-
-
-                cout << "7";
-                getch();
-                break;
             }
             case 8: {
-                //cout << "ENTER FILE NAME: ";
-                //cin.getline(openFileName, FILE_NAME_LENGTH);
-                if (!loadFile(listHead, listEnd, /*openFileName*/ "2.bin")) {
+                /*/cout << "ENTER FILE NAME: ";
+                cin.getline(openFileName, FILE_NAME_LENGTH);
+                if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+                    cin.clear();            //СБОРС ОШИБКА ПОТОКА
+                    cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+                }
+                 //*/
+                strcpy(openFileName, "test_2.bin");
+                if (!loadFile(listHead, listEnd, openFileName)) {
                     cout << "FILE IS OPENED!" << endl;
                 } else {
                     cout << "FILE NOT OPENED!" << endl;
@@ -305,7 +319,7 @@ tableData newRecord() {
     gotoxy(0, coordY);
     cout << "TABLE: ";
     coordX = 7;
-    int table_number;
+    int personal_number;
     int checkResult = 0;
     do {
         if (checkResult){
@@ -313,11 +327,11 @@ tableData newRecord() {
             cout << "RECORD WITH SUCH DATA EXISTS!";
             getch();
         }
-        table_number = checkNumeral(coordX, coordY, 0, 6);
-    } while (checkResult = checkTableNum(table_number, listHead));
+        personal_number = checkNumeral(coordX, coordY, 0, 6);
+    } while (checkResult = checkPersonalNumber(personal_number, listHead));
     gotoxy(coordX+11,coordY);
     cout << "                                           ";
-    newElement.tableNumber = table_number;
+    newElement.personalNumber = personal_number;
     coordY++;
 
 
@@ -362,27 +376,21 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "RANG: ";
+    cout << "rank: ";
     coordX = 6;
-    newElement.rang = checkNumeral(coordX, coordY, 0);
+    newElement.rank = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
     cout << "ROOM: ";
     coordX = 6;
-    newElement.roomNumber = checkNumeral(coordX, coordY, 0);
-    coordY++;
-
-    gotoxy(0, coordY);
-    cout << "LARGE ROOM: ";
-    coordX = 12;
-    newElement.bigRoomNumber = checkNumeral(coordX, coordY, 0);
+    newElement.factoryNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
     cout << "PLACE: ";
     coordX = 7;
-    newElement.placeNumber = checkNumeral(coordX, coordY, 0);
+    newElement.deportmentNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
@@ -402,7 +410,7 @@ tableData newRecord() {
  */
 int saveFile(list *top, char *fileName, bool mode) {
     system("cls");
-    if (!check(top)) {
+    if (top != NULL) {
         list *temp;
         ofstream outFile;
 
@@ -438,7 +446,7 @@ int saveFile(list *top, char *fileName, bool mode) {
 
 int loadFile(list *&top, list *&end, char *fileName) {
 
-    if (check(top)) {
+    if (top == NULL) {
         ifstream InFile;
 
         if (strstr(fileName, ".txt") != NULL) {
@@ -449,8 +457,8 @@ int loadFile(list *&top, list *&end, char *fileName) {
 
         if (InFile) {
             tableData tempInfo;
-            while (InFile.readsome((char *) &tempInfo, TABLE_DATA_SIZE)) {
-                if (check(top)) {
+            while (InFile.read((char *) &tempInfo, TABLE_DATA_SIZE)) {
+                if (top == NULL) {
                     organizeList(top, end, tempInfo);
                 } else {
                     addPerson(end, tempInfo);
@@ -483,7 +491,7 @@ list *organizeList(list *&top, list *&end, tableData personalData) {
 
 int deleteList(list *top) {
 
-    if (!check(top)) {
+    if (top != NULL) {
         list *temp;
 
         int i = 0;
@@ -546,29 +554,31 @@ tableData *editData(tableData current) {
     unsigned currentNum;
 }
 
-
-int check(list *&top) {
-    if (top == NULL) {
-        return 1;
-    }
-    return 0;
-}
-
 void view(list *&top) {
-    if (!check(top)) {
+    if (top != NULL) {
         list *temp;
         system("cls");
+        
+        drawFullInfoTable();
+
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.fio << " " << temp->inf.tableNumber << " "
-                 << temp->inf.birth_year
-                 << " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
+            cout << setw(20) << temp->inf.fio << " "
+                 << setw(7) << temp->inf.personalNumber << " "
+                 << setw(5) << temp->inf.birth_year << " "
+                 << setw(2) << temp->inf.sex << " "
+                 << setw(10) << temp->inf.prof << " "
+                 << setw(3) << temp->inf.exp << " "
+                 << setw(4) << temp->inf.rank << " "
+                 << setw(4) << temp->inf.factoryNumber << " "
+                 << setw(5) << temp->inf.deportmentNumber << " "
+                 << setw(11) << temp->inf.salary << endl;
         }
     }
     return;
 }
 
 void viewList(list *&listHead, list *&listEnd) {
-    if (!check(listHead)) {
+    if (listHead != NULL) {
         list *currentL, *temp, *startDisplay;
         int i, currentNum = 1;
         startDisplay = currentL = listHead;
@@ -579,15 +589,17 @@ void viewList(list *&listHead, list *&listEnd) {
             system("cls");
             temp = startDisplay;
 
+            drawFullInfoTable();
+
             for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->next, i++) {
                 if (i == currentNum) {
                     SetColor(0, 8);
                 }
-                cout << temp->inf.tableNumber << " " << temp->inf.fio << " " << temp->inf.salary << endl;
+                cout << temp->inf.personalNumber << " " << temp->inf.fio << " " << temp->inf.salary << endl;
                 SetColor(7, 0);
             };
 
-            helpMenu();
+            drawHelpMenu();
 
 
             switch (key = getch()) {
@@ -611,7 +623,7 @@ void viewList(list *&listHead, list *&listEnd) {
                     currentNum = 1;
                     temp = startDisplay;
                     for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
-                    if (check(temp)) {
+                    if (temp == NULL) {
                         temp = startDisplay;
                     }
                     startDisplay = currentL = temp;
@@ -622,7 +634,7 @@ void viewList(list *&listHead, list *&listEnd) {
                     currentNum = 1;
                     temp = startDisplay;
                     for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->next);
-                    if (check(temp)) {
+                    if (temp == NULL) {
                         temp = startDisplay;
                     }
                     startDisplay = currentL = temp;
@@ -667,7 +679,7 @@ void viewList(list *&listHead, list *&listEnd) {
 
                 temp = startDisplay;
                 for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred, i++);
-                if (check(temp)) {
+                if (temp == NULL) {
                     temp = startDisplay;
                 }
                 startDisplay = temp;
@@ -680,11 +692,37 @@ void viewList(list *&listHead, list *&listEnd) {
 
 }
 
-void helpMenu() {
+void drawHelpMenu() {
+    gotoxy(0,15);
     SetColor(7, 1);
     cout << endl << endl << "ESC - MENU | ENTER - EDIT | DEL - DELETE | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE";
     SetColor(7, 0);
 }
+
+void drawFullInfoTable(){
+
+    gotoxy(0,0);
+
+    for (int i = 0; i < console_row_length; i++){
+        cout << "-";
+    }
+
+    cout << setw(13) << "FIO" << setw(8) << "|";
+    cout << "  ID   |";
+    cout << " YEAR|";
+    cout << " S|";
+    cout << setw(7) << "PROF" << setw(4) << "|";
+    cout << "EXP|";
+    cout << "RANK|";
+    cout << "FACT|";
+    cout << " DEPT|";
+    cout << setw(11) << "SALARY";
+    for (int i = 0; i < console_row_length; i++){
+        cout << "-";
+    }
+
+
+};
 
 int menu(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
@@ -819,12 +857,12 @@ char *strToFormat(char *str, const int length) {
     return str;
 }
 
-unsigned checkTableNum(int num, list *top){
+unsigned checkPersonalNumber(int num, list *top){
 
-    if (!check(top)){
+    if (top != NULL){
         list *temp;
         for(temp = top; temp != NULL; temp = temp->next){
-            if (temp->inf.tableNumber == num){
+            if (temp->inf.personalNumber == num){
                 return 1;
             }
         }
