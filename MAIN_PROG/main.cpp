@@ -96,6 +96,7 @@ void view(list *&top);
 void viewList(list *&listHead, list *&end);
 
 int menu(const char **menuItems, const int itemsCount);
+int menuInterface(const char **menuItems, const int itemsCount = 2);
 
 unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
 
@@ -178,7 +179,7 @@ int main() {
                         }
                     }
                 } else {
-                    if (strlen(openFileName) > 1){
+                    if (strlen(openFileName) < 2){
                         cout << "FILE WILL BE CREATE" << endl;
                     }
                     char newFileName[FILE_NAME_LENGTH];
@@ -737,6 +738,7 @@ void drawFullInfoTable() {
 int menu(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
     while (1) {
+
         system("cls");
         for (i = 0; i < itemsCount; i++) {
             if (i == currentItem) {
@@ -767,7 +769,43 @@ int menu(const char **menuItems, const int itemsCount) {
     }
 }
 
+int menuInterface(const char **menuItems, const int itemsCount) {
+    int currentItem = 0, i = 0;
+    while (1) {
+        gotoxy(0,20);
+        for ( i = 0 ; (i < (console_row_length * 2)) ; i++) cout << " ";
 
+        gotoxy(( 40 - (strlen(menuItems[0]) / 2)), 20);
+        for (i = 0; i < itemsCount; i++) {
+            if (i == currentItem) {
+                SetColor(0, 8);
+            }
+            cout << menuItems[i] << endl;
+            SetColor(7, 0);
+            gotoxy(0,21);
+        }
+        gotoxy(( 40 - (strlen(menuItems[1]) / 2)), 20);
+
+        switch (key = getch()) {
+            case 13: {
+                return currentItem;
+            }
+            case 80: {
+                if (currentItem >= itemsCount - 1) currentItem = 0;
+                else currentItem++;
+                break;
+            }
+            case 72: {
+                if (currentItem <= 0) currentItem = itemsCount - 1;
+                else currentItem--;
+                break;
+            }
+            case 27: {
+                return 27;
+            }
+        }
+    }
+}
 //*/
 unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
