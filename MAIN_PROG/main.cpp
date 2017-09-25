@@ -47,12 +47,10 @@ const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
 char openFileName[FILE_NAME_LENGTH];
-const short int countOfDisplayRecords = 10;
+const unsigned countOfDisplayRecords = 10;
 
-int GLOBAL_COUNTER_ID = 0;
 int key;
 struct tableData {
-    int ID;
     long int tableNumber;
     char fio[FIO_LENGTH];
     int birth_year;
@@ -111,7 +109,7 @@ unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDig
 
 char *strToFormat(char *str, const int length);
 
-char *checkTextLength(short X = 0, short Y = 0, const int strLength = 20, char *str = "");
+unsigned checkTableNum(int num, list *top);
 
 void helpMenu();
 
@@ -120,6 +118,7 @@ void helpMenu();
  */
 int main() {
 
+    cout << setprecision(2) << fixed;
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
@@ -173,7 +172,6 @@ int main() {
                 system("cls");
                 char fio[FIO_LENGTH];
                 cin.getline(fio, FIO_LENGTH);
-                strcpy(fio, checkTextLength(0, 0, FIO_LENGTH, fio));
                 cout << fio << endl;
                 cout << "6";
                 getch();
@@ -296,27 +294,37 @@ tableData newRecord() {
     cout << "FIO: ";
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
-    if(cin.fail()){             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+    if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
         cin.clear();            //СБОРС ОШИБКА ПОТОКА
-        cin.ignore(256,'\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
     }
 
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
     coordY++;
 
-    newElement.ID = GLOBAL_COUNTER_ID++;
-
     gotoxy(0, coordY);
     cout << "TABLE: ";
     coordX = 7;
-    newElement.tableNumber = checkNumeral(coordX, coordY, 0, 6);
+    int table_number;
+    int checkResult = 0;
+    do {
+        if (checkResult){
+            gotoxy(coordX+11,coordY);
+            cout << "RECORD WITH SUCH DATA EXISTS!";
+            getch();
+        }
+        table_number = checkNumeral(coordX, coordY, 0, 6);
+    } while (checkResult = checkTableNum(table_number, listHead));
+    gotoxy(coordX+11,coordY);
+    cout << "                                           ";
+    newElement.tableNumber = table_number;
     coordY++;
 
 
     gotoxy(0, coordY);
     cout << "BIRTH YEAR(1940..2050): ";
     coordX = 25;
-    short int year = 0;
+    unsigned year = 0;
     while ((year < 1940) || (year > 2050)) {
         year = checkNumeral(coordX, coordY, 0, 4);
     }
@@ -339,9 +347,9 @@ tableData newRecord() {
     cout << "PROF: ";
     char prof[PROF_LENGTH];
     cin.getline(prof, PROF_LENGTH);
-    if(cin.fail()){
+    if (cin.fail()) {
         cin.clear();
-        cin.ignore(256,'\n');
+        cin.ignore(256, '\n');
     }
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
     coordY++;
@@ -490,31 +498,6 @@ int deleteList(list *top) {
     }
 }
 
-/*void deletePersonalData(list *&current) {
-
-    if ((current->pred == NULL) && (current->next == NULL)) {
-        current = NULL;
-    } else if (current->pred == NULL) {
-        list *temp = current;
-        temp = temp->next;
-        temp->pred = NULL;
-
-    } else if (current->next == NULL) {
-
-        list *temp = current;
-        temp = temp->pred;
-        temp->next = NULL;
-
-    } else {
-        list *temp = current;
-        temp->pred->next = temp->next;
-        temp->next->pred = temp->pred;
-    }
-
-    delete current;
-    return;
-}*/
-
 int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
     if ((current == listHead) && (current == listEnd)) //удаление единственного элемента
     {
@@ -556,6 +539,14 @@ list *addPerson(list *&end, tableData personalData) {
     return end;
 }
 
+/*
+ * РЕДАКТИРОВАНИЕ ЗАПИСИ
+ */
+tableData *editData(tableData current) {
+    unsigned currentNum;
+}
+
+
 int check(list *&top) {
     if (top == NULL) {
         return 1;
@@ -568,7 +559,7 @@ void view(list *&top) {
         list *temp;
         system("cls");
         for (temp = top; temp != NULL; temp = temp->next) {
-            cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << " "
+            cout << temp->inf.fio << " " << temp->inf.tableNumber << " "
                  << temp->inf.birth_year
                  << " " << temp->inf.sex << " " << temp->inf.prof << " " << temp->inf.salary << endl;
         }
@@ -580,8 +571,8 @@ void viewList(list *&listHead, list *&listEnd) {
     if (!check(listHead)) {
         list *currentL, *temp, *startDisplay;
         int i, currentNum = 1;
-        short int delResult;
         startDisplay = currentL = listHead;
+        short int delResult;
 
         while (listHead != NULL) {
 
@@ -592,7 +583,7 @@ void viewList(list *&listHead, list *&listEnd) {
                 if (i == currentNum) {
                     SetColor(0, 8);
                 }
-                cout << temp->inf.ID << " " << temp->inf.fio << " " << temp->inf.tableNumber << endl;
+                cout << temp->inf.tableNumber << " " << temp->inf.fio << " " << temp->inf.salary << endl;
                 SetColor(7, 0);
             };
 
@@ -743,11 +734,15 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
     while (1) {
         gotoxy(X, Y);
-        cout << "                   ";
-        if (tempNum) {
+        cout << "         ";
+
+
+        if ((tempNum) || (maxDigitCount == 1)) {
             gotoxy(X, Y);
             cout << tempNum << endl;
         }
+
+
         switch (key = getch()) {
 
             case '0':
@@ -824,58 +819,15 @@ char *strToFormat(char *str, const int length) {
     return str;
 }
 
+unsigned checkTableNum(int num, list *top){
 
-/*
- * ПРОВЕРКА КОЛИЧЕСТВА ВВОДИМЫХ СИМВОЛОВ
- */
-char *checkTextLength(short X, short Y, const int strLength, char *str) {
-
-    char newStr[strLength];
-    char oneChar[2];
-    char key;
-
-    strcpy(newStr, str);
-    int strCurrentLength;
-
-
-
-    while (1) {
-        //gotoxy(X, Y);
-        //cout << "                                                 ";
-        if (strlen(newStr) > 1) {
-            gotoxy(X, Y);
-            cout << str << endl;
-        }
-        strCurrentLength = strlen(newStr);
-
-        switch (key = getch()) {
-            case 13: {
-                strcpy(str, newStr);
-                return str;
+    if (!check(top)){
+        list *temp;
+        for(temp = top; temp != NULL; temp = temp->next){
+            if (temp->inf.tableNumber == num){
+                return 1;
             }
-            case 27: {
-                return str;
-            }
-                /*case 8: {
-                    newStr[strCurrentLength - 1] = "\0";
-                    break;
-                }*/
-            case 65: {
-                cout << key;
-                newStr[strCurrentLength + 1] = 'key';
-                cout << newStr;
-                break;
-            }
-            case 'A' - 'z': {
-                cout << key - '0' << endl;
-
-                if (((key > 64) || (key < 123) || (key == '.')) && (strlen(newStr) > strLength)) {
-
-                }
-                break;
-            }
-
         }
     }
-
+    return 0;
 }
