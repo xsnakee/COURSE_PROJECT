@@ -83,6 +83,8 @@ void SetColor(int text, int background);
 
 void readTheKey();
 
+void readTheAplpha();
+
 tableData newRecord();
 
 int saveFile(list *top, char *fileName, bool mode = 1);
@@ -105,9 +107,11 @@ void viewList(list *&listHead, list *&end);
 
 int menu(const char **menuItems, const int itemsCount);
 
-long int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 4);
+unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
 
 char *strToFormat(char *str, const int length);
+
+char *checkTextLength(short X = 0, short Y = 0, const int strLength = 20, char *str = "");
 
 void helpMenu();
 
@@ -160,11 +164,17 @@ int main() {
                 break;
             }
             case 5: {
+                readTheAplpha();
                 cout << "5";
                 getch();
                 break;
             }
             case 6: {
+                system("cls");
+                char fio[FIO_LENGTH];
+                cin.getline(fio, FIO_LENGTH);
+                strcpy(fio, checkTextLength(0, 0, FIO_LENGTH, fio));
+                cout << fio << endl;
                 cout << "6";
                 getch();
                 break;
@@ -259,6 +269,20 @@ void readTheKey() {
 }
 
 /*
+ * Функция проверки кода клавиш
+ */
+void readTheAplpha() {
+    while (char key = getch()) {
+        cout << key << endl;
+        if (key == 13) {
+            cout << "Will exit";
+            return;
+        }
+    }
+}
+
+
+/*
  * Функция создания записи
  */
 tableData newRecord() {
@@ -268,64 +292,92 @@ tableData newRecord() {
 
     tableData newElement;
 
+    gotoxy(0, coordY);
     cout << "FIO: ";
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
+    if(cin.fail()){             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+        cin.clear();            //СБОРС ОШИБКА ПОТОКА
+        cin.ignore(256,'\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+    }
+
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
     coordY++;
 
     newElement.ID = GLOBAL_COUNTER_ID++;
 
+    gotoxy(0, coordY);
     cout << "TABLE: ";
     coordX = 7;
     newElement.tableNumber = checkNumeral(coordX, coordY, 0, 6);
     coordY++;
 
 
-    cout << "BIRTH YEAR: ";
-    coordX = 12;
-    newElement.birth_year = checkNumeral(coordX, coordY);
+    gotoxy(0, coordY);
+    cout << "BIRTH YEAR(1940..2050): ";
+    coordX = 25;
+    short int year = 0;
+    while ((year < 1940) || (year > 2050)) {
+        year = checkNumeral(coordX, coordY, 0, 4);
+    }
+    newElement.birth_year = year;
     coordY++;
 
 
+    gotoxy(0, coordY);
     cout << "SEX(0-male,1-female): ";
     coordX = 24;
-    newElement.sex = checkNumeral(coordX, coordY, 0, 1);
+    short int sex = -1;
+    while ((sex < 0) || (sex > 1)) {
+        sex = checkNumeral(coordX, coordY, 0, 1);
+    }
+    newElement.sex = sex;
     coordY++;
 
 
+    gotoxy(0, coordY);
     cout << "PROF: ";
     char prof[PROF_LENGTH];
     cin.getline(prof, PROF_LENGTH);
+    if(cin.fail()){
+        cin.clear();
+        cin.ignore(256,'\n');
+    }
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
     coordY++;
 
 
+    gotoxy(0, coordY);
     cout << "EXPERIENCE: ";
     coordX = 12;
-    newElement.exp = checkNumeral(coordX, coordY, 0, 2);
+    newElement.exp = checkNumeral(coordX, coordY, 0);
     coordY++;
 
+    gotoxy(0, coordY);
     cout << "RANG: ";
     coordX = 6;
-    newElement.rang = checkNumeral(coordX, coordY, 0, 2);
+    newElement.rang = checkNumeral(coordX, coordY, 0);
     coordY++;
 
+    gotoxy(0, coordY);
     cout << "ROOM: ";
     coordX = 6;
-    newElement.roomNumber = checkNumeral(coordX, coordY, 0, 2);
+    newElement.roomNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
+    gotoxy(0, coordY);
     cout << "LARGE ROOM: ";
     coordX = 12;
-    newElement.bigRoomNumber = checkNumeral(coordX, coordY, 0, 2);
+    newElement.bigRoomNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
+    gotoxy(0, coordY);
     cout << "PLACE: ";
     coordX = 7;
-    newElement.placeNumber = checkNumeral(coordX, coordY, 0, 2);
+    newElement.placeNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
+    gotoxy(0, coordY);
     cout << "SALARY: ";
     coordX = 8;
     newElement.salary = (float) checkNumeral(coordX, coordY, 0, 8);
@@ -586,12 +638,6 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 83: {
-                    /*if ((currentL == startDisplay) && (currentL->pred != NULL)){
-                        startDisplay = temp = currentL = currentL->next;
-                        deletePersonalData(listHead, listEnd, currentL->pred);
-                        currentNum = 1;
-                        delResult = -1;
-                    } else {*/
                     if (currentL == listHead) {
                         delResult = deletePersonalData(listHead, listEnd, currentL);
                         currentL = startDisplay = listHead;
@@ -629,23 +675,12 @@ void viewList(list *&listHead, list *&listEnd) {
 
 
                 temp = startDisplay;
-                for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred, i++);
                 if (check(temp)) {
                     temp = startDisplay;
                 }
                 startDisplay = temp;
             }
-
-            /*if (currentNum < 0 && currentL != NULL) {
-                currentNum = countOfDisplayRecords - 1;
-
-                for (i = 1, temp = currentL;
-                     (i < countOfDisplayRecords+1) && (temp->pred != NULL); i++, temp = temp->pred);
-                startDisplay = temp;
-            } else if (currentNum > countOfDisplayRecords && currentL != NULL) {
-                currentNum = 0;
-                startDisplay = currentL;
-            }*/
         }
 
         cout << "EMPTY" <<
@@ -695,7 +730,7 @@ int menu(const char **menuItems, const int itemsCount) {
 
 
 //*/
-long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
+unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
     long int tempNum = num;
     int currentDigitCount, minDigitCount = 0;
@@ -707,6 +742,12 @@ long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
     tempNum = num;
 
     while (1) {
+        gotoxy(X, Y);
+        cout << "                   ";
+        if (tempNum) {
+            gotoxy(X, Y);
+            cout << tempNum << endl;
+        }
         switch (key = getch()) {
 
             case '0':
@@ -743,10 +784,6 @@ long int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
             }
         }
 
-        gotoxy(X, Y);
-        cout << "                   ";
-        gotoxy(X, Y);
-        cout << tempNum << endl;
     }
 }
 
@@ -785,4 +822,60 @@ char *strToFormat(char *str, const int length) {
         }
     }*/
     return str;
+}
+
+
+/*
+ * ПРОВЕРКА КОЛИЧЕСТВА ВВОДИМЫХ СИМВОЛОВ
+ */
+char *checkTextLength(short X, short Y, const int strLength, char *str) {
+
+    char newStr[strLength];
+    char oneChar[2];
+    char key;
+
+    strcpy(newStr, str);
+    int strCurrentLength;
+
+
+
+    while (1) {
+        //gotoxy(X, Y);
+        //cout << "                                                 ";
+        if (strlen(newStr) > 1) {
+            gotoxy(X, Y);
+            cout << str << endl;
+        }
+        strCurrentLength = strlen(newStr);
+
+        switch (key = getch()) {
+            case 13: {
+                strcpy(str, newStr);
+                return str;
+            }
+            case 27: {
+                return str;
+            }
+                /*case 8: {
+                    newStr[strCurrentLength - 1] = "\0";
+                    break;
+                }*/
+            case 65: {
+                cout << key;
+                newStr[strCurrentLength + 1] = 'key';
+                cout << newStr;
+                break;
+            }
+            case 'A' - 'z': {
+                cout << key - '0' << endl;
+
+                if (((key > 64) || (key < 123) || (key == '.')) && (strlen(newStr) > strLength)) {
+
+                }
+                break;
+            }
+
+        }
+    }
+
 }
