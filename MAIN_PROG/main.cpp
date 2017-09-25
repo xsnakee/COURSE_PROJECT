@@ -101,6 +101,7 @@ int menuInterface(const char **menuItems, const int itemsCount = 2);
 unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
 
 char *strToFormat(char *str, const int length);
+void cleanPlace();
 
 unsigned checkPersonalNumber(int num, list *top);
 
@@ -112,17 +113,15 @@ void drawFullInfoTable();
  * MAIN FUNCTION
  */
 int main() {
-    if (menu(acceptMessage, acceptMessageItemsCount)) {
-    }
 
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
                 if (listHead == NULL) {
                     organizeList(listHead, listEnd, newRecord());
-                    cout << "DATA ADD!" << endl;
+                    printf("DATA ADD!");
                 } else {
-                    cout << "LIST WAS CREATED!" << endl;
+                    printf("LIST WAS CREATED!");
                 }
                 cout << "0";
                 getch();
@@ -137,16 +136,15 @@ int main() {
             case 0: {
                 if (listHead != NULL) {
                     addPerson(listEnd, newRecord());
-                    cout << "DATA ADD!" << endl;
+                    printf("DATA ADD!");
                 } else {
-                    cout << "LIST NOT CREATED!" << endl;
+                    printf("LIST NOT CREATED!");
                 }
                 cout << "2";
                 getch();
                 break;
             }
             case 3: {
-                view(listHead);
                 cout << "3";
                 getch();
                 break;
@@ -169,53 +167,58 @@ int main() {
                 break;
             }
             case 7: {
-                if (!menu(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
-                    cout << "REWRITE FILE?:";
-                    if(menu(acceptMessage,acceptMessageItemsCount)){
-                        if (!saveFile(listHead, openFileName)) {
-                            cout << "FILE SAVED" << endl;
-                        } else {
-                            cout << "FILE NOT SAVED!" << endl;
+                if (listHead != NULL){
+                    if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+                        printf("REWRITE FILE?:");
+                        if(menuInterface(acceptMessage,acceptMessageItemsCount)){
+                            if (!saveFile(listHead, openFileName)) {
+                                printf("FILE SAVED");
+                            } else {
+                                printf("FILE NOT SAVED!");
+                            }
                         }
+                    } else {
+                        if (strlen(openFileName) < 2){
+                            printf("FILE WILL BE CREATE");
+                        }
+                        char newFileName[FILE_NAME_LENGTH];
+                        printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
+                        cin.getline(newFileName, FILE_NAME_LENGTH);
+                        if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+                            cin.clear();            //СБРОС ОШИБКИ ПОТОКА
+                            cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+                        }
+                        if (!saveFile(listHead, newFileName)) {
+                            printf("FILE SAVED");
+                            strcpy(openFileName, newFileName);
+                        } else {
+                            printf("FILE NOT SAVED!");
+                        }
+
                     }
                 } else {
-                    if (strlen(openFileName) < 2){
-                        cout << "FILE WILL BE CREATE" << endl;
-                    }
-                    char newFileName[FILE_NAME_LENGTH];
-                    cout << "ENTER FILE NAME(*.bin - binary, *.txt - text): ";
-                    cin.getline(newFileName, FILE_NAME_LENGTH);
-                    if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
-                        cin.clear();            //СБРОС ОШИБКИ ПОТОКА
-                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
-                    }
-                    if (!saveFile(listHead, newFileName)) {
-                        cout << "FILE SAVED" << endl;
-                        strcpy(openFileName, newFileName);
-                    } else {
-                        cout << "FILE NOT SAVED!" << endl;
-                    }
-
+                    printf("EMPTY LIST");
                 }
+
                 getch();
                 break;
             }
             case 8: {
-                cout << "DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?";
-                if (menu(acceptMessage, acceptMessageItemsCount)) {
+                printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?");
+                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
 
                     deleteList(listHead);
 
-                    cout << "ENTER FILE NAME: ";
+                    printf("ENTER FILE NAME: ");
                     cin.getline(openFileName, FILE_NAME_LENGTH);
                     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                         cin.clear();            //СБРОС ОШИБКИ ПОТОКА
                         cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
                     }
                     if (!loadFile(listHead, listEnd, openFileName)) {
-                        cout << "FILE IS OPENED!" << endl;
+                        printf("FILE IS OPENED!");
                     } else {
-                        cout << "FILE NOT OPENED!" << endl;
+                        printf("FILE NOT OPENED!");
                     }
                 }
                 getch();
@@ -235,7 +238,7 @@ int main() {
             case 11: {
                 cout << "11";
                 getch();
-                if (menu(acceptMessage, acceptMessageItemsCount)) {
+                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                     deleteList(listHead);
                     exit(0);
                 } else {
@@ -271,7 +274,7 @@ void readTheKey() {
     while (int key = getch()) {
         cout << key << endl;
         if (key == 13) {
-            cout << "Will exit";
+            printf("Will exit");
             return;
         }
     }
@@ -284,7 +287,7 @@ void readTheAplpha() {
     while (char key = getch()) {
         cout << key << endl;
         if (key == 13) {
-            cout << "Will exit";
+            printf("Will exit");
             return;
         }
     }
@@ -302,7 +305,7 @@ tableData newRecord() {
     tableData newElement;
 
     gotoxy(0, coordY);
-    cout << "FIO: ";
+    printf("FIO: ");
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
@@ -314,26 +317,26 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "TABLE: ";
+    printf("TABLE: ");
     coordX = 7;
     int personal_number;
     int checkResult = 0;
     do {
         if (checkResult) {
             gotoxy(coordX + 11, coordY);
-            cout << "RECORD WITH SUCH DATA EXISTS!";
+            printf("RECORD WITH SUCH DATA EXISTS!");
             getch();
         }
         personal_number = checkNumeral(coordX, coordY, 0, 6);
     } while (checkResult = checkPersonalNumber(personal_number, listHead));
     gotoxy(coordX + 11, coordY);
-    cout << "                                           ";
+    printf("                                           ");
     newElement.personalNumber = personal_number;
     coordY++;
 
 
     gotoxy(0, coordY);
-    cout << "BIRTH YEAR(1940..2050): ";
+    printf("BIRTH YEAR(1940..2050): ");
     coordX = 25;
     unsigned year = 0;
     while ((year < 1940) || (year > 2050)) {
@@ -344,7 +347,7 @@ tableData newRecord() {
 
 
     gotoxy(0, coordY);
-    cout << "SEX(0-male,1-female): ";
+    printf("SEX(0-male,1-female): ");
     coordX = 24;
     short int sex = -1;
     while ((sex < 0) || (sex > 1)) {
@@ -355,7 +358,7 @@ tableData newRecord() {
 
 
     gotoxy(0, coordY);
-    cout << "PROF: ";
+    printf("PROF: ");
     char prof[PROF_LENGTH];
     cin.getline(prof, PROF_LENGTH);
     if (cin.fail()) {
@@ -367,31 +370,31 @@ tableData newRecord() {
 
 
     gotoxy(0, coordY);
-    cout << "EXPERIENCE: ";
+    printf("EXPERIENCE: ");
     coordX = 12;
     newElement.exp = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "rank: ";
+    printf("rank: ");
     coordX = 6;
     newElement.rank = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "ROOM: ";
+    printf("ROOM: ");
     coordX = 6;
     newElement.factoryNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "PLACE: ";
+    printf("PLACE: ");
     coordX = 7;
     newElement.deportmentNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
-    cout << "SALARY: ";
+    printf("SALARY: ");
     coordX = 8;
     newElement.salary = (float) checkNumeral(coordX, coordY, 0, 8);
 
@@ -406,7 +409,7 @@ tableData newRecord() {
     * 1 - бинарный
  */
 int saveFile(list *top, char *fileName, bool mode) {
-    system("cls");
+
     if (top != NULL) {
         list *temp;
         ofstream outFile;
@@ -498,7 +501,6 @@ int deleteList(list *&top) {
         for (temp = top; top != NULL; temp = top) {
             top = temp->next;
             delete temp;
-            cout << "deleted" << i++ << endl;
         }
         getch();
         if (top == NULL && temp == NULL) return 1;
@@ -513,20 +515,20 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
         listEnd = NULL;
         delete current;
         return 0;
-    } else if (current == listHead) { //удаление из начала списка
+    } else if (current == listHead) { //из начала списка
 
         listHead = listHead->next;
         listHead->pred = NULL;
         delete current;
         return 1;
-    } else if (current == listEnd) {//удаление с конца
+    } else if (current == listEnd) {//с конца
         listEnd = listEnd->pred;
         listEnd->next = NULL;
         delete current;
         return 2;
     } else { //удаление из середины
-        current->pred->next = current->next; //связать предыдущий со следующим
-        current->next->pred = current->pred; //связать следующий с предыдущим
+        current->pred->next = current->next;
+        current->next->pred = current->pred;
         delete current;
         return 3;
     }
@@ -554,28 +556,6 @@ tableData *editData(tableData current) {
     unsigned currentNum;
 }
 
-void view(list *&top) {
-    if (top != NULL) {
-        list *temp;
-        system("cls");
-
-        drawFullInfoTable();
-
-        for (temp = top; temp != NULL; temp = temp->next) {
-            cout << setw(20) << temp->inf.fio << " "
-                 << setw(7) << temp->inf.personalNumber << " "
-                 << setw(5) << temp->inf.birth_year << " "
-                 << setw(2) << temp->inf.sex << " "
-                 << setw(10) << temp->inf.prof << " "
-                 << setw(3) << temp->inf.exp << " "
-                 << setw(4) << temp->inf.rank << " "
-                 << setw(4) << temp->inf.factoryNumber << " "
-                 << setw(5) << temp->inf.deportmentNumber << " "
-                 << setw(11) << temp->inf.salary << endl;
-        }
-    }
-    return;
-}
 
 void viewList(list *&listHead, list *&listEnd) {
     if (listHead != NULL) {
@@ -650,7 +630,7 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 83: {
-                    if (menu(acceptMessage, acceptMessageItemsCount)) {
+                    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                         if (currentL == listHead) {
                             delResult = deletePersonalData(listHead, listEnd, currentL);
                             currentL = startDisplay = listHead;
@@ -703,11 +683,19 @@ void viewList(list *&listHead, list *&listEnd) {
 
 }
 
+//ПЕЧАТЬ ДОПОЛНИТЕЛЬНОГО МЕНЮ
 void drawHelpMenu() {
     gotoxy(0, 15);
     SetColor(7, 1);
-    cout << endl << endl << "ESC - MENU | ENTER - EDIT | DEL - DELETE | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE";
+    printf("ESC - MENU | ENTER - SELECT | DEL - DLT | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE ");
     SetColor(7, 0);
+
+    for (int i = 0; i < 35; i++) putch('-');
+    cout << "STATUS BAR";
+    for (int i = 0; i < 35; i++) putch('-');
+    gotoxy(0,19);
+    for (int i = 0; i < console_row_length-1; i++) putch('-');
+    gotoxy(0,17);
 }
 
 void drawFullInfoTable() {
@@ -718,18 +706,18 @@ void drawFullInfoTable() {
         cout << "-";
     }
 
-    cout << setw(13) << "FIO" << setw(8) << "|";
-    cout << "  ID   |";
-    cout << " YEAR|";
-    cout << " S|";
-    cout << setw(7) << "PROF" << setw(4) << "|";
-    cout << "EXP|";
-    cout << "RANK|";
-    cout << "FACT|";
-    cout << " DEPT|";
-    cout << setw(11) << "SALARY  ";
+    printf( "          FIO       |");
+    printf("  ID   |");
+    printf(" YEAR|");
+    printf(" S|");
+    printf("  PROF   |");
+    printf("EXP|");
+    printf("RANK|");
+    printf("FACT|");
+    printf(" DEPT|");
+    printf("   SALARY  ");
     for (int i = 0; i < console_row_length; i++) {
-        cout << "-";
+        putch('-');
     }
 
 
@@ -744,9 +732,11 @@ int menu(const char **menuItems, const int itemsCount) {
             if (i == currentItem) {
                 SetColor(0, 8);
             }
-            cout << menuItems[i] << endl;
+            printf("%s \n",menuItems[i]);
             SetColor(7, 0);
         }
+
+        drawHelpMenu();
 
         switch (key = getch()) {
             case 13: {
@@ -772,22 +762,22 @@ int menu(const char **menuItems, const int itemsCount) {
 int menuInterface(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
     while (1) {
-        gotoxy(0,20);
-        for ( i = 0 ; (i < (console_row_length * 2)) ; i++) cout << " ";
-
-        gotoxy(( 40 - (strlen(menuItems[0]) / 2)), 20);
+        cleanPlace();
+        gotoxy((40 - (strlen(menuItems[0]) / 2)),20);
         for (i = 0; i < itemsCount; i++) {
             if (i == currentItem) {
-                SetColor(0, 8);
+                SetColor(7, 4);
             }
-            cout << menuItems[i] << endl;
+            printf("%s \n",menuItems[i]);
             SetColor(7, 0);
-            gotoxy(0,21);
+            gotoxy((40 - (strlen(menuItems[1]) / 2)),21);
+
         }
-        gotoxy(( 40 - (strlen(menuItems[1]) / 2)), 20);
+        drawHelpMenu();
 
         switch (key = getch()) {
             case 13: {
+                cleanPlace();
                 return currentItem;
             }
             case 80: {
@@ -801,10 +791,18 @@ int menuInterface(const char **menuItems, const int itemsCount) {
                 break;
             }
             case 27: {
-                return 27;
+                cleanPlace();
+                return 0;
             }
         }
     }
+}
+
+void cleanPlace(){
+    int i;
+    gotoxy(0, 20);
+    for ( i = 0 ; (i < (console_row_length * 2)) ; i++) putch(' ');
+    return;
 }
 //*/
 unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
@@ -820,12 +818,12 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
     while (1) {
         gotoxy(X, Y);
-        cout << "         ";
+        printf("                ");
 
 
         if ((tempNum) || (maxDigitCount == 1)) {
             gotoxy(X, Y);
-            cout << tempNum << endl;
+            printf("%d \n",tempNum);
         }
 
 
