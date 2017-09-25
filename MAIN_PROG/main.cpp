@@ -37,12 +37,6 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
         "SAVE AS"
 };
 
-const int saveRequestItemsCount = 2;
-const char *saveRequest[saveFileMessageItemsCount] = {
-        "BINARY FILE(*.bin)",
-        "TEXT FILE(*.txt)"
-};
-
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
@@ -93,7 +87,7 @@ list *organizeList(list *&top, list *&end, tableData personalData);
 
 list *addPerson(list *&end, tableData personalData);
 
-int deleteList(list *top);
+int deleteList(list *&top);
 
 int deletePersonalData(list *&listHead, list *&listEnd, list *current);
 
@@ -117,17 +111,9 @@ void drawFullInfoTable();
  * MAIN FUNCTION
  */
 int main() {
-
-    cout << setprecision(2) << fixed;
-    strcpy(openFileName, "test_2.bin");
-    if (!loadFile(listHead, listEnd, openFileName)) {
-        cout << "FILE IS OPENED!" << endl;
-    } else {
-        cout << "FILE NOT OPENED!" << endl;
+    if (menu(acceptMessage, acceptMessageItemsCount)) {
     }
 
-    view(listHead);
-    getch();
     while (1) {
         switch (menu(mainMenu, mainMenuItemsCount)) {
             case 2: {
@@ -143,7 +129,6 @@ int main() {
             }
             case 1: {
                 viewList(listHead, listEnd);
-                //showAndEditList(listHead);
                 cout << "1";
                 getch();
                 break;
@@ -178,52 +163,59 @@ int main() {
                 break;
             }
             case 6: {
-                system("cls");
-                char fio[FIO_LENGTH];
-                cin.getline(fio, FIO_LENGTH);
-                cout << fio << endl;
                 cout << "6";
                 getch();
                 break;
             }
             case 7: {
-                if (strlen(openFileName) > 1) {
-                    if (!saveFile(listHead, openFileName)) {
-                        cout << "FILE SAVED" << endl;
-                    } else {
-                        cout << "FILE NOT SAVED!" << endl;
+                if (!menu(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+                    cout << "REWRITE FILE?:";
+                    if(menu(acceptMessage,acceptMessageItemsCount)){
+                        if (!saveFile(listHead, openFileName)) {
+                            cout << "FILE SAVED" << endl;
+                        } else {
+                            cout << "FILE NOT SAVED!" << endl;
+                        }
                     }
                 } else {
+                    if (strlen(openFileName) > 1){
+                        cout << "FILE WILL BE CREATE" << endl;
+                    }
                     char newFileName[FILE_NAME_LENGTH];
-                    cout << "ENTER FILE NAME: ";
+                    cout << "ENTER FILE NAME(*.bin - binary, *.txt - text): ";
                     cin.getline(newFileName, FILE_NAME_LENGTH);
                     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
-                        cin.clear();            //СБОРС ОШИБКА ПОТОКА
-                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+                        cin.clear();            //СБРОС ОШИБКИ ПОТОКА
+                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
                     }
-                    if (!saveFile(listHead, newFileName, 1)) {
+                    if (!saveFile(listHead, newFileName)) {
                         cout << "FILE SAVED" << endl;
                         strcpy(openFileName, newFileName);
                     } else {
                         cout << "FILE NOT SAVED!" << endl;
                     }
+
                 }
                 getch();
                 break;
             }
             case 8: {
-                /*/cout << "ENTER FILE NAME: ";
-                cin.getline(openFileName, FILE_NAME_LENGTH);
-                if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
-                    cin.clear();            //СБОРС ОШИБКА ПОТОКА
-                    cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
-                }
-                 //*/
-                strcpy(openFileName, "test_2.bin");
-                if (!loadFile(listHead, listEnd, openFileName)) {
-                    cout << "FILE IS OPENED!" << endl;
-                } else {
-                    cout << "FILE NOT OPENED!" << endl;
+                cout << "DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?";
+                if (menu(acceptMessage, acceptMessageItemsCount)) {
+
+                    deleteList(listHead);
+
+                    cout << "ENTER FILE NAME: ";
+                    cin.getline(openFileName, FILE_NAME_LENGTH);
+                    if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+                        cin.clear();            //СБРОС ОШИБКИ ПОТОКА
+                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+                    }
+                    if (!loadFile(listHead, listEnd, openFileName)) {
+                        cout << "FILE IS OPENED!" << endl;
+                    } else {
+                        cout << "FILE NOT OPENED!" << endl;
+                    }
                 }
                 getch();
                 break;
@@ -242,8 +234,12 @@ int main() {
             case 11: {
                 cout << "11";
                 getch();
-                deleteList(listHead);
-                exit(0);
+                if (menu(acceptMessage, acceptMessageItemsCount)) {
+                    deleteList(listHead);
+                    exit(0);
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -309,8 +305,8 @@ tableData newRecord() {
     char fio[FIO_LENGTH];
     cin.getline(fio, FIO_LENGTH);
     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
-        cin.clear();            //СБОРС ОШИБКА ПОТОКА
-        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКУ СИМВОЛОВ
+        cin.clear();            //СБРОС ОШИБКИ ПОТОКА
+        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
     }
 
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
@@ -322,14 +318,14 @@ tableData newRecord() {
     int personal_number;
     int checkResult = 0;
     do {
-        if (checkResult){
-            gotoxy(coordX+11,coordY);
+        if (checkResult) {
+            gotoxy(coordX + 11, coordY);
             cout << "RECORD WITH SUCH DATA EXISTS!";
             getch();
         }
         personal_number = checkNumeral(coordX, coordY, 0, 6);
     } while (checkResult = checkPersonalNumber(personal_number, listHead));
-    gotoxy(coordX+11,coordY);
+    gotoxy(coordX + 11, coordY);
     cout << "                                           ";
     newElement.personalNumber = personal_number;
     coordY++;
@@ -414,23 +410,24 @@ int saveFile(list *top, char *fileName, bool mode) {
         list *temp;
         ofstream outFile;
 
-        if (strstr(fileName, ".txt")) {
+        if ((strstr(fileName, ".txt")) || (mode == 0)) {
             outFile.open(fileName, ios::out);
-        } else {
-            strstr(fileName, ".bin");
+        } else if ((strstr(fileName, ".bin")) || (mode == 1)) {
             outFile.open(fileName, ios::out | ios::binary);
-        }
 
-        if (outFile) {
-            for (temp = top; temp != NULL; temp = temp->next) {
-                outFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+            if (outFile) {
+                for (temp = top; temp != NULL; temp = temp->next) {
+                    outFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+                }
+
+                outFile.close();
+                return 0;
+            } else {
+                return 1;
             }
-
-            outFile.close();
-            return 0;
-        } else {
-            return 1;
         }
+
+
     } else {
         return 1;
     }
@@ -453,22 +450,24 @@ int loadFile(list *&top, list *&end, char *fileName) {
             InFile.open(fileName, ios::in);
         } else {
             InFile.open(fileName, ios::in | ios::binary);
+
+            if (InFile) {
+                tableData tempInfo;
+                while (InFile.read((char *) &tempInfo, TABLE_DATA_SIZE)) {
+                    if (top == NULL) {
+                        organizeList(top, end, tempInfo);
+                    } else {
+                        addPerson(end, tempInfo);
+                    }
+                }
+                InFile.close();
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
-        if (InFile) {
-            tableData tempInfo;
-            while (InFile.read((char *) &tempInfo, TABLE_DATA_SIZE)) {
-                if (top == NULL) {
-                    organizeList(top, end, tempInfo);
-                } else {
-                    addPerson(end, tempInfo);
-                }
-            }
-            InFile.close();
-            return 0;
-        } else {
-            return -1;
-        }
+
     } else {
         return 1;
     }
@@ -489,7 +488,7 @@ list *organizeList(list *&top, list *&end, tableData personalData) {
     return top;
 }
 
-int deleteList(list *top) {
+int deleteList(list *&top) {
 
     if (top != NULL) {
         list *temp;
@@ -558,7 +557,7 @@ void view(list *&top) {
     if (top != NULL) {
         list *temp;
         system("cls");
-        
+
         drawFullInfoTable();
 
         for (temp = top; temp != NULL; temp = temp->next) {
@@ -595,7 +594,16 @@ void viewList(list *&listHead, list *&listEnd) {
                 if (i == currentNum) {
                     SetColor(0, 8);
                 }
-                cout << temp->inf.personalNumber << " " << temp->inf.fio << " " << temp->inf.salary << endl;
+                cout << setw(20) << temp->inf.fio << " "
+                     << setw(7) << temp->inf.personalNumber << " "
+                     << setw(5) << temp->inf.birth_year << " "
+                     << setw(2) << temp->inf.sex << " "
+                     << setw(10) << temp->inf.prof << " "
+                     << setw(3) << temp->inf.exp << " "
+                     << setw(4) << temp->inf.rank << " "
+                     << setw(4) << temp->inf.factoryNumber << " "
+                     << setw(5) << temp->inf.deportmentNumber << " "
+                     << setprecision(2) << fixed << setw(11) << temp->inf.salary;
                 SetColor(7, 0);
             };
 
@@ -641,20 +649,22 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 83: {
-                    if (currentL == listHead) {
-                        delResult = deletePersonalData(listHead, listEnd, currentL);
-                        currentL = startDisplay = listHead;
-                        currentNum = 1;
-                    } else {
-                        if (currentL == startDisplay) {
-                            temp = startDisplay;
-                            for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
-                            startDisplay = temp;
-                        }
-                        currentL = currentL->pred;
-                        delResult = deletePersonalData(listHead, listEnd, currentL->next);
-                        currentNum--;
+                    if (menu(acceptMessage, acceptMessageItemsCount)) {
+                        if (currentL == listHead) {
+                            delResult = deletePersonalData(listHead, listEnd, currentL);
+                            currentL = startDisplay = listHead;
+                            currentNum = 1;
+                        } else {
+                            if (currentL == startDisplay) {
+                                temp = startDisplay;
+                                for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                                startDisplay = temp;
+                            }
+                            currentL = currentL->pred;
+                            delResult = deletePersonalData(listHead, listEnd, currentL->next);
+                            currentNum--;
 
+                        }
                     }
 
                     break;
@@ -693,17 +703,17 @@ void viewList(list *&listHead, list *&listEnd) {
 }
 
 void drawHelpMenu() {
-    gotoxy(0,15);
+    gotoxy(0, 15);
     SetColor(7, 1);
     cout << endl << endl << "ESC - MENU | ENTER - EDIT | DEL - DELETE | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE";
     SetColor(7, 0);
 }
 
-void drawFullInfoTable(){
+void drawFullInfoTable() {
 
-    gotoxy(0,0);
+    gotoxy(0, 0);
 
-    for (int i = 0; i < console_row_length; i++){
+    for (int i = 0; i < console_row_length; i++) {
         cout << "-";
     }
 
@@ -716,8 +726,8 @@ void drawFullInfoTable(){
     cout << "RANK|";
     cout << "FACT|";
     cout << " DEPT|";
-    cout << setw(11) << "SALARY";
-    for (int i = 0; i < console_row_length; i++){
+    cout << setw(11) << "SALARY  ";
+    for (int i = 0; i < console_row_length; i++) {
         cout << "-";
     }
 
@@ -857,12 +867,12 @@ char *strToFormat(char *str, const int length) {
     return str;
 }
 
-unsigned checkPersonalNumber(int num, list *top){
+unsigned checkPersonalNumber(int num, list *top) {
 
-    if (top != NULL){
+    if (top != NULL) {
         list *temp;
-        for(temp = top; temp != NULL; temp = temp->next){
-            if (temp->inf.personalNumber == num){
+        for (temp = top; temp != NULL; temp = temp->next) {
+            if (temp->inf.personalNumber == num) {
                 return 1;
             }
         }
