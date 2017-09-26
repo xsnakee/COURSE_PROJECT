@@ -89,9 +89,12 @@ int deleteList(list *&top);
 
 int deletePersonalData(list *&listHead, list *&listEnd, list *current);
 
+tableData editData(tableData current);
+
 void viewList(list *&listHead, list *&end);
 
 int menu(const char **menuItems, const int itemsCount);
+
 int menuInterface(const char **menuItems, const int itemsCount = 2);
 
 unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
@@ -99,6 +102,7 @@ unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDig
 char *strToFormat(char *str, const int length);
 
 void cleanPlace();
+
 void cleanStatusBar();
 
 unsigned checkPersonalNumber(int num, list *top);
@@ -117,7 +121,7 @@ int main() {
 
             case 0: {
                 if (listHead != NULL) {
-                    if (!addPerson(listEnd, newRecord())){
+                    if (!addPerson(listEnd, newRecord())) {
                         printf("DATA ADDED!");
                         getch();
                     }
@@ -141,7 +145,7 @@ int main() {
 
             case 2: {
                 if (listHead == NULL) {
-                    if (!organizeList(listHead, listEnd, newRecord())){
+                    if (!organizeList(listHead, listEnd, newRecord())) {
                         printf("DATA ADDED!");
                         getch();
                     }
@@ -179,10 +183,10 @@ int main() {
 
             case 7: {
                 cleanStatusBar();
-                if (listHead != NULL){
+                if (listHead != NULL) {
                     if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
                         printf("REWRITE?:");
-                        if(menuInterface(acceptMessage,acceptMessageItemsCount)){
+                        if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                             if (!saveFile(listHead, openFileName)) {
                                 printf("FILE SAVED");
                             } else {
@@ -190,7 +194,7 @@ int main() {
                             }
                         }
                     } else {
-                        if (strlen(openFileName) < 2){
+                        if (strlen(openFileName) < 2) {
                             printf("FILE WILL BE CREATE");
                         }
                         char newFileName[FILE_NAME_LENGTH];
@@ -251,7 +255,8 @@ int main() {
                 break;
             }
 
-            case 11: case 27:{
+            case 11:
+            case 27: {
                 printf("EXIT?");
                 if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                     deleteList(listHead);
@@ -294,7 +299,6 @@ void readTheKey() {
         }
     }
 }
-
 
 
 /*
@@ -560,31 +564,96 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
 }
 
 
-
 /*
  * РЕДАКТИРОВАНИЕ ЗАПИСИ
  */
-tableData *editData(tableData current) {
-    unsigned currentNum = 0, i;
+tableData editData(tableData current) {
 
-    gotoxy(0,18);
+    unsigned countOfFields = 10;
+    unsigned currentField = 0, i;
 
-    for (i = 0; (i < 10); i++) {
-        if (i == currentNum) {
-            SetColor(0, 8);
+    cleanStatusBar();
+
+    while (1) {
+        cleanStatusBar();
+        for (i = 0; (i < countOfFields); i++) {
+            if (i == currentField) {
+                SetColor(0, 8);
+            }
+            switch (i) {
+
+                case 0: {
+                    cout << setw(20) << current.fio << " ";
+                    break;
+                }
+
+                case 1: {
+                    cout << setw(7) << current.personalNumber << " ";
+                    break;
+                }
+
+                case 2: {
+                    cout << setw(5) << current.birth_year << " ";
+                    break;
+                }
+
+                case 3: {
+                    cout << setw(2) << current.sex << " ";
+                    break;
+                }
+
+                case 4: {
+                    cout << setw(10) << current.prof << " ";
+                    break;
+                }
+
+                case 5: {
+                    cout << setw(3) << current.exp << " ";
+                    break;
+                }
+
+                case 6: {
+                    cout << setw(4) << current.rank << " ";
+                    break;
+                }
+
+                case 7: {
+                    cout << setw(4) << current.factoryNumber << " ";
+                    break;
+                }
+
+                case 8: {
+                    cout << setw(5) << current.deportmentNumber << " ";
+                    break;
+                }
+
+                case 9: {
+                    cout << setprecision(2) << fixed << setw(11) << current.salary;
+                    break;
+                }
+            }
+            SetColor(7, 0);
         }
-        cout << setw(20) << current.fio << " "
-             << setw(7) << current.personalNumber << " "
-             << setw(5) << current.birth_year << " "
-             << setw(2) << current.sex << " "
-             << setw(10) << current.prof << " "
-             << setw(3) << current.exp << " "
-             << setw(4) << current.rank << " "
-             << setw(4) << current.factoryNumber << " "
-             << setw(5) << current.deportmentNumber << " "
-             << setprecision(2) << fixed << setw(11) << current.salary;
-        SetColor(7, 0);
-    };
+        cout << "ESC - EXIT, ~ - SAVE AND EXIT";
+        switch (key = getch()) {
+            case 13: {
+                return current;
+            }
+            case 77: {
+                if (currentField >= countOfFields - 1) currentField = 0;
+                else currentField++;
+                break;
+            }
+            case 75: {
+                if (currentField <= 0) currentField = countOfFields - 1;
+                else currentField--;
+                break;
+            }
+            case 27: {
+                return current;
+            }
+        }
+    }
 
 }
 
@@ -683,7 +752,7 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 13: {
-                    //edit(currentL, currentNum+3);
+                    currentL->inf = editData(currentL->inf);
                     break;
                 }
 
@@ -725,8 +794,8 @@ void drawHelpMenu() {
     for (int i = 0; i < 35; i++) putch('-');
     cout << "STATUS BAR";
     for (int i = 0; i < 35; i++) putch('-');
-    gotoxy(0,19);
-    for (int i = 0; i < console_row_length-1; i++) putch('-');
+    gotoxy(0, 19);
+    for (int i = 0; i < console_row_length - 1; i++) putch('-');
     cleanStatusBar();
 }
 
@@ -738,7 +807,7 @@ void drawFullInfoTable() {
         cout << "-";
     }
 
-    printf( "          FIO       |");
+    printf("          FIO       |");
     printf("  ID   |");
     printf(" YEAR|");
     printf(" S|");
@@ -764,7 +833,7 @@ int menu(const char **menuItems, const int itemsCount) {
             if (i == currentItem) {
                 SetColor(0, 8);
             }
-            printf("%s \n",menuItems[i]);
+            printf("%s \n", menuItems[i]);
             SetColor(7, 0);
         }
 
@@ -795,14 +864,14 @@ int menuInterface(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
     while (1) {
         cleanPlace();
-        gotoxy((40 - (strlen(menuItems[0]) / 2)),20);
+        gotoxy((40 - (strlen(menuItems[0]) / 2)), 20);
         for (i = 0; i < itemsCount; i++) {
             if (i == currentItem) {
                 SetColor(7, 4);
             }
-            printf("%s \n",menuItems[i]);
+            printf("%s \n", menuItems[i]);
             SetColor(7, 0);
-            gotoxy((40 - (strlen(menuItems[1]) / 2)),21);
+            gotoxy((40 - (strlen(menuItems[1]) / 2)), 21);
 
         }
 
@@ -829,20 +898,21 @@ int menuInterface(const char **menuItems, const int itemsCount) {
     }
 }
 
-void cleanPlace(){
+void cleanPlace() {
     int i;
     gotoxy(0, 20);
-    for ( i = 0 ; (i < (console_row_length * 2)) ; i++) putch(' ');
+    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
     return;
 }
 
-void cleanStatusBar(){
+void cleanStatusBar() {
     int i;
-    gotoxy(0,17);
-    for ( i = 0 ; (i < (console_row_length * 2)) ; i++) putch(' ');
-    gotoxy(0,17);
+    gotoxy(0, 17);
+    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
+    gotoxy(0, 17);
     return;
 }
+
 //*/
 unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
@@ -862,7 +932,7 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
         if ((tempNum) || (maxDigitCount == 1)) {
             gotoxy(X, Y);
-            printf("%d \n",tempNum);
+            printf("%d \n", tempNum);
         }
 
 
