@@ -97,7 +97,9 @@ int menuInterface(const char **menuItems, const int itemsCount = 2);
 unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
 
 char *strToFormat(char *str, const int length);
+
 void cleanPlace();
+void cleanStatusBar();
 
 unsigned checkPersonalNumber(int num, list *top);
 
@@ -176,7 +178,7 @@ int main() {
             }
 
             case 7: {
-                gotoxy(0,17);
+                cleanStatusBar();
                 if (listHead != NULL){
                     if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
                         printf("REWRITE?:");
@@ -219,9 +221,7 @@ int main() {
                 printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?");
                 if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                     deleteList(listHead);
-                    gotoxy(0,17);
-                    for (int k = 0 ; (k < (console_row_length )) ; k++) putch(' ');
-                    gotoxy(0,17);
+                    cleanStatusBar();
 
                     printf("ENTER FILE NAME: ");
                     cin.getline(openFileName, FILE_NAME_LENGTH);
@@ -565,7 +565,27 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
  * РЕДАКТИРОВАНИЕ ЗАПИСИ
  */
 tableData *editData(tableData current) {
-    unsigned currentNum;
+    unsigned currentNum = 0, i;
+
+    gotoxy(0,18);
+
+    for (i = 0; (i < 10); i++) {
+        if (i == currentNum) {
+            SetColor(0, 8);
+        }
+        cout << setw(20) << current.fio << " "
+             << setw(7) << current.personalNumber << " "
+             << setw(5) << current.birth_year << " "
+             << setw(2) << current.sex << " "
+             << setw(10) << current.prof << " "
+             << setw(3) << current.exp << " "
+             << setw(4) << current.rank << " "
+             << setw(4) << current.factoryNumber << " "
+             << setw(5) << current.deportmentNumber << " "
+             << setprecision(2) << fixed << setw(11) << current.salary;
+        SetColor(7, 0);
+    };
+
 }
 
 
@@ -707,7 +727,7 @@ void drawHelpMenu() {
     for (int i = 0; i < 35; i++) putch('-');
     gotoxy(0,19);
     for (int i = 0; i < console_row_length-1; i++) putch('-');
-    gotoxy(0,17);
+    cleanStatusBar();
 }
 
 void drawFullInfoTable() {
@@ -785,7 +805,6 @@ int menuInterface(const char **menuItems, const int itemsCount) {
             gotoxy((40 - (strlen(menuItems[1]) / 2)),21);
 
         }
-        drawHelpMenu();
 
         switch (key = getch()) {
             case 13: {
@@ -814,6 +833,14 @@ void cleanPlace(){
     int i;
     gotoxy(0, 20);
     for ( i = 0 ; (i < (console_row_length * 2)) ; i++) putch(' ');
+    return;
+}
+
+void cleanStatusBar(){
+    int i;
+    gotoxy(0,17);
+    for ( i = 0 ; (i < (console_row_length * 2)) ; i++) putch(' ');
+    gotoxy(0,17);
     return;
 }
 //*/
