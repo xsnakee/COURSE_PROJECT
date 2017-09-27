@@ -109,7 +109,7 @@ unsigned checkPersonalNumber(int num, list *top);
 
 void drawHelpMenu();
 
-void drawFullInfoTable();
+void drawTableHead();
 
 /*
  * MAIN FUNCTION
@@ -185,8 +185,10 @@ int main() {
                 cleanStatusBar();
                 if (listHead != NULL) {
                     if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+                        cleanStatusBar();
                         printf("REWRITE?:");
                         if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                            cleanStatusBar();
                             if (!saveFile(listHead, openFileName)) {
                                 printf("FILE SAVED");
                             } else {
@@ -194,7 +196,8 @@ int main() {
                             }
                         }
                     } else {
-                        if (strlen(openFileName) < 2) {
+                        if (strlen(openFileName) < 3) {
+                            cleanStatusBar();
                             printf("FILE WILL BE CREATE");
                         }
                         char newFileName[FILE_NAME_LENGTH];
@@ -204,6 +207,7 @@ int main() {
                             cin.clear();            //СБРОС ОШИБКИ ПОТОКА
                             cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
                         }
+                        cleanStatusBar();
                         if (!saveFile(listHead, newFileName)) {
                             printf("FILE SAVED");
                             strcpy(openFileName, newFileName);
@@ -306,7 +310,7 @@ void readTheKey() {
  */
 tableData newRecord() {
 
-    unsigned coordY = 0, coordX = 0;
+    unsigned coordY = 1, coordX = 0;
     tableData newElement;
 
     system("cls");
@@ -388,7 +392,7 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("rank: ");
+    printf("RANK: ");
     coordX = 6;
     newElement.rank = checkNumeral(coordX, coordY, 0);
     coordY++;
@@ -531,7 +535,6 @@ int deleteList(list *&top) {
             top = temp->next;
             delete temp;
         }
-        getch();
         if (top == NULL && temp == NULL) return 1;
         else return 0;
     }
@@ -567,11 +570,12 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
 /*
  * РЕДАКТИРОВАНИЕ ЗАПИСИ
  */
-tableData editData(tableData current) {
+tableData editData(tableData mainData) {
 
     unsigned countOfFields = 10;
     unsigned currentField = 0, i;
-
+    unsigned coordX = 0, coordY = 17;
+    tableData current = mainData;
     cleanStatusBar();
 
     while (1) {
@@ -634,10 +638,54 @@ tableData editData(tableData current) {
             }
             SetColor(7, 0);
         }
+        gotoxy(0,23);
+        SetColor(1,8);
         cout << "ESC - EXIT, ~ - SAVE AND EXIT";
+        SetColor(7,0);
         switch (key = getch()) {
             case 13: {
-                return current;
+
+                switch (currentField){
+                    case 0: {
+                        break;
+                    }
+                    case 1:{
+                        current.personalNumber = checkNumeral(22, coordY, current.personalNumber, 6);
+                        break;
+                    }
+                    case 2: {
+                        current.birth_year = checkNumeral(30, coordY, current.birth_year, 4);
+                        break;
+                    }
+                    case 3: {
+                        current.sex = checkNumeral(36, coordY, current.sex, 1);
+                        break;
+                    }
+                    case 4: {
+                        //current. = checkNumeral(31, coordY, current., 4);
+                        break;
+                    }
+                    case 5: {
+                        current.exp = checkNumeral(50, coordY, current.exp, 2);
+                        break;
+                    }
+                    case 6: {
+                        current.rank = checkNumeral(56, coordY, current.rank, 2);
+                        break;
+                    }
+                    case 7: {
+                        current.factoryNumber = checkNumeral(60, coordY, current.factoryNumber, 2);
+                        break;
+                    }
+                    case 8: {
+                        current.deportmentNumber = checkNumeral(67, coordY, current.deportmentNumber, 2);
+                        break;
+                    }
+                    case 9: {
+                        current.salary = (float) checkNumeral(69, coordY, (long int)current.salary, 8);
+                        break;
+                    }
+                }
             }
             case 77: {
                 if (currentField >= countOfFields - 1) currentField = 0;
@@ -649,8 +697,14 @@ tableData editData(tableData current) {
                 else currentField--;
                 break;
             }
+            case 96:{
+                if (menuInterface(acceptMessage,acceptMessageItemsCount)){
+                    return current;
+                }
+                break;
+            }
             case 27: {
-                return current;
+                return mainData;
             }
         }
     }
@@ -670,7 +724,7 @@ void viewList(list *&listHead, list *&listEnd) {
             system("cls");
             temp = startDisplay;
 
-            drawFullInfoTable();
+            drawTableHead();
 
             for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->next, i++) {
                 if (i == currentNum) {
@@ -731,6 +785,7 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 83: {
+                    printf("DO YOU WANT DELTE THIS DATA? \n");
                     if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                         if (currentL == listHead) {
                             delResult = deletePersonalData(listHead, listEnd, currentL);
@@ -799,7 +854,7 @@ void drawHelpMenu() {
     cleanStatusBar();
 }
 
-void drawFullInfoTable() {
+void drawTableHead() {
 
     gotoxy(0, 0);
 
@@ -811,7 +866,7 @@ void drawFullInfoTable() {
     printf("  ID   |");
     printf(" YEAR|");
     printf(" S|");
-    printf("  PROF   |");
+    printf("   PROF   |");
     printf("EXP|");
     printf("RANK|");
     printf("FACT|");
@@ -927,7 +982,9 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
     while (1) {
         gotoxy(X, Y);
-        printf("                ");
+        for (int i = 0; i < maxDigitCount; i++) {
+            putch(' ');
+        }
 
 
         if ((tempNum) || (maxDigitCount == 1)) {
