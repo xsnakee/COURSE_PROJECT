@@ -37,6 +37,17 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
         "SAVE AS"
 };
 
+
+const int searchMenuItemsCount = 5;
+const char *searchMenu[searchMenuItemsCount] = {
+        "SEARCH BY FIO",
+        "SEARCH BY ID NUMBER",
+        "SEARCH RANK GROUP",
+        "SEARCH FACTORY GROUP",
+        "SEARCH DEPORTMENT GROUP"
+};
+
+
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
 const int FILE_NAME_LENGTH = 256;
@@ -91,7 +102,9 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current);
 
 tableData editData(tableData current);
 
-void viewList(list *&listHead, list *&end);
+void outData(list *temp);
+
+void viewList(list *&listHead, list *&end, unsigned mode = 0);
 
 int menu(const char **menuItems, const int itemsCount);
 
@@ -107,9 +120,11 @@ void cleanStatusBar();
 
 unsigned checkPersonalNumber(int num, list *top);
 
-void drawHelpMenu();
+void drawHelpMenu(unsigned mode = 0);
 
 void drawTableHead();
+
+int groupSearch(list *&head);
 
 /*
  * MAIN FUNCTION
@@ -134,7 +149,7 @@ int main() {
 
             case 1: {
                 if (listHead != NULL) {
-                    viewList(listHead, listEnd);
+                    viewList(listHead, listEnd, 0);
                 } else {
                     printf("EMPTY LIST");
                     getch();
@@ -196,8 +211,8 @@ int main() {
                             }
                         }
                     } else {
+                        cleanStatusBar();
                         if (strlen(openFileName) < 3) {
-                            cleanStatusBar();
                             printf("FILE WILL BE CREATE");
                         }
                         char newFileName[FILE_NAME_LENGTH];
@@ -205,9 +220,8 @@ int main() {
                         cin.getline(newFileName, FILE_NAME_LENGTH);
                         if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                             cin.clear();            //СБРОС ОШИБКИ ПОТОКА
-                            cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+                            cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
                         }
-                        cleanStatusBar();
                         if (!saveFile(listHead, newFileName)) {
                             printf("FILE SAVED");
                             strcpy(openFileName, newFileName);
@@ -235,7 +249,7 @@ int main() {
                     cin.getline(openFileName, FILE_NAME_LENGTH);
                     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                         cin.clear();            //СБРОС ОШИБКИ ПОТОКА
-                        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+                        cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
                     }
                     if (!loadFile(listHead, listEnd, openFileName)) {
                         printf("FILE IS OPENED!");
@@ -248,6 +262,7 @@ int main() {
             }
 
             case 9: {
+                groupSearch(listHead);
                 cout << "9";
                 getch();
                 break;
@@ -326,7 +341,7 @@ tableData newRecord() {
     cin.getline(fio, FIO_LENGTH);
     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
         cin.clear();            //СБРОС ОШИБКИ ПОТОКА
-        cin.ignore(256, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+        cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
     }
 
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
@@ -379,7 +394,7 @@ tableData newRecord() {
     cin.getline(prof, PROF_LENGTH);
     if (cin.fail()) {
         cin.clear();
-        cin.ignore(256, '\n');
+        cin.ignore(1000, '\n');
     }
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
     coordY++;
@@ -398,13 +413,13 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("ROOM: ");
-    coordX = 6;
+    printf("FACTORY #: ");
+    coordX = 11;
     newElement.factoryNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
     gotoxy(0, coordY);
-    printf("PLACE: ");
+    printf("DEPORTMENT #: ");
     coordX = 7;
     newElement.deportmentNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
@@ -576,7 +591,7 @@ tableData editData(tableData mainData) {
     unsigned currentField = 0, i;
     unsigned coordX = 0, coordY = 17;
     tableData current = mainData;
-    cleanStatusBar();
+    drawHelpMenu(1);
 
     while (1) {
         cleanStatusBar();
@@ -638,18 +653,15 @@ tableData editData(tableData mainData) {
             }
             SetColor(7, 0);
         }
-        gotoxy(0,23);
-        SetColor(1,8);
-        cout << "ESC - EXIT, ~ - SAVE AND EXIT";
-        SetColor(7,0);
+
         switch (key = getch()) {
             case 13: {
 
-                switch (currentField){
+                switch (currentField) {
                     case 0: {
                         break;
                     }
-                    case 1:{
+                    case 1: {
                         current.personalNumber = checkNumeral(22, coordY, current.personalNumber, 6);
                         break;
                     }
@@ -682,7 +694,7 @@ tableData editData(tableData mainData) {
                         break;
                     }
                     case 9: {
-                        current.salary = (float) checkNumeral(69, coordY, (long int)current.salary, 8);
+                        current.salary = (float) checkNumeral(69, coordY, (long int) current.salary, 8);
                         break;
                     }
                 }
@@ -697,8 +709,8 @@ tableData editData(tableData mainData) {
                 else currentField--;
                 break;
             }
-            case 96:{
-                if (menuInterface(acceptMessage,acceptMessageItemsCount)){
+            case 96: {
+                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                     return current;
                 }
                 break;
@@ -711,8 +723,20 @@ tableData editData(tableData mainData) {
 
 }
 
+void outData(list *temp) {
+    cout << setw(20) << temp->inf.fio << " "
+         << setw(7) << temp->inf.personalNumber << " "
+         << setw(5) << temp->inf.birth_year << " "
+         << setw(2) << temp->inf.sex << " "
+         << setw(10) << temp->inf.prof << " "
+         << setw(3) << temp->inf.exp << " "
+         << setw(4) << temp->inf.rank << " "
+         << setw(4) << temp->inf.factoryNumber << " "
+         << setw(5) << temp->inf.deportmentNumber << " "
+         << setprecision(2) << fixed << setw(11) << temp->inf.salary;
+}
 
-void viewList(list *&listHead, list *&listEnd) {
+void viewList(list *&listHead, list *&listEnd, unsigned mode) {
     if (listHead != NULL) {
         list *currentL, *temp, *startDisplay;
         int i, currentNum = 1;
@@ -730,20 +754,11 @@ void viewList(list *&listHead, list *&listEnd) {
                 if (i == currentNum) {
                     SetColor(0, 8);
                 }
-                cout << setw(20) << temp->inf.fio << " "
-                     << setw(7) << temp->inf.personalNumber << " "
-                     << setw(5) << temp->inf.birth_year << " "
-                     << setw(2) << temp->inf.sex << " "
-                     << setw(10) << temp->inf.prof << " "
-                     << setw(3) << temp->inf.exp << " "
-                     << setw(4) << temp->inf.rank << " "
-                     << setw(4) << temp->inf.factoryNumber << " "
-                     << setw(5) << temp->inf.deportmentNumber << " "
-                     << setprecision(2) << fixed << setw(11) << temp->inf.salary;
+                outData(temp);
                 SetColor(7, 0);
             };
 
-            drawHelpMenu();
+            drawHelpMenu(mode);
 
 
             switch (key = getch()) {
@@ -785,29 +800,56 @@ void viewList(list *&listHead, list *&listEnd) {
                     break;
                 }
                 case 83: {
-                    printf("DO YOU WANT DELTE THIS DATA? \n");
-                    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                        if (currentL == listHead) {
-                            delResult = deletePersonalData(listHead, listEnd, currentL);
-                            currentL = startDisplay = listHead;
-                            currentNum = 1;
-                        } else {
-                            if (currentL == startDisplay) {
-                                temp = startDisplay;
-                                for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
-                                startDisplay = temp;
-                            }
-                            currentL = currentL->pred;
-                            delResult = deletePersonalData(listHead, listEnd, currentL->next);
-                            currentNum--;
+                    if (!mode) {
+                        printf("DO YOU WANT DELTE THIS DATA? \n");
 
+                        if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                            if (currentL == listHead) {
+                                delResult = deletePersonalData(listHead, listEnd, currentL);
+                                currentL = startDisplay = listHead;
+                                currentNum = 1;
+                            } else {
+                                if (currentL == startDisplay) {
+                                    temp = startDisplay;
+                                    for (i = 1; (i++ <= countOfDisplayRecords) && (temp != NULL); temp = temp->pred);
+                                    startDisplay = temp;
+                                }
+                                currentL = currentL->pred;
+                                delResult = deletePersonalData(listHead, listEnd, currentL->next);
+                                currentNum--;
+
+                            }
                         }
+                    }
+                    break;
+                }
+                case 96: {
+                    if (mode) {
+                        cleanStatusBar();
+                        printf("ENTER FILE NAME: ");
+                        char file_name[FILE_NAME_LENGTH];
+                        char default_name[FILE_NAME_LENGTH + 11] = "selection_";
+                        cin.getline(file_name, FILE_NAME_LENGTH);
+                        if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
+                            cin.clear();            //СБРОС ОШИБКИ ПОТОКА
+                            cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
+                        }
+                        strcat(default_name, file_name);
+
+                        if (!saveFile(listHead, default_name)) {
+                            printf("FILE SAVED");
+                        } else {
+                            printf("FILE NOT SAVED!");
+                        }
+                        getch();
                     }
 
                     break;
                 }
                 case 13: {
-                    currentL->inf = editData(currentL->inf);
+                    if (!mode) {
+                        currentL->inf = editData(currentL->inf);
+                    }
                     break;
                 }
 
@@ -840,10 +882,12 @@ void viewList(list *&listHead, list *&listEnd) {
 }
 
 //ПЕЧАТЬ ДОПОЛНИТЕЛЬНОГО МЕНЮ
-void drawHelpMenu() {
+void drawHelpMenu(unsigned mode) {
     gotoxy(0, 15);
     SetColor(7, 1);
-    printf("ESC - MENU | ENTER - SELECT | DEL - DLT | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE ");
+    printf("ESC - MENU | ENTER - SELECT |");
+    (!mode) ? printf(" DEL - DLT") : printf(" ~ - SAVE ");
+    printf(" | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE ");
     SetColor(7, 0);
 
     for (int i = 0; i < 35; i++) putch('-');
@@ -1081,3 +1125,121 @@ unsigned checkPersonalNumber(int num, list *top) {
     }
     return 0;
 }
+
+
+/*
+ * ФУНКЦИЯ ДЛЯ ПОИСКА ДАННЫХ ПО КЛЮЧЕВОМУ ПОЛЮ
+ */
+
+int groupSearch(list *&head) {
+    if (head == NULL) {
+        cleanStatusBar();
+        cout << "EMPTY LIST" << endl;
+        return 1;
+    }
+    list *temp, *tempHead, *tempEnd;
+    tempHead = tempEnd = NULL;
+
+    bool searchResult = false;
+
+    switch (menu(searchMenu, searchMenuItemsCount)) {
+        case 27: {
+            return 27;
+        }
+        case 0: {
+            printf("ENTER KEY: ");
+            char FIO[FIO_LENGTH];
+            cin.getline(FIO,FIO_LENGTH);
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+            strToFormat(FIO,FIO_LENGTH);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (strstr(temp->inf.fio, FIO)) {
+                    searchResult = true;
+                    break;
+                    //outData(temp);
+                }
+            }
+            if (searchResult){
+                system("cls");
+                drawTableHead();
+                temp->inf = editData(temp->inf);
+            }
+            break;
+        }
+        case 1:{
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11,0,0,6);
+            drawTableHead();
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.personalNumber == tempNumber) {
+                    searchResult = true;
+                    break;
+                }
+            }
+            if (searchResult){
+                system("cls");
+                drawTableHead();
+                temp->inf = editData(temp->inf);
+            }
+            break;
+        }
+        case 2:{
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11,17,0,2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.rank == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL){
+                        organizeList(tempHead,tempEnd,temp->inf);
+                    } else {
+                        addPerson(tempEnd,temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+        case 3:{
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11,17,0,2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.factoryNumber == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL){
+                        organizeList(tempHead,tempEnd,temp->inf);
+                    } else {
+                        addPerson(tempEnd,temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+
+        case 4:{
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11,17,0,2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.deportmentNumber == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL){
+                        organizeList(tempHead,tempEnd,temp->inf);
+                    } else {
+                        addPerson(tempEnd,temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+    }
+    if (!searchResult) {
+        cout << "DATA NOT FOUND" << endl;
+    }
+    deleteList(tempHead);
+    return 0;
+}
+
