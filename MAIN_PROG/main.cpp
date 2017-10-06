@@ -48,8 +48,8 @@ const char *searchMenu[searchMenuItemsCount] = {
 };
 
 
-const int FIO_LENGTH = 20;
-const int PROF_LENGTH = 10;
+const int FIO_LENGTH = 21;
+const int PROF_LENGTH = 11;
 const int MAX_STR_LENGTH = 256;
 unsigned console_row_length = 80;
 char openFileName[MAX_STR_LENGTH];
@@ -1239,11 +1239,12 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
             }
             default: {
 
-                if (((key >= 65) && (key <= 122)) || ((key >= 128) && (key <= 175)) || ((key >= 224) && (key <= 241)) ||
-                    (key == 32)) {
-                    if (currentPosition < length) {
+                if ((((key >= 65) && (key <= 122)) ||
+                        ((key >= 128) && (key <= 175)) ||
+                        ((key >= 224) && (key <= 241)) || (key == 32))
+                    && (currentPosition < length-1)) {
+
                         tempStr[currentPosition++] = (char) key;
-                    }
                 }
 
                 break;
