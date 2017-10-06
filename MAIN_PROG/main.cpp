@@ -50,12 +50,15 @@ const char *searchMenu[searchMenuItemsCount] = {
 
 const int FIO_LENGTH = 20;
 const int PROF_LENGTH = 10;
-const int FILE_NAME_LENGTH = 256;
+const int MAX_STR_LENGTH = 256;
 unsigned console_row_length = 80;
-char openFileName[FILE_NAME_LENGTH];
+char openFileName[MAX_STR_LENGTH];
 const unsigned countOfDisplayRecords = 10;
-
+const unsigned personalNumberMaxLength = 6;
+const unsigned anyNumeralFieldLength = 2;
+const unsigned salaryLength = 8;
 int key;
+
 struct tableData {
     int personalNumber;
     char fio[FIO_LENGTH];
@@ -118,7 +121,11 @@ void cleanPlace();
 
 void cleanStatusBar();
 
+int rewriteString(unsigned X, unsigned Y, const int length, char *tempStr);
+
 unsigned checkPersonalNumber(int num, list *top);
+
+unsigned numberCount(long int Num);
 
 void drawHelpMenu(unsigned mode = 0);
 
@@ -215,9 +222,9 @@ int main() {
                         if (strlen(openFileName) < 3) {
                             printf("FILE WILL BE CREATE");
                         }
-                        char newFileName[FILE_NAME_LENGTH];
+                        char newFileName[MAX_STR_LENGTH];
                         printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
-                        cin.getline(newFileName, FILE_NAME_LENGTH);
+                        cin.getline(newFileName, MAX_STR_LENGTH);
                         if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                             cin.clear();            //СБРОС ОШИБКИ ПОТОКА
                             cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
@@ -246,7 +253,7 @@ int main() {
                     cleanStatusBar();
 
                     printf("ENTER FILE NAME: ");
-                    cin.getline(openFileName, FILE_NAME_LENGTH);
+                    cin.getline(openFileName, MAX_STR_LENGTH);
                     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                         cin.clear();            //СБРОС ОШИБКИ ПОТОКА
                         cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
@@ -325,7 +332,7 @@ void readTheKey() {
  */
 tableData newRecord() {
 
-    unsigned coordY = 1, coordX = 0;
+
     tableData newElement;
 
     system("cls");
@@ -334,15 +341,17 @@ tableData newRecord() {
         newElement.personalNumber = -1;
         return newElement;
     }
-
+    unsigned coordY = 1, coordX = 5;
 
     printf("FIO: ");
-    char fio[FIO_LENGTH];
-    cin.getline(fio, FIO_LENGTH);
+    char fio[FIO_LENGTH] = "\0";
+    rewriteString(coordX, coordY, FIO_LENGTH, fio);
+
+    /*cin.getline(fio, FIO_LENGTH);
     if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
         cin.clear();            //СБРОС ОШИБКИ ПОТОКА
         cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
-    }
+    }*/
 
     strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
     coordY++;
@@ -351,7 +360,7 @@ tableData newRecord() {
     printf("PERSONAL NUMBER: ");
     coordX = 17;
     int personal_number;
-    int checkResult = 0;
+    bool checkResult = false;
     do {
         if (checkResult) {
             gotoxy(coordX + 11, coordY);
@@ -390,12 +399,14 @@ tableData newRecord() {
 
     gotoxy(0, coordY);
     printf("PROF: ");
-    char prof[PROF_LENGTH];
-    cin.getline(prof, PROF_LENGTH);
+    char prof[PROF_LENGTH] = "\0";
+    coordX = 6;
+    rewriteString(coordX, coordY, PROF_LENGTH, prof);
+    /*cin.getline(prof, PROF_LENGTH);
     if (cin.fail()) {
         cin.clear();
         cin.ignore(1000, '\n');
-    }
+    }*/
     strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
     coordY++;
 
@@ -420,7 +431,7 @@ tableData newRecord() {
 
     gotoxy(0, coordY);
     printf("DEPORTMENT #: ");
-    coordX = 7;
+    coordX = 14;
     newElement.deportmentNumber = checkNumeral(coordX, coordY, 0);
     coordY++;
 
@@ -431,7 +442,6 @@ tableData newRecord() {
 
     return newElement;
 }
-
 
 /*
  * СОХРАНЕНИЕ В ФАЙЛ
@@ -447,6 +457,56 @@ int saveFile(list *top, char *fileName, bool mode) {
 
         if ((strstr(fileName, ".txt")) || (mode == 0)) {
             outFile.open(fileName, ios::out);
+            if (outFile) {
+                unsigned counter;
+                for (temp = top; temp != NULL; temp = temp->next) {
+                    outFile << temp->inf.fio << "\n";
+                    for (counter = 0; counter < personalNumberMaxLength - numberCount(
+                            temp->inf.personalNumber); counter++) {//6 МАКСИМАЛЬНОЕ КОЛ-ВО ЦИФР В ПОЛЕ personalNumber
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.personalNumber << " ";
+                    outFile << temp->inf.birth_year << " ";
+
+                    for (counter = 0; counter < anyNumeralFieldLength - numberCount(temp->inf.rank); counter++) {
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.rank << " ";
+
+                    outFile << temp->inf.sex << " ";
+
+                    for (counter = 0; counter < anyNumeralFieldLength - numberCount(temp->inf.exp); counter++) {
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.exp << " ";
+
+                    outFile << temp->inf.prof << "\n";
+
+                    for (counter = 0;
+                         counter < anyNumeralFieldLength - numberCount(temp->inf.factoryNumber); counter++) {
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.factoryNumber << " ";
+
+                    for (counter = 0;
+                         counter < anyNumeralFieldLength - numberCount(temp->inf.deportmentNumber); counter++) {
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.deportmentNumber << " ";
+
+                    for (counter = 0; counter < salaryLength - numberCount((long int) temp->inf.salary); counter++) {
+                        outFile << 0;
+                    }
+                    outFile << temp->inf.salary << "\n";
+                }
+
+                outFile.close();
+                return 0;
+            } else {
+                return 1;
+            }
+
+
         } else if ((strstr(fileName, ".bin")) || (mode == 1)) {
             outFile.open(fileName, ios::out | ios::binary);
 
@@ -483,16 +543,44 @@ int loadFile(list *&top, list *&end, char *fileName) {
 
         if (strstr(fileName, ".txt") != NULL) {
             InFile.open(fileName, ios::in);
+            if (InFile) {
+                tableData tempData;
+                int i = 0;
+                while (!InFile.eof()) {
+                    InFile >> tempData.fio;
+                    InFile >> tempData.personalNumber;
+                    InFile >> tempData.birth_year;
+                    InFile >> tempData.rank;
+                    InFile >> tempData.sex;
+                    InFile >> tempData.exp;
+                    InFile >> tempData.prof;
+                    InFile >> tempData.factoryNumber;
+                    InFile >> tempData.deportmentNumber;
+                    InFile >> tempData.salary;
+
+                    if (top == NULL) {
+                        organizeList(top, end, tempData);
+                    } else {
+                        addPerson(end, tempData);
+                    }
+                    cout << ++i << endl;
+                }
+                InFile.close();
+                return 0;
+            } else {
+                return -1;
+            }
+
         } else {
             InFile.open(fileName, ios::in | ios::binary);
 
             if (InFile) {
-                tableData tempInfo;
-                while (InFile.read((char *) &tempInfo, TABLE_DATA_SIZE)) {
+                tableData tempData;
+                while (InFile.read((char *) &tempData, TABLE_DATA_SIZE)) {
                     if (top == NULL) {
-                        organizeList(top, end, tempInfo);
+                        organizeList(top, end, tempData);
                     } else {
-                        addPerson(end, tempInfo);
+                        addPerson(end, tempData);
                     }
                 }
                 InFile.close();
@@ -827,9 +915,9 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
                     if (mode) {
                         cleanStatusBar();
                         printf("ENTER FILE NAME: ");
-                        char file_name[FILE_NAME_LENGTH];
-                        char default_name[FILE_NAME_LENGTH + 11] = "selection_";
-                        cin.getline(file_name, FILE_NAME_LENGTH);
+                        char file_name[MAX_STR_LENGTH];
+                        char default_name[MAX_STR_LENGTH + 11] = "selection_";
+                        cin.getline(file_name, MAX_STR_LENGTH);
                         if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
                             cin.clear();            //СБРОС ОШИБКИ ПОТОКА
                             cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
@@ -1113,6 +1201,59 @@ char *strToFormat(char *str, const int length) {
     return str;
 }
 
+int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
+
+    char tempStr[length];
+    strcpy(tempStr, str);
+    unsigned currentPosition;
+
+    currentPosition = strlen(str);
+
+    while (1) {
+
+        gotoxy(X, Y);
+
+        for (int i = 0; i < length; i++) {
+            putch(' ');
+        }
+
+        gotoxy(X, Y);
+        cout << tempStr << endl;
+
+        switch (key = getch()) {
+
+            case 13: {
+                strcpy(str, tempStr);
+                return 1;
+            }
+
+            case 8: {
+                if (currentPosition > 0) {
+                    currentPosition--;
+                }
+                break;
+            }
+
+            case 27: {
+                return 0;
+            }
+            default: {
+
+                if (((key >= 65) && (key <= 122)) || ((key >= 128) && (key <= 175)) || ((key >= 224) && (key <= 241)) ||
+                    (key == 32)) {
+                    if (currentPosition < length) {
+                        tempStr[currentPosition++] = (char) key;
+                    }
+                }
+
+                break;
+            }
+        }
+        tempStr[currentPosition] = '\0';
+    }
+}
+
+
 unsigned checkPersonalNumber(int num, list *top) {
 
     if (top != NULL) {
@@ -1126,6 +1267,13 @@ unsigned checkPersonalNumber(int num, list *top) {
     return 0;
 }
 
+unsigned numberCount(long int Num) {
+    int count = 1;
+    while (Num /= 10) {
+        count++;
+    }
+    return count;
+}
 
 /*
  * ФУНКЦИЯ ДЛЯ ПОИСКА ДАННЫХ ПО КЛЮЧЕВОМУ ПОЛЮ
@@ -1149,12 +1297,12 @@ int groupSearch(list *&head) {
         case 0: {
             printf("ENTER KEY: ");
             char FIO[FIO_LENGTH];
-            cin.getline(FIO,FIO_LENGTH);
+            cin.getline(FIO, FIO_LENGTH);
             if (cin.fail()) {
                 cin.clear();
                 cin.ignore(1000, '\n');
             }
-            strToFormat(FIO,FIO_LENGTH);
+            strToFormat(FIO, FIO_LENGTH);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (strstr(temp->inf.fio, FIO)) {
                     searchResult = true;
@@ -1162,16 +1310,16 @@ int groupSearch(list *&head) {
                     //outData(temp);
                 }
             }
-            if (searchResult){
+            if (searchResult) {
                 system("cls");
                 drawTableHead();
                 temp->inf = editData(temp->inf);
             }
             break;
         }
-        case 1:{
+        case 1: {
             printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11,0,0,6);
+            long int tempNumber = checkNumeral(11, 0, 0, 6);
             drawTableHead();
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.personalNumber == tempNumber) {
@@ -1179,39 +1327,39 @@ int groupSearch(list *&head) {
                     break;
                 }
             }
-            if (searchResult){
+            if (searchResult) {
                 system("cls");
                 drawTableHead();
                 temp->inf = editData(temp->inf);
             }
             break;
         }
-        case 2:{
+        case 2: {
             printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11,17,0,2);
+            long int tempNumber = checkNumeral(11, 17, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.rank == tempNumber) {
                     searchResult = true;
-                    if (tempHead == NULL){
-                        organizeList(tempHead,tempEnd,temp->inf);
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
                     } else {
-                        addPerson(tempEnd,temp->inf);
+                        addPerson(tempEnd, temp->inf);
                     }
                 }
             }
             viewList(tempHead, tempEnd, 1);
             break;
         }
-        case 3:{
+        case 3: {
             printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11,17,0,2);
+            long int tempNumber = checkNumeral(11, 17, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.factoryNumber == tempNumber) {
                     searchResult = true;
-                    if (tempHead == NULL){
-                        organizeList(tempHead,tempEnd,temp->inf);
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
                     } else {
-                        addPerson(tempEnd,temp->inf);
+                        addPerson(tempEnd, temp->inf);
                     }
                 }
             }
@@ -1219,16 +1367,16 @@ int groupSearch(list *&head) {
             break;
         }
 
-        case 4:{
+        case 4: {
             printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11,17,0,2);
+            long int tempNumber = checkNumeral(11, 17, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.deportmentNumber == tempNumber) {
                     searchResult = true;
-                    if (tempHead == NULL){
-                        organizeList(tempHead,tempEnd,temp->inf);
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
                     } else {
-                        addPerson(tempEnd,temp->inf);
+                        addPerson(tempEnd, temp->inf);
                     }
                 }
             }
