@@ -347,13 +347,7 @@ tableData newRecord() {
     char fio[FIO_LENGTH] = "\0";
     rewriteString(coordX, coordY, FIO_LENGTH, fio);
 
-    /*cin.getline(fio, FIO_LENGTH);
-    if (cin.fail()) {             //ПРИ ПЕРЕПОЛНЕНИИ БУФЕРА ВХОДНОГО ПОТОКА
-        cin.clear();            //СБРОС ОШИБКИ ПОТОКА
-        cin.ignore(1000, '\n');   //ИГНОРИРОВАНИЕ ОСТАВШИХСЯ В ПОТОКЕ СИМВОЛОВ
-    }*/
-
-    strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
+    strcpy(newElement.fio, fio);
     coordY++;
 
     gotoxy(0, coordY);
@@ -402,12 +396,7 @@ tableData newRecord() {
     char prof[PROF_LENGTH] = "\0";
     coordX = 6;
     rewriteString(coordX, coordY, PROF_LENGTH, prof);
-    /*cin.getline(prof, PROF_LENGTH);
-    if (cin.fail()) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-    }*/
-    strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
+    strcpy(newElement.prof, prof);
     coordY++;
 
 
@@ -747,42 +736,53 @@ tableData editData(tableData mainData) {
 
                 switch (currentField) {
                     case 0: {
+                        coordX = 0;
+                        rewriteString(coordX,coordY,FIO_LENGTH,current.fio);
                         break;
                     }
                     case 1: {
-                        current.personalNumber = checkNumeral(22, coordY, current.personalNumber, 6);
+                        coordX = 22;
+                        current.personalNumber = checkNumeral(coordX, coordY, current.personalNumber, 6);
                         break;
                     }
                     case 2: {
-                        current.birth_year = checkNumeral(30, coordY, current.birth_year, 4);
+                        coordX = 30;
+                        current.birth_year = checkNumeral(coordX, coordY, current.birth_year, 4);
                         break;
                     }
                     case 3: {
-                        current.sex = checkNumeral(36, coordY, current.sex, 1);
+                        coordX = 36;
+                        current.sex = checkNumeral(coordX, coordY, current.sex, 1);
                         break;
                     }
                     case 4: {
-                        //current. = checkNumeral(31, coordY, current., 4);
+                        coordX = 38;
+                        rewriteString(coordX,coordY,PROF_LENGTH,current.prof);
                         break;
                     }
                     case 5: {
-                        current.exp = checkNumeral(50, coordY, current.exp, 2);
+                        coordX = 50;
+                        current.exp = checkNumeral(coordX, coordY, current.exp, 2);
                         break;
                     }
                     case 6: {
-                        current.rank = checkNumeral(56, coordY, current.rank, 2);
+                        coordX = 56;
+                        current.rank = checkNumeral(coordX, coordY, current.rank, 2);
                         break;
                     }
                     case 7: {
-                        current.factoryNumber = checkNumeral(60, coordY, current.factoryNumber, 2);
+                        coordX = 60;
+                        current.factoryNumber = checkNumeral(coordX, coordY, current.factoryNumber, 2);
                         break;
                     }
                     case 8: {
-                        current.deportmentNumber = checkNumeral(67, coordY, current.deportmentNumber, 2);
+                        coordX = 67;
+                        current.deportmentNumber = checkNumeral(coordX, coordY, current.deportmentNumber, 2);
                         break;
                     }
                     case 9: {
-                        current.salary = (float) checkNumeral(69, coordY, (long int) current.salary, 8);
+                        coordX = 69;
+                        current.salary = (float) checkNumeral(coordX, coordY, (long int) current.salary, 8);
                         break;
                     }
                 }
@@ -1213,7 +1213,7 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 
         gotoxy(X, Y);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length - 1; i++) {
             putch(' ');
         }
 
@@ -1223,6 +1223,7 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
         switch (key = getch()) {
 
             case 13: {
+                strToFormat(tempStr, length);
                 strcpy(str, tempStr);
                 return 1;
             }
