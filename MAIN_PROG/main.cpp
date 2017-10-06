@@ -1242,7 +1242,8 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 
                 if ((((key >= 65) && (key <= 122)) ||
                         ((key >= 128) && (key <= 175)) ||
-                        ((key >= 224) && (key <= 241)) || (key == 32))
+                        ((key >= 224) && (key <= 241)) ||
+                        ((key >= 48) && (key <= 57)) || (key == 32))
                     && (currentPosition < length-1)) {
 
                         tempStr[currentPosition++] = (char) key;
