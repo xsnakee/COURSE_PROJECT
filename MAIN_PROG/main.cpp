@@ -979,7 +979,7 @@ void drawHelpMenu(unsigned mode) {
     cout << "STATUS BAR";
     for (int i = 0; i < 35; i++) putch('-');
     gotoxy(0, 19);
-    for (int i = 0; i < console_row_length - 1; i++) putch('-');
+    for (int i = 0; i < console_row_length; i++) putch('-');
     cleanStatusBar();
 }
 
@@ -1010,14 +1010,31 @@ void drawTableHead() {
 
 int menu(const char **menuItems, const int itemsCount, int currentItem) {
     int i = 0;
+    int centerCoorOfConsole = 40, coordX = 0, coordY = 0;
     while (1) {
 
         system("cls");
         for (i = 0; i < itemsCount; i++) {
+            coordX = centerCoorOfConsole - (strlen(menuItems[i])/2);
+            coordY = i + 1;
+
             if (i == currentItem) {
-                SetColor(0, 8);
+                coordX -= 6;
+                gotoxy(coordX,coordY);
+                //SetColor(0, 8);
+                SetColor(11, 0);
+                printf("--->  ");
+            } else {
+                gotoxy(coordX,coordY);
             }
-            printf("%s \n", menuItems[i]);
+
+            printf("%s", menuItems[i]);
+
+            if (i == currentItem) {
+                printf("  <---");
+            }
+            printf("\n");
+
             SetColor(7, 0);
         }
 
