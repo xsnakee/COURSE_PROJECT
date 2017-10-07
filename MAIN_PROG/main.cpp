@@ -137,7 +137,8 @@ int groupSearch(list *&head);
  * MAIN FUNCTION
  */
 int main() {
-
+    SetConsoleCP(866);
+    SetConsoleOutputCP(866);
     while (1) {
         switch (main_menu_current_item = menu(mainMenu, mainMenuItemsCount, main_menu_current_item)) {
 
@@ -276,6 +277,13 @@ int main() {
             }
 
             case 10: {
+
+                /*char fiol[FIO_LENGTH];
+                cin.getline(fiol, FIO_LENGTH);
+                cout << fiol << endl;
+                rewriteString(0, 18, FIO_LENGTH, fiol);
+                cout << fiol << endl;*/
+
                 cout << "10";
                 getch();
                 break;
@@ -317,8 +325,10 @@ void SetColor(int text, int background) {
  * Ôóíêöèÿ ïðîâåðêè êîäà êëàâèø
  */
 void readTheKey() {
+    char key2;
     while (int key = getch()) {
-        cout << key << endl;
+        key2 = key;
+        cout << key << " = " << key2 << endl;
         if (key == 13) {
             printf("Will exit");
             return;
@@ -724,7 +734,7 @@ tableData editData(tableData mainData) {
                 switch (currentField) {
                     case 0: {
                         coordX = 0;
-                        rewriteString(coordX,coordY,FIO_LENGTH,current.fio);
+                        rewriteString(coordX, coordY, FIO_LENGTH, current.fio);
                         break;
                     }
                     case 1: {
@@ -744,7 +754,7 @@ tableData editData(tableData mainData) {
                     }
                     case 4: {
                         coordX = 37;
-                        rewriteString(coordX,coordY,PROF_LENGTH,current.prof);
+                        rewriteString(coordX, coordY, PROF_LENGTH, current.prof);
                         break;
                     }
                     case 5: {
@@ -1158,15 +1168,23 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
  */
 char *strToFormat(char *str, const int length) {
     int i;
+    int k;
 
 
-    for (i = 0; i < length; i++) {
+    for (i = 0; (i < length) && (str[i] != '\0'); i++) {
 
         if ((isspace(str[i])) || (ispunct(str[i]))) { //åñëè i-òûé ýëåìåíò ïðîáåë èëè çíàê - ïðîïóñê
 
             continue;
         } else {
-            str[i] = toupper(str[i]);
+            k = str[i];
+            if ((k >= -96) && (k <= -81)) {
+                str[i] = k - 32;
+            } else if ((k >= -32) && (k <= 0)) {
+                str[i] = k - 80;
+            } else {
+                str[i] = toupper(str[i]);
+            }
         }
     }
     //ÄËß ÏÐÈÂÅÄÅÍÈß ÑÈÌÂÎËÎÂ Ê ÍÈÆÍÅÌÓ ÐÅÅÑÒÐÓ
@@ -1227,13 +1245,14 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
             }
             default: {
 
-                if ((((key >= 65) && (key <= 122)) ||
-                        ((key >= 128) && (key <= 175)) ||
-                        ((key >= 224) && (key <= 241)) ||
-                        (key == 32))
-                    && (currentPosition < length-1)) {
+                if ((((key >= 65) && (key <= 90)) ||
+                     ((key >= 97) && (key <= 122)) ||
+                     ((key >= 128) && (key <= 175)) ||
+                     ((key >= 224) && (key <= 241)) ||
+                     (key == 32))
+                    && (currentPosition < length - 1)) {
 
-                        tempStr[currentPosition++] = (char) key;
+                    tempStr[currentPosition++] = (char) key;
                 }
 
                 break;
