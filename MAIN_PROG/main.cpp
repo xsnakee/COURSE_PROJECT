@@ -54,9 +54,6 @@ const int MAX_STR_LENGTH = 256;
 unsigned console_row_length = 80;
 char openFileName[MAX_STR_LENGTH];
 const unsigned countOfDisplayRecords = 10;
-const unsigned personalNumberMaxLength = 6;
-const unsigned anyNumeralFieldLength = 2;
-const unsigned salaryLength = 8;
 int key, main_menu_current_item = 0;
 
 struct tableData {
@@ -89,53 +86,64 @@ void SetColor(int text, int background);
 
 void readTheKey();
 
-tableData newRecord();
-
+//FILE
 int saveFile(list *top, char *fileName, bool mode = 1);
 
 int loadFile(list *&top, list *&end, char *fileName);
-
-int organizeList(list *&top, list *&end, tableData personalData);
-
-int addPerson(list *&end, tableData personalData);
-
-int deleteList(list *&top);
-
-int deletePersonalData(list *&listHead, list *&listEnd, list *current);
-
-tableData editData(tableData current);
-
-void outData(list *temp);
-
-void viewList(list *&listHead, list *&end, unsigned mode = 0);
-
-int menu(const char **menuItems, const int itemsCount, int currentItem = 0);
-
-int menuInterface(const char **menuItems, const int itemsCount = 2);
 
 void saveFileInterface();
 
 void loadFileInterface();
 
-unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
+//LIST MANIPULATION
 
-char *strToFormat(char *str, const int length);
+tableData newRecord();
 
-void cleanPlace();
+int organizeList(list *&top, list *&end, tableData personalData);
 
-void cleanStatusBar();
+int addPerson(list *&end, tableData personalData);
 
-int rewriteString(unsigned X, unsigned Y, const int length, char *tempStr);
+tableData editData(tableData current);
 
-unsigned checkPersonalNumber(int num, list *top);
+int deleteList(list *&top);
+
+int deletePersonalData(list *&listHead, list *&listEnd, list *current);
+
+void outData(list *temp);
+
+void viewList(list *&listHead, list *&end, unsigned mode = 0);
+
+int groupSearch(list *&head);
+
+
+//INTERFACE
+int menu(const char **menuItems, const int itemsCount, int currentItem = 0);
+
+int menuInterface(const char **menuItems, const int itemsCount = 2);
 
 void drawHelpMenu(unsigned mode = 0);
 
 void drawTableHead();
 
-int groupSearch(list *&head);
+void cleanPlace();
+
+void cleanStatusBar();
 
 void emptyMessage();
+
+
+//CHECK AND FORMAT
+unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
+
+char *strToFormat(char *str, const int length);
+
+int rewriteString(unsigned X, unsigned Y, const int length, char *tempStr);
+
+unsigned checkPersonalNumber(int num, list *top);
+
+
+
+
 
 /*
  * MAIN FUNCTION
@@ -532,6 +540,69 @@ int loadFile(list *&top, list *&end, char *fileName) {
     }
 }
 
+void saveFileInterface() {
+    cleanStatusBar();
+    if (listHead != NULL) {
+        if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+            cleanStatusBar();
+            SetColor(12, 0);
+            printf("REWRITE?:");
+            SetColor(7, 0);
+            if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                cleanStatusBar();
+                if (!saveFile(listHead, openFileName)) {
+                    printf("FILE SAVED");
+                } else {
+                    printf("FILE NOT SAVED!");
+                }
+            }
+        } else {
+            cleanStatusBar();
+            if (strlen(openFileName) < 3) {
+                printf("FILE WILL BE CREATE");
+            }
+            char newFileName[MAX_STR_LENGTH];
+            printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
+            cin.getline(newFileName, MAX_STR_LENGTH);
+            if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
+                cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
+                cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
+            }
+            if (!saveFile(listHead, newFileName)) {
+                printf("FILE SAVED");
+                strcpy(openFileName, newFileName);
+            } else {
+                printf("FILE NOT SAVED!");
+            }
+
+        }
+    } else {
+        emptyMessage();
+    }
+}
+
+void loadFileInterface() {
+    SetColor(12, 0);
+    printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEAR)?");
+    SetColor(7, 0);
+    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+        deleteList(listHead);
+        cleanStatusBar();
+
+        printf("ENTER FILE NAME: ");
+        cin.getline(openFileName, MAX_STR_LENGTH);
+        if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
+            cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
+            cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
+        }
+        if (!loadFile(listHead, listEnd, openFileName)) {
+            printf("FILE IS OPENED!");
+        } else {
+            printf("FILE NOT OPENED!");
+        }
+    }
+};
+
 
 /*
  * Œ„‡ÌËÁ‡ˆËˇ ÒÔËÒÍ‡
@@ -563,49 +634,6 @@ int addPerson(list *&end, tableData personalData) {
     }
     return 1;
 }
-
-int deleteList(list *&top) {
-
-    if (top != NULL) {
-        list *temp;
-
-        int i = 0;
-        for (temp = top; top != NULL; temp = top) {
-            top = temp->next;
-            delete temp;
-        }
-        if (top == NULL && temp == NULL) return 1;
-        else return 0;
-    }
-}
-
-int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
-    if ((current == listHead) && (current == listEnd)) //Û‰‡ÎÂÌËÂ Â‰ËÌÒÚ‚ÂÌÌÓ„Ó ˝ÎÂÏÂÌÚ‡
-    {
-        listHead = NULL;
-        listEnd = NULL;
-        delete current;
-        return 0;
-    } else if (current == listHead) { //ËÁ Ì‡˜‡Î‡ ÒÔËÒÍ‡
-
-        listHead = listHead->next;
-        listHead->pred = NULL;
-        delete current;
-        return 1;
-    } else if (current == listEnd) {//Ò ÍÓÌˆ‡
-        listEnd = listEnd->pred;
-        listEnd->next = NULL;
-        delete current;
-        return 2;
-    } else { //Û‰‡ÎÂÌËÂ ËÁ ÒÂÂ‰ËÌ˚
-        current->pred->next = current->next;
-        current->next->pred = current->pred;
-        delete current;
-        return 3;
-    }
-}
-
-
 /*
  * –≈ƒ¿ “»–Œ¬¿Õ»≈ «¿œ»—»
  */
@@ -703,7 +731,7 @@ tableData editData(tableData mainData) {
                         break;
                     }
                     case 4: {
-                        coordX = 37;
+                        coordX = 38;
                         rewriteString(coordX, coordY, PROF_LENGTH, current.prof);
                         break;
                     }
@@ -713,7 +741,7 @@ tableData editData(tableData mainData) {
                         break;
                     }
                     case 6: {
-                        coordX = 56;
+                        coordX = 55;
                         current.rank = checkNumeral(coordX, coordY, current.rank, 2);
                         break;
                     }
@@ -723,7 +751,7 @@ tableData editData(tableData mainData) {
                         break;
                     }
                     case 8: {
-                        coordX = 67;
+                        coordX = 66;
                         current.deportmentNumber = checkNumeral(coordX, coordY, current.deportmentNumber, 2);
                         break;
                     }
@@ -745,11 +773,11 @@ tableData editData(tableData mainData) {
                 break;
             }
             case 96: case 241: {
-            if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                return current;
+                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                    return current;
+                }
+                break;
             }
-            break;
-        }
             case 27: {
                 return mainData;
             }
@@ -757,6 +785,50 @@ tableData editData(tableData mainData) {
     }
 
 }
+
+int deleteList(list *&top) {
+
+    if (top != NULL) {
+        list *temp;
+
+        int i = 0;
+        for (temp = top; top != NULL; temp = top) {
+            top = temp->next;
+            delete temp;
+        }
+        if (top == NULL && temp == NULL) return 1;
+        else return 0;
+    }
+}
+
+int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
+    if ((current == listHead) && (current == listEnd)) //Û‰‡ÎÂÌËÂ Â‰ËÌÒÚ‚ÂÌÌÓ„Ó ˝ÎÂÏÂÌÚ‡
+    {
+        listHead = NULL;
+        listEnd = NULL;
+        delete current;
+        return 0;
+    } else if (current == listHead) { //ËÁ Ì‡˜‡Î‡ ÒÔËÒÍ‡
+
+        listHead = listHead->next;
+        listHead->pred = NULL;
+        delete current;
+        return 1;
+    } else if (current == listEnd) {//Ò ÍÓÌˆ‡
+        listEnd = listEnd->pred;
+        listEnd->next = NULL;
+        delete current;
+        return 2;
+    } else { //Û‰‡ÎÂÌËÂ ËÁ ÒÂÂ‰ËÌ˚
+        current->pred->next = current->next;
+        current->next->pred = current->pred;
+        delete current;
+        return 3;
+    }
+}
+
+
+
 
 void outData(list *temp) {
     cout << setw(20) << temp->inf.fio << " "
@@ -836,7 +908,9 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
                 }
                 case 83: {
                     if (!mode) {
+                        SetColor(12,0);
                         printf("DO YOU WANT DELTE THIS DATA? \n");
+                        SetColor(7,0);
 
                         if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                             if (currentL == listHead) {
@@ -914,396 +988,6 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
     } else return;
 
 }
-
-//œ≈◊¿“‹ ƒŒœŒÀÕ»“≈À‹ÕŒ√Œ Ã≈Õﬁ
-void drawHelpMenu(unsigned mode) {
-    gotoxy(0, 17);
-    SetColor(7, 1);
-    printf("ESC - MENU | ENTER - SELECT |");
-    (!mode) ? printf(" DEL - DLT") : printf(" ~ - SAVE ");
-    printf(" | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE ");
-    SetColor(7, 0);
-
-    for (int i = 0; i < 35; i++) putch('-');
-    cout << "STATUS BAR";
-    for (int i = 0; i < 35; i++) putch('-');
-    gotoxy(0, 21);
-    for (int i = 0; i < console_row_length; i++) putch('-');
-    cleanStatusBar();
-}
-
-void drawTableHead() {
-
-    gotoxy(0, 0);
-
-    for (int i = 0; i < console_row_length; i++) {
-        cout << "-";
-    }
-
-    printf("          FIO       |");
-    printf("  ID   |");
-    printf(" YEAR|");
-    printf(" S|");
-    printf("   PROF   |");
-    printf("EXP|");
-    printf("RANK|");
-    printf("FACT|");
-    printf(" DEPT|");
-    printf("   SALARY  ");
-    for (int i = 0; i < console_row_length; i++) {
-        putch('-');
-    }
-
-
-};
-
-int menu(const char **menuItems, const int itemsCount, int currentItem) {
-    int i = 0;
-    int centerCoorOfConsole = 40, coordX = 0, coordY = 0;
-    while (1) {
-
-        system("cls");
-        for (i = 0; i < itemsCount; i++) {
-            coordX = centerCoorOfConsole - (strlen(menuItems[i]) / 2);
-            coordY = i + 1;
-
-            if (i == currentItem) {
-                coordX -= 6;
-                gotoxy(coordX, coordY);
-                //SetColor(0, 8);
-                SetColor(11, 0);
-                printf("--->  ");
-            } else {
-                gotoxy(coordX, coordY);
-            }
-
-            printf("%s", menuItems[i]);
-
-            if (i == currentItem) {
-                printf("  <---");
-            }
-            printf("\n");
-
-            SetColor(7, 0);
-        }
-
-        drawHelpMenu();
-
-        switch (key = getch()) {
-            case 13: {
-                return currentItem;
-            }
-            case 80: {
-                if (currentItem >= itemsCount - 1) currentItem = 0;
-                else currentItem++;
-                break;
-            }
-            case 72: {
-                if (currentItem <= 0) currentItem = itemsCount - 1;
-                else currentItem--;
-                break;
-            }
-            case 27: {
-                return 27;
-            }
-        }
-    }
-}
-
-int menuInterface(const char **menuItems, const int itemsCount) {
-    int currentItem = 0, i = 0;
-    while (1) {
-        cleanPlace();
-        gotoxy((40 - (strlen(menuItems[0]) / 2)), 22);
-        for (i = 0; i < itemsCount; i++) {
-            if (i == currentItem) {
-                SetColor(12, 0);
-            }
-            printf("%s \n", menuItems[i]);
-            SetColor(7, 0);
-            gotoxy((40 - (strlen(menuItems[1]) / 2)), 23);
-        }
-
-        switch (key = getch()) {
-            case 13: {
-                cleanPlace();
-                return currentItem;
-            }
-            case 80: {
-                if (currentItem >= itemsCount - 1) currentItem = 0;
-                else currentItem++;
-                break;
-            }
-            case 72: {
-                if (currentItem <= 0) currentItem = itemsCount - 1;
-                else currentItem--;
-                break;
-            }
-            case 27: {
-                cleanPlace();
-                return 0;
-            }
-        }
-    }
-}
-
-void saveFileInterface() {
-    cleanStatusBar();
-    if (listHead != NULL) {
-        if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
-            cleanStatusBar();
-            SetColor(12, 0);
-            printf("REWRITE?:");
-            SetColor(7, 0);
-            if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                cleanStatusBar();
-                if (!saveFile(listHead, openFileName)) {
-                    printf("FILE SAVED");
-                } else {
-                    printf("FILE NOT SAVED!");
-                }
-            }
-        } else {
-            cleanStatusBar();
-            if (strlen(openFileName) < 3) {
-                printf("FILE WILL BE CREATE");
-            }
-            char newFileName[MAX_STR_LENGTH];
-            printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
-            cin.getline(newFileName, MAX_STR_LENGTH);
-            if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
-                cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
-                cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
-            }
-            if (!saveFile(listHead, newFileName)) {
-                printf("FILE SAVED");
-                strcpy(openFileName, newFileName);
-            } else {
-                printf("FILE NOT SAVED!");
-            }
-
-        }
-    } else {
-        emptyMessage();
-    }
-}
-
-void loadFileInterface() {
-    SetColor(12, 0);
-    printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEAR)?");
-    SetColor(7, 0);
-    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-        deleteList(listHead);
-        cleanStatusBar();
-
-        printf("ENTER FILE NAME: ");
-        cin.getline(openFileName, MAX_STR_LENGTH);
-        if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
-            cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
-            cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
-        }
-        if (!loadFile(listHead, listEnd, openFileName)) {
-            printf("FILE IS OPENED!");
-        } else {
-            printf("FILE NOT OPENED!");
-        }
-    }
-};
-
-void cleanPlace() {
-    int i;
-    gotoxy(0, 22);
-    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
-    return;
-}
-
-void cleanStatusBar() {
-    int i;
-    gotoxy(0, 19);
-    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
-    gotoxy(0, 19);
-    return;
-}
-
-//*/
-unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
-
-    long int tempNum = num;
-    int currentDigitCount, minDigitCount = 0;
-
-    for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
-        tempNum = tempNum / 10;
-    }
-
-    tempNum = num;
-
-    while (1) {
-        gotoxy(X, Y);
-        for (int i = 0; i < maxDigitCount; i++) {
-            putch(' ');
-        }
-
-
-        if ((tempNum) || (maxDigitCount == 1)) {
-            gotoxy(X, Y);
-            printf("%d \n", tempNum);
-        }
-
-
-        switch (key = getch()) {
-
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9': {
-                if (currentDigitCount < maxDigitCount) {
-                    tempNum = tempNum * 10 + (key - '0');
-                    currentDigitCount++;
-                }
-                break;
-            }
-
-            case 8: {
-                if (currentDigitCount > minDigitCount) {
-                    tempNum = tempNum / 10;
-                    currentDigitCount--;
-                }
-                break;
-            }
-
-            case 13: {
-                return num = tempNum;
-            }
-
-            case 27: {
-                return num;
-            }
-        }
-
-    }
-}
-
-//*/
-
-/*
- * œ–»¬≈ƒ≈Õ»≈ —»Ã¬ŒÀŒ¬ ‘¿Ã»À»» » »Õ»÷»¿ÀŒ¬   ¬≈–’Õ≈Ã” –≈√»—“–”
- */
-char *strToFormat(char *str, const int length) {
-    int i;
-    int k;
-
-
-    for (i = 0; (i < length) && (str[i] != '\0'); i++) {
-
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
-
-            continue;
-        } else {
-            k = str[i];
-            if ((k >= -96) && (k <= -81)) {
-                str[i] = k - 32;
-            } else if ((k >= -32) && (k <= 0)) {
-                str[i] = k - 80;
-            } else {
-                str[i] = toupper(str[i]);
-            }
-        }
-    }
-    //ƒÀﬂ œ–»¬≈ƒ≈Õ»ﬂ —»Ã¬ŒÀŒ¬   Õ»∆Õ≈Ã” –≈≈—“–”
-
-    /*bool spaceCheck = true;
-
-    for (i = 0; i < length; i++) {
-
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
-            spaceCheck = true;
-            continue;
-        } else if (spaceCheck) {
-            spaceCheck = false;
-            str[i] = toupper(str[i]);
-        } else {
-            str[i] = tolower(str[i]);
-        }
-    }*/
-    return str;
-}
-
-int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
-
-    char tempStr[length];
-    strcpy(tempStr, str);
-    unsigned currentPosition;
-
-    currentPosition = strlen(str);
-
-    while (1) {
-
-        gotoxy(X, Y);
-
-        for (int i = 0; i < length - 1; i++) {
-            putch(' ');
-        }
-
-        gotoxy(X, Y);
-        cout << tempStr << endl;
-
-        switch (key = getch()) {
-
-            case 13: {
-                strToFormat(tempStr, length);
-                strcpy(str, tempStr);
-                return 1;
-            }
-
-            case 8: {
-                if (currentPosition > 0) {
-                    currentPosition--;
-                }
-                break;
-            }
-
-            case 27: {
-                return 0;
-            }
-            default: {
-
-                if ((((key >= 65) && (key <= 90)) ||
-                     ((key >= 97) && (key <= 122)) ||
-                     ((key >= 128) && (key <= 175)) ||
-                     ((key >= 224) && (key <= 241)) ||
-                     (key == 32))
-                    && (currentPosition < length - 1)) {
-
-                    tempStr[currentPosition++] = (char) key;
-                }
-
-                break;
-            }
-        }
-        tempStr[currentPosition] = '\0';
-    }
-}
-
-
-unsigned checkPersonalNumber(int num, list *top) {
-
-    if (top != NULL) {
-        list *temp;
-        for (temp = top; temp != NULL; temp = temp->next) {
-            if (temp->inf.personalNumber == num) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
 
 /*
  * ‘”Õ ÷»ﬂ ƒÀﬂ œŒ»— ¿ ƒ¿ÕÕ€’ œŒ  Àﬁ◊≈¬ŒÃ” œŒÀﬁ
@@ -1421,10 +1105,334 @@ int groupSearch(list *&head) {
     return 0;
 }
 
+int menu(const char **menuItems, const int itemsCount, int currentItem) {
+    int i = 0;
+    int centerCoorOfConsole = 40, coordX = 0, coordY = 0;
+    while (1) {
+
+        system("cls");
+        for (i = 0; i < itemsCount; i++) {
+            coordX = centerCoorOfConsole - (strlen(menuItems[i]) / 2);
+            coordY = i + 1;
+
+            if (i == currentItem) {
+                coordX -= 6;
+                gotoxy(coordX, coordY);
+                //SetColor(0, 8);
+                SetColor(11, 0);
+                printf("--->  ");
+            } else {
+                gotoxy(coordX, coordY);
+            }
+
+            printf("%s", menuItems[i]);
+
+            if (i == currentItem) {
+                printf("  <---");
+            }
+            printf("\n");
+
+            SetColor(7, 0);
+        }
+
+        drawHelpMenu();
+
+        switch (key = getch()) {
+            case 13: {
+                return currentItem;
+            }
+            case 80: {
+                if (currentItem >= itemsCount - 1) currentItem = 0;
+                else currentItem++;
+                break;
+            }
+            case 72: {
+                if (currentItem <= 0) currentItem = itemsCount - 1;
+                else currentItem--;
+                break;
+            }
+            case 27: {
+                return 27;
+            }
+        }
+    }
+}
+
+int menuInterface(const char **menuItems, const int itemsCount) {
+    int currentItem = 0, i = 0;
+    while (1) {
+        cleanPlace();
+        gotoxy((40 - (strlen(menuItems[0]) / 2)), 22);
+        for (i = 0; i < itemsCount; i++) {
+            if (i == currentItem) {
+                SetColor(12, 0);
+            }
+            printf("%s \n", menuItems[i]);
+            SetColor(7, 0);
+            gotoxy((40 - (strlen(menuItems[1]) / 2)), 23);
+        }
+
+        switch (key = getch()) {
+            case 13: {
+                cleanPlace();
+                return currentItem;
+            }
+            case 80: {
+                if (currentItem >= itemsCount - 1) currentItem = 0;
+                else currentItem++;
+                break;
+            }
+            case 72: {
+                if (currentItem <= 0) currentItem = itemsCount - 1;
+                else currentItem--;
+                break;
+            }
+            case 27: {
+                cleanPlace();
+                return 0;
+            }
+        }
+    }
+}
+
+//œ≈◊¿“‹ ƒŒœŒÀÕ»“≈À‹ÕŒ√Œ Ã≈Õﬁ
+void drawHelpMenu(unsigned mode) {
+    gotoxy(0, 17);
+    SetColor(7, 1);
+    printf("ESC - MENU | ENTER - SELECT |");
+    (!mode) ? printf(" DEL - DLT") : printf(" ~ - SAVE ");
+    printf(" | UP,DOWN - NAVIGATE | <-,-> SLIDE PAGE ");
+    SetColor(7, 0);
+
+    for (int i = 0; i < 35; i++) putch('-');
+    cout << "STATUS BAR";
+    for (int i = 0; i < 35; i++) putch('-');
+    gotoxy(0, 21);
+    for (int i = 0; i < console_row_length; i++) putch('-');
+    cleanStatusBar();
+}
+
+void drawTableHead() {
+
+    gotoxy(0, 0);
+
+    for (int i = 0; i < console_row_length; i++) {
+        cout << "-";
+    }
+
+    printf("          FIO       |");
+    printf("  ID   |");
+    printf(" YEAR|");
+    printf(" S|");
+    printf("   PROF   |");
+    printf("EXP|");
+    printf("RANK|");
+    printf("FACT|");
+    printf(" DEPT|");
+    printf("   SALARY  ");
+    for (int i = 0; i < console_row_length; i++) {
+        putch('-');
+    }
+
+
+};
+
+void cleanPlace() {
+    int i;
+    gotoxy(0, 22);
+    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
+    return;
+}
+
+void cleanStatusBar() {
+    int i;
+    gotoxy(0, 19);
+    for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
+    gotoxy(0, 19);
+    return;
+}
+
 void emptyMessage() {
     SetColor(14, 0);
     printf("EMPTY LIST \n");
     SetColor(7, 0);
 
 }
+
+unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
+
+    long int tempNum = num;
+    int currentDigitCount, minDigitCount = 0;
+
+    for (currentDigitCount = 0; tempNum >= 1; currentDigitCount++) {
+        tempNum = tempNum / 10;
+    }
+
+    tempNum = num;
+
+    while (1) {
+        gotoxy(X, Y);
+        for (int i = 0; i < maxDigitCount; i++) {
+            putch(' ');
+        }
+
+
+        if ((tempNum) || (maxDigitCount == 1)) {
+            gotoxy(X, Y);
+            printf("%d \n", tempNum);
+        }
+
+
+        switch (key = getch()) {
+
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                if (currentDigitCount < maxDigitCount) {
+                    tempNum = tempNum * 10 + (key - '0');
+                    currentDigitCount++;
+                }
+                break;
+            }
+
+            case 8: {
+                if (currentDigitCount > minDigitCount) {
+                    tempNum = tempNum / 10;
+                    currentDigitCount--;
+                }
+                break;
+            }
+
+            case 13: {
+                return num = tempNum;
+            }
+
+            case 27: {
+                return num;
+            }
+        }
+
+    }
+}
+
+/*
+ * œ–»¬≈ƒ≈Õ»≈ —»Ã¬ŒÀŒ¬ ‘¿Ã»À»» » »Õ»÷»¿ÀŒ¬   ¬≈–’Õ≈Ã” –≈√»—“–”
+ */
+char *strToFormat(char *str, const int length) {
+    int i;
+    int k;
+
+
+    for (i = 0; (i < length) && (str[i] != '\0'); i++) {
+
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
+
+            continue;
+        } else {
+            k = str[i];
+            if ((k >= -96) && (k <= -81)) {
+                str[i] = k - 32;
+            } else if ((k >= -32) && (k <= 0)) {
+                str[i] = k - 80;
+            } else {
+                str[i] = toupper(str[i]);
+            }
+        }
+    }
+    //ƒÀﬂ œ–»¬≈ƒ≈Õ»ﬂ —»Ã¬ŒÀŒ¬   Õ»∆Õ≈Ã” –≈≈—“–”
+
+    /*bool spaceCheck = true;
+
+    for (i = 0; i < length; i++) {
+
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
+            spaceCheck = true;
+            continue;
+        } else if (spaceCheck) {
+            spaceCheck = false;
+            str[i] = toupper(str[i]);
+        } else {
+            str[i] = tolower(str[i]);
+        }
+    }*/
+    return str;
+}
+
+int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
+
+    char tempStr[length];
+    strcpy(tempStr, str);
+    unsigned currentPosition;
+
+    currentPosition = strlen(str);
+
+    while (1) {
+
+        gotoxy(X, Y);
+
+        for (int i = 0; i < length - 1; i++) {
+            putch(' ');
+        }
+
+        gotoxy(X, Y);
+        cout << tempStr << endl;
+
+        switch (key = getch()) {
+
+            case 13: {
+                strToFormat(tempStr, length);
+                strcpy(str, tempStr);
+                return 1;
+            }
+
+            case 8: {
+                if (currentPosition > 0) {
+                    currentPosition--;
+                }
+                break;
+            }
+
+            case 27: {
+                return 0;
+            }
+            default: {
+
+                if ((((key >= 65) && (key <= 90)) ||
+                     ((key >= 97) && (key <= 122)) ||
+                     ((key >= 128) && (key <= 175)) ||
+                     ((key >= 224) && (key <= 241)) ||
+                     (key == 32))
+                    && (currentPosition < length - 1)) {
+
+                    tempStr[currentPosition++] = (char) key;
+                }
+
+                break;
+            }
+        }
+        tempStr[currentPosition] = '\0';
+    }
+}
+
+
+unsigned checkPersonalNumber(int num, list *top) {
+
+    if (top != NULL) {
+        list *temp;
+        for (temp = top; temp != NULL; temp = temp->next) {
+            if (temp->inf.personalNumber == num) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 
