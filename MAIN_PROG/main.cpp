@@ -57,7 +57,7 @@ const unsigned countOfDisplayRecords = 10;
 const unsigned personalNumberMaxLength = 6;
 const unsigned anyNumeralFieldLength = 2;
 const unsigned salaryLength = 8;
-int key;
+int key, main_menu_current_item = 0;
 
 struct tableData {
     int personalNumber;
@@ -109,7 +109,7 @@ void outData(list *temp);
 
 void viewList(list *&listHead, list *&end, unsigned mode = 0);
 
-int menu(const char **menuItems, const int itemsCount);
+int menu(const char **menuItems, const int itemsCount, int currentItem = 0);
 
 int menuInterface(const char **menuItems, const int itemsCount = 2);
 
@@ -137,9 +137,10 @@ int groupSearch(list *&head);
  * MAIN FUNCTION
  */
 int main() {
-
+    SetConsoleCP(866);
+    SetConsoleOutputCP(866);
     while (1) {
-        switch (menu(mainMenu, mainMenuItemsCount)) {
+        switch (main_menu_current_item = menu(mainMenu, mainMenuItemsCount, main_menu_current_item)) {
 
             case 0: {
                 if (listHead != NULL) {
@@ -225,9 +226,9 @@ int main() {
                         char newFileName[MAX_STR_LENGTH];
                         printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
                         cin.getline(newFileName, MAX_STR_LENGTH);
-                        if (cin.fail()) {             //–ü–†–ò –ü–ï–†–ï–ü–û–õ–ù–ï–ù–ò–ò –ë–£–§–ï–†–ê –í–•–û–î–ù–û–ì–û –ü–û–¢–û–ö–ê
-                            cin.clear();            //–°–ë–†–û–° –û–®–ò–ë–ö–ò –ü–û–¢–û–ö–ê
-                            cin.ignore(1000, '\n');   //–ò–ì–ù–û–†–ò–†–û–í–ê–ù–ò–ï –û–°–¢–ê–í–®–ò–•–°–Ø –í –ü–û–¢–û–ö–ï –°–ò–ú–í–û–õ–û–í
+                        if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
+                            cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
+                            cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
                         }
                         if (!saveFile(listHead, newFileName)) {
                             printf("FILE SAVED");
@@ -254,9 +255,9 @@ int main() {
 
                     printf("ENTER FILE NAME: ");
                     cin.getline(openFileName, MAX_STR_LENGTH);
-                    if (cin.fail()) {             //–ü–†–ò –ü–ï–†–ï–ü–û–õ–ù–ï–ù–ò–ò –ë–£–§–ï–†–ê –í–•–û–î–ù–û–ì–û –ü–û–¢–û–ö–ê
-                        cin.clear();            //–°–ë–†–û–° –û–®–ò–ë–ö–ò –ü–û–¢–û–ö–ê
-                        cin.ignore(1000, '\n');   //–ò–ì–ù–û–†–ò–†–û–í–ê–ù–ò–ï –û–°–¢–ê–í–®–ò–•–°–Ø –í –ü–û–¢–û–ö–ï –°–ò–ú–í–û–õ–û–í
+                    if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
+                        cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
+                        cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
                     }
                     if (!loadFile(listHead, listEnd, openFileName)) {
                         printf("FILE IS OPENED!");
@@ -276,6 +277,13 @@ int main() {
             }
 
             case 10: {
+
+                /*char fiol[FIO_LENGTH];
+                cin.getline(fiol, FIO_LENGTH);
+                cout << fiol << endl;
+                rewriteString(0, 18, FIO_LENGTH, fiol);
+                cout << fiol << endl;*/
+
                 cout << "10";
                 getch();
                 break;
@@ -300,25 +308,27 @@ int main() {
  * FUNCTION IMPLEMENTATION
  */
 
-/*–§—É–Ω–∫—Ü–∏—è –ø–æ–∑–∏—Ü–∏–æ–Ω–∏—Ä–æ–≤–∞–Ω–∏—è –∫—É—Ä—Å–æ—Ä–∞ –≤ –∫–æ–Ω—Å–æ–ª–∏*/
+/*‘ÛÌÍˆËˇ ÔÓÁËˆËÓÌËÓ‚‡ÌËˇ ÍÛÒÓ‡ ‚ ÍÓÌÒÓÎË*/
 void gotoxy(short x, short y) {
     HANDLE StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD coord = {x, y};
     SetConsoleCursorPosition(StdOut, coord);
 }
 
-/*–§—É–Ω–∫—Ü–∏—è –≤—ã–±–æ—Ä–∞ —Ü–≤–µ—Ç–∞ —Ç–µ–∫—Å—Ç–∞ –∏ —Ñ–æ–Ω–∞ –≤ –∫–æ–Ω—Å–æ–ª–∏*/
+/*‘ÛÌÍˆËˇ ‚˚·Ó‡ ˆ‚ÂÚ‡ ÚÂÍÒÚ‡ Ë ÙÓÌ‡ ‚ ÍÓÌÒÓÎË*/
 void SetColor(int text, int background) {
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdOut, (WORD) ((background << 4) | text));
 }
 
 /*
- * –§—É–Ω–∫—Ü–∏—è –ø—Ä–æ–≤–µ—Ä–∫–∏ –∫–æ–¥–∞ –∫–ª–∞–≤–∏—à
+ * ‘ÛÌÍˆËˇ ÔÓ‚ÂÍË ÍÓ‰‡ ÍÎ‡‚Ë¯
  */
 void readTheKey() {
+    char key2;
     while (int key = getch()) {
-        cout << key << endl;
+        key2 = key;
+        cout << key << " = " << key2 << endl;
         if (key == 13) {
             printf("Will exit");
             return;
@@ -328,7 +338,7 @@ void readTheKey() {
 
 
 /*
- * –§—É–Ω–∫—Ü–∏—è —Å–æ–∑–¥–∞–Ω–∏—è –∑–∞–ø–∏—Å–∏
+ * ‘ÛÌÍˆËˇ ÒÓÁ‰‡ÌËˇ Á‡ÔËÒË
  */
 tableData newRecord() {
 
@@ -347,13 +357,7 @@ tableData newRecord() {
     char fio[FIO_LENGTH] = "\0";
     rewriteString(coordX, coordY, FIO_LENGTH, fio);
 
-    /*cin.getline(fio, FIO_LENGTH);
-    if (cin.fail()) {             //–ü–†–ò –ü–ï–†–ï–ü–û–õ–ù–ï–ù–ò–ò –ë–£–§–ï–†–ê –í–•–û–î–ù–û–ì–û –ü–û–¢–û–ö–ê
-        cin.clear();            //–°–ë–†–û–° –û–®–ò–ë–ö–ò –ü–û–¢–û–ö–ê
-        cin.ignore(1000, '\n');   //–ò–ì–ù–û–†–ò–†–û–í–ê–ù–ò–ï –û–°–¢–ê–í–®–ò–•–°–Ø –í –ü–û–¢–û–ö–ï –°–ò–ú–í–û–õ–û–í
-    }*/
-
-    strcpy(newElement.fio, strToFormat(fio, FIO_LENGTH));
+    strcpy(newElement.fio, fio);
     coordY++;
 
     gotoxy(0, coordY);
@@ -402,12 +406,7 @@ tableData newRecord() {
     char prof[PROF_LENGTH] = "\0";
     coordX = 6;
     rewriteString(coordX, coordY, PROF_LENGTH, prof);
-    /*cin.getline(prof, PROF_LENGTH);
-    if (cin.fail()) {
-        cin.clear();
-        cin.ignore(1000, '\n');
-    }*/
-    strcpy(newElement.prof, strToFormat(prof, PROF_LENGTH));
+    strcpy(newElement.prof, prof);
     coordY++;
 
 
@@ -438,69 +437,53 @@ tableData newRecord() {
     gotoxy(0, coordY);
     printf("SALARY: ");
     coordX = 8;
-    newElement.salary = (float) checkNumeral(coordX, coordY, 0, 8);
+    newElement.salary = (float) checkNumeral(coordX, coordY, 0, 7);
 
     return newElement;
 }
 
 /*
- * –°–û–•–†–ê–ù–ï–ù–ò–ï –í –§–ê–ô–õ
+ * —Œ’–¿Õ≈Õ»≈ ¬ ‘¿…À
  * mode:
-    * 0 - —Ç–µ–∫—Å—Ç–æ–≤—ã–π —Ñ–∞–π–ª
-    * 1 - –±–∏–Ω–∞—Ä–Ω—ã–π
+    * 0 - ÚÂÍÒÚÓ‚˚È Ù‡ÈÎ
+    * 1 - ·ËÌ‡Ì˚È
  */
 int saveFile(list *top, char *fileName, bool mode) {
 
     if (top != NULL) {
         list *temp;
-        ofstream outFile;
+        ofstream inFile;
+        int j;
 
         if ((strstr(fileName, ".txt")) || (mode == 0)) {
-            outFile.open(fileName, ios::out);
-            if (outFile) {
-                unsigned counter;
+            inFile.open(fileName, ios::out);
+            if (inFile) {
                 for (temp = top; temp != NULL; temp = temp->next) {
-                    outFile << temp->inf.fio << "\n";
-                    for (counter = 0; counter < personalNumberMaxLength - numberCount(
-                            temp->inf.personalNumber); counter++) {//6 –ú–ê–ö–°–ò–ú–ê–õ–¨–ù–û–ï –ö–û–õ-–í–û –¶–ò–§–† –í –ü–û–õ–ï personalNumber
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.personalNumber << " ";
-                    outFile << temp->inf.birth_year << " ";
+                    inFile << temp->inf.fio << '\n';
 
-                    for (counter = 0; counter < anyNumeralFieldLength - numberCount(temp->inf.rank); counter++) {
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.rank << " ";
+                    /*for (counter = 0; counter < personalNumberMaxLength - numberCount(
+                            temp->inf.personalNumber); counter++) {//6 Ã¿ —»Ã¿À‹ÕŒ≈  ŒÀ-¬Œ ÷»‘– ¬ œŒÀ≈ personalNumber
+                        inFile << 0;
+                    }*/
+                    inFile << temp->inf.personalNumber << " ";
 
-                    outFile << temp->inf.sex << " ";
+                    inFile << temp->inf.birth_year << " ";
 
-                    for (counter = 0; counter < anyNumeralFieldLength - numberCount(temp->inf.exp); counter++) {
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.exp << " ";
+                    inFile << temp->inf.sex;
 
-                    outFile << temp->inf.prof << "\n";
+                    inFile << temp->inf.prof << '\n';
 
-                    for (counter = 0;
-                         counter < anyNumeralFieldLength - numberCount(temp->inf.factoryNumber); counter++) {
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.factoryNumber << " ";
+                    inFile << temp->inf.exp << " ";
 
-                    for (counter = 0;
-                         counter < anyNumeralFieldLength - numberCount(temp->inf.deportmentNumber); counter++) {
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.deportmentNumber << " ";
+                    inFile << temp->inf.rank << " ";
 
-                    for (counter = 0; counter < salaryLength - numberCount((long int) temp->inf.salary); counter++) {
-                        outFile << 0;
-                    }
-                    outFile << temp->inf.salary << "\n";
+                    inFile << temp->inf.factoryNumber << " ";
+
+                    inFile << temp->inf.deportmentNumber << " ";
+
+                    inFile << (long int) temp->inf.salary;
                 }
-
-                outFile.close();
+                inFile.close();
                 return 0;
             } else {
                 return 1;
@@ -508,14 +491,14 @@ int saveFile(list *top, char *fileName, bool mode) {
 
 
         } else if ((strstr(fileName, ".bin")) || (mode == 1)) {
-            outFile.open(fileName, ios::out | ios::binary);
+            inFile.open(fileName, ios::out | ios::binary);
 
-            if (outFile) {
+            if (inFile) {
                 for (temp = top; temp != NULL; temp = temp->next) {
-                    outFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
+                    inFile.write((char *) &temp->inf, TABLE_DATA_SIZE);
                 }
 
-                outFile.close();
+                inFile.close();
                 return 0;
             } else {
                 return 1;
@@ -530,60 +513,63 @@ int saveFile(list *top, char *fileName, bool mode) {
 }
 
 /*
- * –ó–ê–ì–†–£–ó–ö–ê –ò–ó –§–ê–ô–õ–ê
+ * «¿√–”« ¿ »« ‘¿…À¿
  * mode:
-    * 0 - —Ç–µ–∫—Å—Ç–æ–≤—ã–π —Ñ–∞–π–ª
-    * 1 - –±–∏–Ω–∞—Ä–Ω—ã–π —Ñ–∞–π–ª
+    * 0 - ÚÂÍÒÚÓ‚˚È Ù‡ÈÎ
+    * 1 - ·ËÌ‡Ì˚È Ù‡ÈÎ
  */
 
 int loadFile(list *&top, list *&end, char *fileName) {
 
     if (top == NULL) {
-        ifstream InFile;
+        ifstream outFile;
 
         if (strstr(fileName, ".txt") != NULL) {
-            InFile.open(fileName, ios::in);
-            if (InFile) {
+            outFile.open(fileName, ios::in);
+            if (outFile) {
                 tableData tempData;
                 int i = 0;
-                while (!InFile.eof()) {
-                    InFile >> tempData.fio;
-                    InFile >> tempData.personalNumber;
-                    InFile >> tempData.birth_year;
-                    InFile >> tempData.rank;
-                    InFile >> tempData.sex;
-                    InFile >> tempData.exp;
-                    InFile >> tempData.prof;
-                    InFile >> tempData.factoryNumber;
-                    InFile >> tempData.deportmentNumber;
-                    InFile >> tempData.salary;
+
+                while (!outFile.eof()) {
+                    outFile.getline(tempData.fio, FIO_LENGTH);////
+
+                    outFile >> tempData.personalNumber;
+                    outFile >> tempData.birth_year;
+                    outFile >> tempData.sex;
+
+                    outFile.getline(tempData.prof, PROF_LENGTH);/////
+
+                    outFile >> tempData.exp;
+                    outFile >> tempData.rank;
+                    outFile >> tempData.factoryNumber;
+                    outFile >> tempData.deportmentNumber;
+                    outFile >> tempData.salary;
 
                     if (top == NULL) {
                         organizeList(top, end, tempData);
                     } else {
                         addPerson(end, tempData);
                     }
-                    cout << ++i << endl;
                 }
-                InFile.close();
+                outFile.close();
                 return 0;
             } else {
                 return -1;
             }
 
         } else {
-            InFile.open(fileName, ios::in | ios::binary);
+            outFile.open(fileName, ios::in | ios::binary);
 
-            if (InFile) {
+            if (outFile) {
                 tableData tempData;
-                while (InFile.read((char *) &tempData, TABLE_DATA_SIZE)) {
+                while (outFile.read((char *) &tempData, TABLE_DATA_SIZE)) {
                     if (top == NULL) {
                         organizeList(top, end, tempData);
                     } else {
                         addPerson(end, tempData);
                     }
                 }
-                InFile.close();
+                outFile.close();
                 return 0;
             } else {
                 return -1;
@@ -598,7 +584,7 @@ int loadFile(list *&top, list *&end, char *fileName) {
 
 
 /*
- * –û—Ä–≥–∞–Ω–∏–∑–∞—Ü–∏—è —Å–ø–∏—Å–∫–∞
+ * Œ„‡ÌËÁ‡ˆËˇ ÒÔËÒÍ‡
  */
 int organizeList(list *&top, list *&end, tableData personalData) {
     if ((top == NULL) && (personalData.personalNumber != -1)) {
@@ -613,7 +599,7 @@ int organizeList(list *&top, list *&end, tableData personalData) {
 }
 
 /*
- * –î–æ–±–∞–≤–ª–µ–Ω–∏–µ –∑–∞–ø–∏—Å–∏ –≤ —Å–ø–∏—Å–æ–∫
+ * ƒÓ·‡‚ÎÂÌËÂ Á‡ÔËÒË ‚ ÒÔËÒÓÍ
  */
 int addPerson(list *&end, tableData personalData) {
     if ((end != NULL) && (personalData.personalNumber != -1)) {
@@ -644,24 +630,24 @@ int deleteList(list *&top) {
 }
 
 int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
-    if ((current == listHead) && (current == listEnd)) //—É–¥–∞–ª–µ–Ω–∏–µ –µ–¥–∏–Ω—Å—Ç–≤–µ–Ω–Ω–æ–≥–æ —ç–ª–µ–º–µ–Ω—Ç–∞
+    if ((current == listHead) && (current == listEnd)) //Û‰‡ÎÂÌËÂ Â‰ËÌÒÚ‚ÂÌÌÓ„Ó ˝ÎÂÏÂÌÚ‡
     {
         listHead = NULL;
         listEnd = NULL;
         delete current;
         return 0;
-    } else if (current == listHead) { //–∏–∑ –Ω–∞—á–∞–ª–∞ —Å–ø–∏—Å–∫–∞
+    } else if (current == listHead) { //ËÁ Ì‡˜‡Î‡ ÒÔËÒÍ‡
 
         listHead = listHead->next;
         listHead->pred = NULL;
         delete current;
         return 1;
-    } else if (current == listEnd) {//—Å –∫–æ–Ω—Ü–∞
+    } else if (current == listEnd) {//Ò ÍÓÌˆ‡
         listEnd = listEnd->pred;
         listEnd->next = NULL;
         delete current;
         return 2;
-    } else { //—É–¥–∞–ª–µ–Ω–∏–µ –∏–∑ —Å–µ—Ä–µ–¥–∏–Ω—ã
+    } else { //Û‰‡ÎÂÌËÂ ËÁ ÒÂÂ‰ËÌ˚
         current->pred->next = current->next;
         current->next->pred = current->pred;
         delete current;
@@ -671,7 +657,7 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
 
 
 /*
- * –†–ï–î–ê–ö–¢–ò–†–û–í–ê–ù–ò–ï –ó–ê–ü–ò–°–ò
+ * –≈ƒ¿ “»–Œ¬¿Õ»≈ «¿œ»—»
  */
 tableData editData(tableData mainData) {
 
@@ -747,42 +733,53 @@ tableData editData(tableData mainData) {
 
                 switch (currentField) {
                     case 0: {
+                        coordX = 0;
+                        rewriteString(coordX, coordY, FIO_LENGTH, current.fio);
                         break;
                     }
                     case 1: {
-                        current.personalNumber = checkNumeral(22, coordY, current.personalNumber, 6);
+                        coordX = 22;
+                        current.personalNumber = checkNumeral(coordX, coordY, current.personalNumber, 6);
                         break;
                     }
                     case 2: {
-                        current.birth_year = checkNumeral(30, coordY, current.birth_year, 4);
+                        coordX = 30;
+                        current.birth_year = checkNumeral(coordX, coordY, current.birth_year, 4);
                         break;
                     }
                     case 3: {
-                        current.sex = checkNumeral(36, coordY, current.sex, 1);
+                        coordX = 36;
+                        current.sex = checkNumeral(coordX, coordY, current.sex, 1);
                         break;
                     }
                     case 4: {
-                        //current. = checkNumeral(31, coordY, current., 4);
+                        coordX = 37;
+                        rewriteString(coordX, coordY, PROF_LENGTH, current.prof);
                         break;
                     }
                     case 5: {
-                        current.exp = checkNumeral(50, coordY, current.exp, 2);
+                        coordX = 50;
+                        current.exp = checkNumeral(coordX, coordY, current.exp, 2);
                         break;
                     }
                     case 6: {
-                        current.rank = checkNumeral(56, coordY, current.rank, 2);
+                        coordX = 56;
+                        current.rank = checkNumeral(coordX, coordY, current.rank, 2);
                         break;
                     }
                     case 7: {
-                        current.factoryNumber = checkNumeral(60, coordY, current.factoryNumber, 2);
+                        coordX = 60;
+                        current.factoryNumber = checkNumeral(coordX, coordY, current.factoryNumber, 2);
                         break;
                     }
                     case 8: {
-                        current.deportmentNumber = checkNumeral(67, coordY, current.deportmentNumber, 2);
+                        coordX = 67;
+                        current.deportmentNumber = checkNumeral(coordX, coordY, current.deportmentNumber, 2);
                         break;
                     }
                     case 9: {
-                        current.salary = (float) checkNumeral(69, coordY, (long int) current.salary, 8);
+                        coordX = 69;
+                        current.salary = (float) checkNumeral(coordX, coordY, (long int) current.salary, 7);
                         break;
                     }
                 }
@@ -918,9 +915,9 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
                         char file_name[MAX_STR_LENGTH];
                         char default_name[MAX_STR_LENGTH + 11] = "selection_";
                         cin.getline(file_name, MAX_STR_LENGTH);
-                        if (cin.fail()) {             //–ü–†–ò –ü–ï–†–ï–ü–û–õ–ù–ï–ù–ò–ò –ë–£–§–ï–†–ê –í–•–û–î–ù–û–ì–û –ü–û–¢–û–ö–ê
-                            cin.clear();            //–°–ë–†–û–° –û–®–ò–ë–ö–ò –ü–û–¢–û–ö–ê
-                            cin.ignore(1000, '\n');   //–ò–ì–ù–û–†–ò–†–û–í–ê–ù–ò–ï –û–°–¢–ê–í–®–ò–•–°–Ø –í –ü–û–¢–û–ö–ï –°–ò–ú–í–û–õ–û–í
+                        if (cin.fail()) {             //œ–» œ≈–≈œŒÀÕ≈Õ»» ¡”‘≈–¿ ¬’ŒƒÕŒ√Œ œŒ“Œ ¿
+                            cin.clear();            //—¡–Œ— Œÿ»¡ » œŒ“Œ ¿
+                            cin.ignore(1000, '\n');   //»√ÕŒ–»–Œ¬¿Õ»≈ Œ—“¿¬ÿ»’—ﬂ ¬ œŒ“Œ ≈ —»Ã¬ŒÀŒ¬
                         }
                         strcat(default_name, file_name);
 
@@ -969,7 +966,7 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
 
 }
 
-//–ü–ï–ß–ê–¢–¨ –î–û–ü–û–õ–ù–ò–¢–ï–õ–¨–ù–û–ì–û –ú–ï–ù–Æ
+//œ≈◊¿“‹ ƒŒœŒÀÕ»“≈À‹ÕŒ√Œ Ã≈Õﬁ
 void drawHelpMenu(unsigned mode) {
     gotoxy(0, 15);
     SetColor(7, 1);
@@ -982,7 +979,7 @@ void drawHelpMenu(unsigned mode) {
     cout << "STATUS BAR";
     for (int i = 0; i < 35; i++) putch('-');
     gotoxy(0, 19);
-    for (int i = 0; i < console_row_length - 1; i++) putch('-');
+    for (int i = 0; i < console_row_length; i++) putch('-');
     cleanStatusBar();
 }
 
@@ -1011,16 +1008,33 @@ void drawTableHead() {
 
 };
 
-int menu(const char **menuItems, const int itemsCount) {
-    int currentItem = 0, i = 0;
+int menu(const char **menuItems, const int itemsCount, int currentItem) {
+    int i = 0;
+    int centerCoorOfConsole = 40, coordX = 0, coordY = 0;
     while (1) {
 
         system("cls");
         for (i = 0; i < itemsCount; i++) {
+            coordX = centerCoorOfConsole - (strlen(menuItems[i])/2);
+            coordY = i + 1;
+
             if (i == currentItem) {
-                SetColor(0, 8);
+                coordX -= 6;
+                gotoxy(coordX,coordY);
+                //SetColor(0, 8);
+                SetColor(11, 0);
+                printf("--->  ");
+            } else {
+                gotoxy(coordX,coordY);
             }
-            printf("%s \n", menuItems[i]);
+
+            printf("%s", menuItems[i]);
+
+            if (i == currentItem) {
+                printf("  <---");
+            }
+            printf("\n");
+
             SetColor(7, 0);
         }
 
@@ -1167,28 +1181,36 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 //*/
 
 /*
- * –ü–†–ò–í–ï–î–ï–ù–ò–ï –°–ò–ú–í–û–õ–û–í –§–ê–ú–ò–õ–ò–ò –ò –ò–ù–ò–¶–ò–ê–õ–û–í –ö –í–ï–†–•–ù–ï–ú–£ –†–ï–ì–ò–°–¢–†–£
+ * œ–»¬≈ƒ≈Õ»≈ —»Ã¬ŒÀŒ¬ ‘¿Ã»À»» » »Õ»÷»¿ÀŒ¬   ¬≈–’Õ≈Ã” –≈√»—“–”
  */
 char *strToFormat(char *str, const int length) {
     int i;
+    int k;
 
 
-    for (i = 0; i < length; i++) {
+    for (i = 0; (i < length) && (str[i] != '\0'); i++) {
 
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //–µ—Å–ª–∏ i-—Ç—ã–π —ç–ª–µ–º–µ–Ω—Ç –ø—Ä–æ–±–µ–ª –∏–ª–∏ –∑–Ω–∞–∫ - –ø—Ä–æ–ø—É—Å–∫
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
 
             continue;
         } else {
-            str[i] = toupper(str[i]);
+            k = str[i];
+            if ((k >= -96) && (k <= -81)) {
+                str[i] = k - 32;
+            } else if ((k >= -32) && (k <= 0)) {
+                str[i] = k - 80;
+            } else {
+                str[i] = toupper(str[i]);
+            }
         }
     }
-    //–î–õ–Ø –ü–†–ò–í–ï–î–ï–ù–ò–Ø –°–ò–ú–í–û–õ–û–í –ö –ù–ò–ñ–ù–ï–ú–£ –†–ï–ï–°–¢–†–£
+    //ƒÀﬂ œ–»¬≈ƒ≈Õ»ﬂ —»Ã¬ŒÀŒ¬   Õ»∆Õ≈Ã” –≈≈—“–”
 
     /*bool spaceCheck = true;
 
     for (i = 0; i < length; i++) {
 
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //–µ—Å–ª–∏ i-—Ç—ã–π —ç–ª–µ–º–µ–Ω—Ç –ø—Ä–æ–±–µ–ª –∏–ª–∏ –∑–Ω–∞–∫ - –ø—Ä–æ–ø—É—Å–∫
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //ÂÒÎË i-Ú˚È ˝ÎÂÏÂÌÚ ÔÓ·ÂÎ ËÎË ÁÌ‡Í - ÔÓÔÛÒÍ
             spaceCheck = true;
             continue;
         } else if (spaceCheck) {
@@ -1213,7 +1235,7 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 
         gotoxy(X, Y);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length - 1; i++) {
             putch(' ');
         }
 
@@ -1223,6 +1245,7 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
         switch (key = getch()) {
 
             case 13: {
+                strToFormat(tempStr, length);
                 strcpy(str, tempStr);
                 return 1;
             }
@@ -1239,12 +1262,14 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
             }
             default: {
 
-                if ((((key >= 65) && (key <= 122)) ||
-                        ((key >= 128) && (key <= 175)) ||
-                        ((key >= 224) && (key <= 241)) || (key == 32))
-                    && (currentPosition < length-1)) {
+                if ((((key >= 65) && (key <= 90)) ||
+                     ((key >= 97) && (key <= 122)) ||
+                     ((key >= 128) && (key <= 175)) ||
+                     ((key >= 224) && (key <= 241)) ||
+                     (key == 32))
+                    && (currentPosition < length - 1)) {
 
-                        tempStr[currentPosition++] = (char) key;
+                    tempStr[currentPosition++] = (char) key;
                 }
 
                 break;
@@ -1277,7 +1302,7 @@ unsigned numberCount(long int Num) {
 }
 
 /*
- * –§–£–ù–ö–¶–ò–Ø –î–õ–Ø –ü–û–ò–°–ö–ê –î–ê–ù–ù–´–• –ü–û –ö–õ–Æ–ß–ï–í–û–ú–£ –ü–û–õ–Æ
+ * ‘”Õ ÷»ﬂ ƒÀﬂ œŒ»— ¿ ƒ¿ÕÕ€’ œŒ  Àﬁ◊≈¬ŒÃ” œŒÀﬁ
  */
 
 int groupSearch(list *&head) {
