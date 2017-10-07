@@ -10,7 +10,7 @@ using namespace std;
  */
 const int mainMenuItemsCount = 12;
 const char *mainMenu[mainMenuItemsCount] = {
-        "ADD USER DATA",
+        "ADD PERSONAL DATA",
         "VIEW & NAVIGATE",
         "ORGANIZE LIST",
         "VIEW LIST",
@@ -113,6 +113,10 @@ int menu(const char **menuItems, const int itemsCount, int currentItem = 0);
 
 int menuInterface(const char **menuItems, const int itemsCount = 2);
 
+void saveFileInterface();
+
+void loadFileInterface();
+
 unsigned int checkNumeral(short X = 0, short Y = 0, long int num = 0, int maxDigitCount = 2);
 
 char *strToFormat(char *str, const int length);
@@ -125,13 +129,13 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *tempStr);
 
 unsigned checkPersonalNumber(int num, list *top);
 
-unsigned numberCount(long int Num);
-
 void drawHelpMenu(unsigned mode = 0);
 
 void drawTableHead();
 
 int groupSearch(list *&head);
+
+void emptyMessage();
 
 /*
  * MAIN FUNCTION
@@ -145,7 +149,7 @@ int main() {
             case 0: {
                 if (listHead != NULL) {
                     if (!addPerson(listEnd, newRecord())) {
-                        printf("DATA ADDED!");
+                        printf("\n DATA ADDED!");
                         getch();
                     }
                 } else {
@@ -159,7 +163,7 @@ int main() {
                 if (listHead != NULL) {
                     viewList(listHead, listEnd, 0);
                 } else {
-                    printf("EMPTY LIST");
+                    emptyMessage();
                     getch();
                 }
 
@@ -186,7 +190,6 @@ int main() {
             }
 
             case 4: {
-                cout << "4";
                 readTheKey();
                 getch();
                 break;
@@ -205,73 +208,20 @@ int main() {
             }
 
             case 7: {
-                cleanStatusBar();
-                if (listHead != NULL) {
-                    if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
-                        cleanStatusBar();
-                        printf("REWRITE?:");
-                        if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                            cleanStatusBar();
-                            if (!saveFile(listHead, openFileName)) {
-                                printf("FILE SAVED");
-                            } else {
-                                printf("FILE NOT SAVED!");
-                            }
-                        }
-                    } else {
-                        cleanStatusBar();
-                        if (strlen(openFileName) < 3) {
-                            printf("FILE WILL BE CREATE");
-                        }
-                        char newFileName[MAX_STR_LENGTH];
-                        printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
-                        cin.getline(newFileName, MAX_STR_LENGTH);
-                        if (cin.fail()) {             //ÏÐÈ ÏÅÐÅÏÎËÍÅÍÈÈ ÁÓÔÅÐÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
-                            cin.clear();            //ÑÁÐÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
-                            cin.ignore(1000, '\n');   //ÈÃÍÎÐÈÐÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
-                        }
-                        if (!saveFile(listHead, newFileName)) {
-                            printf("FILE SAVED");
-                            strcpy(openFileName, newFileName);
-                        } else {
-                            printf("FILE NOT SAVED!");
-                        }
-
-                    }
-                } else {
-                    printf("EMPTY LIST");
-                }
-
+                saveFileInterface();
                 getch();
                 break;
             }
 
 
             case 8: {
-                printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEARED)?");
-                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                    deleteList(listHead);
-                    cleanStatusBar();
-
-                    printf("ENTER FILE NAME: ");
-                    cin.getline(openFileName, MAX_STR_LENGTH);
-                    if (cin.fail()) {             //ÏÐÈ ÏÅÐÅÏÎËÍÅÍÈÈ ÁÓÔÅÐÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
-                        cin.clear();            //ÑÁÐÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
-                        cin.ignore(1000, '\n');   //ÈÃÍÎÐÈÐÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
-                    }
-                    if (!loadFile(listHead, listEnd, openFileName)) {
-                        printf("FILE IS OPENED!");
-                    } else {
-                        printf("FILE NOT OPENED!");
-                    }
-                }
+                loadFileInterface();
                 getch();
                 break;
             }
 
             case 9: {
                 groupSearch(listHead);
-                cout << "9";
                 getch();
                 break;
             }
@@ -663,7 +613,7 @@ tableData editData(tableData mainData) {
 
     unsigned countOfFields = 10;
     unsigned currentField = 0, i;
-    unsigned coordX = 0, coordY = 17;
+    unsigned coordX = 0, coordY = 19;
     tableData current = mainData;
     drawHelpMenu(1);
 
@@ -794,12 +744,12 @@ tableData editData(tableData mainData) {
                 else currentField--;
                 break;
             }
-            case 96: {
-                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
-                    return current;
-                }
-                break;
+            case 96: case 241: {
+            if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                return current;
             }
+            break;
+        }
             case 27: {
                 return mainData;
             }
@@ -960,15 +910,14 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
             }
         }
 
-        cout << "EMPTY" <<
-             endl;
+        emptyMessage();
     } else return;
 
 }
 
 //ÏÅ×ÀÒÜ ÄÎÏÎËÍÈÒÅËÜÍÎÃÎ ÌÅÍÞ
 void drawHelpMenu(unsigned mode) {
-    gotoxy(0, 15);
+    gotoxy(0, 17);
     SetColor(7, 1);
     printf("ESC - MENU | ENTER - SELECT |");
     (!mode) ? printf(" DEL - DLT") : printf(" ~ - SAVE ");
@@ -978,7 +927,7 @@ void drawHelpMenu(unsigned mode) {
     for (int i = 0; i < 35; i++) putch('-');
     cout << "STATUS BAR";
     for (int i = 0; i < 35; i++) putch('-');
-    gotoxy(0, 19);
+    gotoxy(0, 21);
     for (int i = 0; i < console_row_length; i++) putch('-');
     cleanStatusBar();
 }
@@ -1015,17 +964,17 @@ int menu(const char **menuItems, const int itemsCount, int currentItem) {
 
         system("cls");
         for (i = 0; i < itemsCount; i++) {
-            coordX = centerCoorOfConsole - (strlen(menuItems[i])/2);
+            coordX = centerCoorOfConsole - (strlen(menuItems[i]) / 2);
             coordY = i + 1;
 
             if (i == currentItem) {
                 coordX -= 6;
-                gotoxy(coordX,coordY);
+                gotoxy(coordX, coordY);
                 //SetColor(0, 8);
                 SetColor(11, 0);
                 printf("--->  ");
             } else {
-                gotoxy(coordX,coordY);
+                gotoxy(coordX, coordY);
             }
 
             printf("%s", menuItems[i]);
@@ -1065,15 +1014,14 @@ int menuInterface(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
     while (1) {
         cleanPlace();
-        gotoxy((40 - (strlen(menuItems[0]) / 2)), 20);
+        gotoxy((40 - (strlen(menuItems[0]) / 2)), 22);
         for (i = 0; i < itemsCount; i++) {
             if (i == currentItem) {
-                SetColor(7, 4);
+                SetColor(12, 0);
             }
             printf("%s \n", menuItems[i]);
             SetColor(7, 0);
-            gotoxy((40 - (strlen(menuItems[1]) / 2)), 21);
-
+            gotoxy((40 - (strlen(menuItems[1]) / 2)), 23);
         }
 
         switch (key = getch()) {
@@ -1099,18 +1047,81 @@ int menuInterface(const char **menuItems, const int itemsCount) {
     }
 }
 
+void saveFileInterface() {
+    cleanStatusBar();
+    if (listHead != NULL) {
+        if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+            cleanStatusBar();
+            SetColor(12, 0);
+            printf("REWRITE?:");
+            SetColor(7, 0);
+            if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                cleanStatusBar();
+                if (!saveFile(listHead, openFileName)) {
+                    printf("FILE SAVED");
+                } else {
+                    printf("FILE NOT SAVED!");
+                }
+            }
+        } else {
+            cleanStatusBar();
+            if (strlen(openFileName) < 3) {
+                printf("FILE WILL BE CREATE");
+            }
+            char newFileName[MAX_STR_LENGTH];
+            printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
+            cin.getline(newFileName, MAX_STR_LENGTH);
+            if (cin.fail()) {             //ÏÐÈ ÏÅÐÅÏÎËÍÅÍÈÈ ÁÓÔÅÐÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+                cin.clear();            //ÑÁÐÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+                cin.ignore(1000, '\n');   //ÈÃÍÎÐÈÐÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
+            }
+            if (!saveFile(listHead, newFileName)) {
+                printf("FILE SAVED");
+                strcpy(openFileName, newFileName);
+            } else {
+                printf("FILE NOT SAVED!");
+            }
+
+        }
+    } else {
+        emptyMessage();
+    }
+}
+
+void loadFileInterface() {
+    SetColor(12, 0);
+    printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEAR)?");
+    SetColor(7, 0);
+    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+        deleteList(listHead);
+        cleanStatusBar();
+
+        printf("ENTER FILE NAME: ");
+        cin.getline(openFileName, MAX_STR_LENGTH);
+        if (cin.fail()) {             //ÏÐÈ ÏÅÐÅÏÎËÍÅÍÈÈ ÁÓÔÅÐÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+            cin.clear();            //ÑÁÐÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+            cin.ignore(1000, '\n');   //ÈÃÍÎÐÈÐÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
+        }
+        if (!loadFile(listHead, listEnd, openFileName)) {
+            printf("FILE IS OPENED!");
+        } else {
+            printf("FILE NOT OPENED!");
+        }
+    }
+};
+
 void cleanPlace() {
     int i;
-    gotoxy(0, 20);
+    gotoxy(0, 22);
     for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
     return;
 }
 
 void cleanStatusBar() {
     int i;
-    gotoxy(0, 17);
+    gotoxy(0, 19);
     for (i = 0; (i < (console_row_length * 2)); i++) putch(' ');
-    gotoxy(0, 17);
+    gotoxy(0, 19);
     return;
 }
 
@@ -1293,13 +1304,6 @@ unsigned checkPersonalNumber(int num, list *top) {
     return 0;
 }
 
-unsigned numberCount(long int Num) {
-    int count = 1;
-    while (Num /= 10) {
-        count++;
-    }
-    return count;
-}
 
 /*
  * ÔÓÍÊÖÈß ÄËß ÏÎÈÑÊÀ ÄÀÍÍÛÕ ÏÎ ÊËÞ×ÅÂÎÌÓ ÏÎËÞ
@@ -1308,7 +1312,7 @@ unsigned numberCount(long int Num) {
 int groupSearch(list *&head) {
     if (head == NULL) {
         cleanStatusBar();
-        cout << "EMPTY LIST" << endl;
+        emptyMessage();
         return 1;
     }
     list *temp, *tempHead, *tempEnd;
@@ -1415,5 +1419,12 @@ int groupSearch(list *&head) {
     }
     deleteList(tempHead);
     return 0;
+}
+
+void emptyMessage() {
+    SetColor(14, 0);
+    printf("EMPTY LIST \n");
+    SetColor(7, 0);
+
 }
 
