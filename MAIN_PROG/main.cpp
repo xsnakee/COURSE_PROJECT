@@ -37,6 +37,11 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
         "SAVE AS"
 };
 
+const int exitMessageItemsCount = 2;
+const char *exitMessage[exitMessageItemsCount] = {
+        "EXIT and SAVE DATA",
+        "EXIT"
+};
 
 const int searchMenuItemsCount = 5;
 const char *searchMenu[searchMenuItemsCount] = {
@@ -48,6 +53,19 @@ const char *searchMenu[searchMenuItemsCount] = {
 };
 
 
+const int sortMenuItemsCount = 8;
+const char *sortMenu[sortMenuItemsCount] = {
+        "SORT BY FIO",
+        "SORT BY ID",
+        "SORT BY PROF",
+        "SORT BY FACTORY",
+        "SORT BY DEPORTMENT",
+        "SORT BY SALARY",
+        "SORT BY SEX",
+        "SORT BY PROF RANK"
+};
+
+
 const int FIO_LENGTH = 21;
 const int PROF_LENGTH = 11;
 const int MAX_STR_LENGTH = 256;
@@ -55,6 +73,7 @@ unsigned console_row_length = 80;
 char openFileName[MAX_STR_LENGTH];
 const unsigned countOfDisplayRecords = 10;
 int key, main_menu_current_item = 0;
+short int sort_mode = 1;
 
 struct tableData {
     int personalNumber;
@@ -113,8 +132,6 @@ void outData(list *temp);
 
 void viewList(list *&listHead, list *&end, unsigned mode = 0);
 
-int groupSearch(list *&head);
-
 
 //INTERFACE
 int menu(const char **menuItems, const int itemsCount, int currentItem = 0);
@@ -123,7 +140,7 @@ int menuInterface(const char **menuItems, const int itemsCount = 2);
 
 void drawHelpMenu(unsigned mode = 0);
 
-void drawTableHead();
+void drawTableHead(unsigned X = 0, unsigned Y = 0);
 
 void cleanPlace();
 
@@ -141,20 +158,27 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *tempStr);
 
 unsigned checkPersonalNumber(int num, list *top);
 
+//SORT
+int sort(list *&head, list *&end, short int mode = 1);
+
+int searchData(list *&head, short int mode = 0);
+
 
 /*
  * MAIN FUNCTION
  */
 int main() {
+
     SetConsoleCP(866);
     SetConsoleOutputCP(866);
+
     while (1) {
         switch (main_menu_current_item = menu(mainMenu, mainMenuItemsCount, main_menu_current_item)) {
 
             case 0: {
                 if (listHead != NULL) {
                     if (!addPerson(listEnd, newRecord())) {
-                        printf("\n DATA ADDED!");
+                        printf("\nDATA ADDED!");
                         getch();
                     }
                 } else {
@@ -169,7 +193,6 @@ int main() {
                     viewList(listHead, listEnd, 0);
                 } else {
                     emptyMessage();
-                    getch();
                 }
 
                 break;
@@ -178,11 +201,11 @@ int main() {
             case 2: {
                 if (listHead == NULL) {
                     if (!organizeList(listHead, listEnd, newRecord())) {
-                        printf("DATA ADDED!");
+                        printf("\nDATA ADDED!");
                         getch();
                     }
                 } else {
-                    printf("LIST WAS CREATED!");
+                    printf("\nLIST WAS CREATED! USE ADD FUNCTION!");
                     getch();
                 }
                 break;
@@ -207,8 +230,11 @@ int main() {
             }
 
             case 6: {
-                cout << "6";
-                getch();
+                int sortMode = menu(sortMenu, sortMenuItemsCount);
+
+                if ((sort_mode = sort(listHead, listEnd, sortMode)) >= 0) {
+                    viewList(listHead, listEnd, 0);
+                }
                 break;
             }
 
@@ -222,11 +248,13 @@ int main() {
             case 8: {
                 loadFileInterface();
                 getch();
+                sort_mode = sort(listHead, listEnd);
                 break;
             }
 
             case 9: {
-                groupSearch(listHead);
+                int searchMode = menu(searchMenu, searchMenuItemsCount);
+                searchData(listHead, searchMode);
                 getch();
                 break;
             }
@@ -240,9 +268,15 @@ int main() {
             case 11:
             case 27: {
                 printf("EXIT?");
-                if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                unsigned exitChange = menuInterface(exitMessage, exitMessageItemsCount);
+                if (!exitChange) {
+                    saveFileInterface();
                     deleteList(listHead);
                     exit(0);
+                } else if (exitChange == 1){
+                    deleteList(listHead);
+                    exit(0);
+                    break;
                 } else {
                     break;
                 }
@@ -536,7 +570,8 @@ int loadFile(list *&top, list *&end, char *fileName) {
 void saveFileInterface() {
     cleanStatusBar();
     if (listHead != NULL) {
-        if (!menuInterface(saveFileMessage, saveFileMessageItemsCount) && (strlen(openFileName) > 1)) {
+        unsigned saveChange = menuInterface(saveFileMessage, saveFileMessageItemsCount);
+        if ((!saveChange) && (strlen(openFileName) > 1)) {
             cleanStatusBar();
             SetColor(12, 0);
             printf("REWRITE?:");
@@ -549,7 +584,7 @@ void saveFileInterface() {
                     printf("FILE NOT SAVED!");
                 }
             }
-        } else {
+        } else if (saveChange == 1){
             cleanStatusBar();
             if (strlen(openFileName) < 3) {
                 printf("FILE WILL BE CREATE");
@@ -568,6 +603,8 @@ void saveFileInterface() {
                 printf("FILE NOT SAVED!");
             }
 
+        } else if (saveChange == 27){
+            return;
         }
     } else {
         emptyMessage();
@@ -581,7 +618,8 @@ void loadFileInterface() {
     SetColor(12, 0);
     printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEAR)?");
     SetColor(7, 0);
-    if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+    unsigned loadChange = menuInterface(acceptMessage, acceptMessageItemsCount);
+    if (loadChange == 1) {
         deleteList(listHead);
         cleanStatusBar();
 
@@ -875,7 +913,7 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
             system("cls");
             temp = startDisplay;
 
-            drawTableHead();
+            drawTableHead(sort_mode);
 
             for (i = 1; (i <= countOfDisplayRecords) && (temp != NULL); temp = temp->next, i++) {
                 if (i == currentNum) {
@@ -1010,123 +1048,6 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
 }
 
 /*
- * ÔÓÍÊÖÈß ÄËß ÏÎÈÑÊÀ ÄÀÍÍÛÕ ÏÎ ÊËÞ×ÅÂÎÌÓ ÏÎËÞ
- * ÂÎÇÂÐÀÙÀÅÒ 1 - Â ÑËÓ×ÀÅ ÏÓÑÒÎÃÎ ÑÏÈÊÀ
- */
-
-int groupSearch(list *&head) {
-    if (head == NULL) {
-        cleanStatusBar();
-        emptyMessage();
-        return 1;
-    }
-    list *temp, *tempHead, *tempEnd;
-    tempHead = tempEnd = NULL;
-
-    bool searchResult = false;
-
-    switch (menu(searchMenu, searchMenuItemsCount)) {
-        case 27: {
-            return 27;
-        }
-        case 0: {
-            printf("ENTER KEY: ");
-            char FIO[FIO_LENGTH];
-            cin.getline(FIO, FIO_LENGTH);
-            if (cin.fail()) {
-                cin.clear();
-                cin.ignore(1000, '\n');
-            }
-            strToFormat(FIO, FIO_LENGTH);
-            for (temp = head; temp != NULL; temp = temp->next) {
-                if (strstr(temp->inf.fio, FIO)) {
-                    searchResult = true;
-                    break;
-                    //outData(temp);
-                }
-            }
-            if (searchResult) {
-                system("cls");
-                drawTableHead();
-                temp->inf = editData(temp->inf);
-            }
-            break;
-        }
-        case 1: {
-            printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11, 0, 0, 6);
-            drawTableHead();
-            for (temp = head; temp != NULL; temp = temp->next) {
-                if (temp->inf.personalNumber == tempNumber) {
-                    searchResult = true;
-                    break;
-                }
-            }
-            if (searchResult) {
-                system("cls");
-                drawTableHead();
-                temp->inf = editData(temp->inf);
-            }
-            break;
-        }
-        case 2: {
-            printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11, 17, 0, 2);
-            for (temp = head; temp != NULL; temp = temp->next) {
-                if (temp->inf.rank == tempNumber) {
-                    searchResult = true;
-                    if (tempHead == NULL) {
-                        organizeList(tempHead, tempEnd, temp->inf);
-                    } else {
-                        addPerson(tempEnd, temp->inf);
-                    }
-                }
-            }
-            viewList(tempHead, tempEnd, 1);
-            break;
-        }
-        case 3: {
-            printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11, 17, 0, 2);
-            for (temp = head; temp != NULL; temp = temp->next) {
-                if (temp->inf.factoryNumber == tempNumber) {
-                    searchResult = true;
-                    if (tempHead == NULL) {
-                        organizeList(tempHead, tempEnd, temp->inf);
-                    } else {
-                        addPerson(tempEnd, temp->inf);
-                    }
-                }
-            }
-            viewList(tempHead, tempEnd, 1);
-            break;
-        }
-
-        case 4: {
-            printf("ENTER KEY: ");
-            long int tempNumber = checkNumeral(11, 17, 0, 2);
-            for (temp = head; temp != NULL; temp = temp->next) {
-                if (temp->inf.deportmentNumber == tempNumber) {
-                    searchResult = true;
-                    if (tempHead == NULL) {
-                        organizeList(tempHead, tempEnd, temp->inf);
-                    } else {
-                        addPerson(tempEnd, temp->inf);
-                    }
-                }
-            }
-            viewList(tempHead, tempEnd, 1);
-            break;
-        }
-    }
-    if (!searchResult) {
-        cout << "DATA NOT FOUND" << endl;
-    }
-    deleteList(tempHead);
-    return 0;
-}
-
-/*
  * ÔÓÍÊÖÈß ÂÛÂÎÄÀ È ÍÀÂÈÃÀÖÈÈ ÎÑÍÎÂÍÎÃÎ ÌÅÍÞ
  * ÂÎÇÂÐÀÙÀÅÒ ÍÎÌÅÐ ÏÓÍÊÒÀ ÌÅÍÞ Â ÏÅÐÅÄÀÍÍÎÌ ÌÀÑÑÈÂÅ
  */
@@ -1218,7 +1139,7 @@ int menuInterface(const char **menuItems, const int itemsCount) {
             }
             case 27: {
                 cleanPlace();
-                return 0;
+                return 27;
             }
         }
     }
@@ -1258,9 +1179,10 @@ void drawHelpMenu(unsigned mode) {
 /*
  * ÔÓÍÊÖÈß ÂÛÂÎÄÀ ØÀÏÊÈ ÒÀÁËÈÖÛ
  */
-void drawTableHead() {
+void drawTableHead(unsigned X, unsigned Y) {
 
-    gotoxy(0, 0);
+    gotoxy(X, Y);
+    printf("%s \n", sortMenu[sort_mode]);
 
     for (int i = 0; i < console_row_length; i++) {
         cout << "-";
@@ -1279,6 +1201,8 @@ void drawTableHead() {
     for (int i = 0; i < console_row_length; i++) {
         putch('-');
     }
+
+
 
 
 };
@@ -1311,7 +1235,7 @@ void emptyMessage() {
     SetColor(14, 0);
     printf("EMPTY LIST \n");
     SetColor(7, 0);
-
+    getch();
 }
 
 /*
@@ -1375,7 +1299,9 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
                 break;
             }
 
-            case 13: case 96: case 241: {
+            case 13:
+            case 96:
+            case 241: {
                 return tempNum;
             }
 
@@ -1462,7 +1388,9 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 
         switch (key = getch()) {
 
-            case 13: case 96: case 241: {
+            case 13:
+            case 96:
+            case 241: {
                 strToFormat(tempStr, length);
                 strcpy(str, tempStr);
                 return 1;
@@ -1515,7 +1443,348 @@ unsigned checkPersonalNumber(int num, list *top) {
 }
 
 /*
- * ÔÓÍÊÖÈß ÑÎÐÒÈÐÎÊÈ ÑÏÈÑÊÀ ÏÎ ÐÀÇÍÛÌ ÊÐÈÒÅÐÈßÌ
+ * ÔÓÍÊÖÈß ÑÎÐÒÈÐÎÊÈ ÑÏÈÑÊÀ ÏÎ ÊÐÈÒÅÐÈßÌ
  * mode:
- *      0 - ïî 
+ *      0 - ïî ôàìèëèè
+ *      1 - ïî èíäèâèäóàëüíîìó íîìåðó
+ *      2 - ïî ïðîôôåññèè è ôàìèëèè
+ *      3 - ïî íîìåðó öåõà(factory) è ôàìèëèè
+ *      4 - ïî íîìåðó ó÷àñòêà(deportment) è ôàìèëèè
+ *      5 - ïî çàðàáîòíîé ïëàòå(salary) è ôàìèëèè
+ *      6 - ïî ïîëó(sex) è ôàìèëèè
+ *      7 - ïî ïðîôôåññèè è ðàçðÿäó
  */
+int sort(list *&head, list *&end, short int mode) {
+
+    if (head != NULL) {
+
+        switch (mode) {
+            case 0: {
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+                        if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 1: {
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+                        if (temp1->inf.personalNumber > temp2->inf.personalNumber) {
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 2: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (strcmp(temp1->inf.prof, temp2->inf.prof) > 0) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (strcmp(temp1->inf.prof, temp2->inf.prof) == 0) {
+                            if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 3: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (temp1->inf.factoryNumber > temp2->inf.factoryNumber) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (temp1->inf.factoryNumber == temp2->inf.factoryNumber) {
+                            if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 4: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (temp1->inf.deportmentNumber > temp2->inf.deportmentNumber) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (temp1->inf.deportmentNumber == temp2->inf.deportmentNumber) {
+                            if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 5: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (temp1->inf.salary > temp2->inf.salary) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (temp1->inf.salary == temp2->inf.salary) {
+                            if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 6: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (temp1->inf.sex > temp2->inf.sex) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (temp1->inf.sex == temp2->inf.sex) {
+                            if (strcmp(temp1->inf.fio, temp2->inf.fio) > 0) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 7: {
+
+                list *temp1, *temp2;
+                tableData tempData;
+
+                temp1 = temp2 = NULL;
+
+                for (temp1 = head; temp1->next != NULL; temp1 = temp1->next) {
+                    for (temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next) {
+
+                        if (strcmp(temp1->inf.prof, temp2->inf.prof) > 0) {
+
+                            tempData = temp1->inf;
+                            temp1->inf = temp2->inf;
+                            temp2->inf = tempData;
+
+                        } else if (strcmp(temp1->inf.prof, temp2->inf.prof) == 0) {
+                            if (temp1->inf.rank > temp2->inf.rank) {
+                                tempData = temp1->inf;
+                                temp1->inf = temp2->inf;
+                                temp2->inf = tempData;
+                            }
+                        }
+                    }
+                }
+                return mode;
+            }
+
+            case 27:{
+                return -2;
+            }
+        }
+    } else {
+        emptyMessage();
+        return -1;
+    }
+}
+
+/*
+ * ÔÓÍÊÖÈß ÄËß ÏÎÈÑÊÀ ÄÀÍÍÛÕ ÏÎ ÊËÞ×ÅÂÎÌÓ ÏÎËÞ
+ * ÂÎÇÂÐÀÙÀÅÒ 1 - Â ÑËÓ×ÀÅ ÏÓÑÒÎÃÎ ÑÏÈÊÀ
+ */
+int searchData(list *&head, short int mode) {
+    if (head == NULL) {
+        emptyMessage();
+        return 1;
+    }
+    list *temp, *tempHead, *tempEnd;
+    tempHead = tempEnd = NULL;
+
+    bool searchResult = false;
+
+    cleanStatusBar();
+    switch (mode) {
+        case 27: {
+            return 27;
+        }
+        case 0: {
+            printf("ENTER KEY: ");
+            char FIO[FIO_LENGTH];
+            cin.getline(FIO, FIO_LENGTH);
+            if (cin.fail()) {
+                cin.clear();
+                cin.ignore(1000, '\n');
+            }
+            strToFormat(FIO, FIO_LENGTH);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (strstr(temp->inf.fio, FIO)) {
+                    searchResult = true;
+                    break;
+                    //outData(temp);
+                }
+            }
+            if (searchResult) {
+                system("cls");
+                drawTableHead();
+                temp->inf = editData(temp->inf);
+            }
+            break;
+        }
+        case 1: {
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 6);
+            drawTableHead();
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.personalNumber == tempNumber) {
+                    searchResult = true;
+                    break;
+                }
+            }
+            if (searchResult) {
+                system("cls");
+                drawTableHead();
+                temp->inf = editData(temp->inf);
+            }
+            break;
+        }
+        case 2: {
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.rank == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
+                    } else {
+                        addPerson(tempEnd, temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+        case 3: {
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.factoryNumber == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
+                    } else {
+                        addPerson(tempEnd, temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+
+        case 4: {
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 17, 0, 2);
+            for (temp = head; temp != NULL; temp = temp->next) {
+                if (temp->inf.deportmentNumber == tempNumber) {
+                    searchResult = true;
+                    if (tempHead == NULL) {
+                        organizeList(tempHead, tempEnd, temp->inf);
+                    } else {
+                        addPerson(tempEnd, temp->inf);
+                    }
+                }
+            }
+            viewList(tempHead, tempEnd, 1);
+            break;
+        }
+    }
+    if (!searchResult) {
+        cout << "DATA NOT FOUND" << endl;
+    }
+    deleteList(tempHead);
+    return 0;
+}
