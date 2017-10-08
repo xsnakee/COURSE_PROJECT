@@ -39,7 +39,7 @@ const char *saveFileMessage[saveFileMessageItemsCount] = {
 
 const int exitMessageItemsCount = 2;
 const char *exitMessage[exitMessageItemsCount] = {
-        "EXIT and SAVE DATA",
+        "SAVE AND EXIT",
         "EXIT"
 };
 
@@ -268,18 +268,36 @@ int main() {
             case 11:
             case 27: {
                 printf("EXIT?");
-                unsigned exitChange = menuInterface(exitMessage, exitMessageItemsCount);
-                if (!exitChange) {
-                    saveFileInterface();
-                    deleteList(listHead);
-                    exit(0);
-                } else if (exitChange == 1){
-                    deleteList(listHead);
-                    exit(0);
-                    break;
+                if (listHead != NULL) {
+                    unsigned exitChange = menuInterface(exitMessage, exitMessageItemsCount);
+
+                    if (exitChange == 0) {
+                        cleanStatusBar();
+                        SetColor(12, 0);
+                        printf("REWRITE?:");
+                        SetColor(7, 0);
+                        if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
+                            cleanStatusBar();
+                            if (!saveFile(listHead, openFileName)) {
+                                printf("FILE SAVED");
+                            } else {
+                                printf("FILE NOT SAVED!");
+                            }
+                            getch();
+                        }
+                        deleteList(listHead);
+                        exit(0);
+                    }
+
                 } else {
+                    if (menuInterface(acceptMessage, acceptMessageItemsCount) == 1) {
+                        deleteList(listHead);
+                        exit(0);
+                    }
                     break;
                 }
+
+
             }
         }
     }
@@ -584,7 +602,7 @@ void saveFileInterface() {
                     printf("FILE NOT SAVED!");
                 }
             }
-        } else if (saveChange == 1){
+        } else if (saveChange == 1) {
             cleanStatusBar();
             if (strlen(openFileName) < 3) {
                 printf("FILE WILL BE CREATE");
@@ -603,7 +621,7 @@ void saveFileInterface() {
                 printf("FILE NOT SAVED!");
             }
 
-        } else if (saveChange == 27){
+        } else if (saveChange == 27) {
             return;
         }
     } else {
@@ -1203,8 +1221,6 @@ void drawTableHead(unsigned X, unsigned Y) {
     }
 
 
-
-
 };
 
 /*
@@ -1663,7 +1679,7 @@ int sort(list *&head, list *&end, short int mode) {
                 return mode;
             }
 
-            case 27:{
+            case 27: {
                 return -2;
             }
         }
