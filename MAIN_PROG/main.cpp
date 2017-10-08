@@ -263,6 +263,7 @@ int main() {
             }
 
             case 10: {
+                registerOfWorkers(listHead);
                 cout << "10";
                 getch();
                 break;
@@ -1817,10 +1818,29 @@ int searchData(list *&head, short int mode) {
 
 void registerOfWorkers(list *head){
     struct workers_register{
-        unsigned short int deportment;
-        double everage_salary;
-        unsigned int rank1,rank2,rank3, total_count_workers;
+        double total_salary = 0, everage_salary = 0;
+        unsigned int rank[3]={0,0,0}, total_count_workers = 0;
     } deportments[deportment_count];
 
+    list *temp;
+    unsigned depTempNum, rankTempNum;
+    for (temp = head; temp != NULL; temp = temp->next){
+        depTempNum = temp->inf.deportmentNumber - 1;
+        rankTempNum = temp->inf.rank - 1;
+        deportments[depTempNum].total_count_workers++;
+        deportments[depTempNum].total_salary += temp->inf.salary;
+        deportments[depTempNum].rank[rankTempNum]++;
+    }
+
+    cout << "TABLE HEAD"<< endl;
+    for(int i = 0; i < deportment_count; i++){
+        if (deportments[i].total_salary){
+            deportments[i].everage_salary = deportments[i].total_salary / deportments[i].total_count_workers;
+        }
+        cout << setprecision(2) << fixed << setw(3) << i + 1
+             << " | " << setw(10) << deportments[i].everage_salary << " | " << deportments[i].rank[0] << " | "
+             << deportments[i].rank[1] << " | " << deportments[i].rank[2] << " | "
+             << deportments[i].total_count_workers << endl;
+    }
 
 }
