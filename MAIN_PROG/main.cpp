@@ -65,6 +65,8 @@ const char *sortMenu[sortMenuItemsCount] = {
         "SORT BY PROF RANK"
 };
 
+const unsigned short int deportment_count = 10;
+const unsigned short int rank_count = 3;
 
 const int FIO_LENGTH = 21;
 const int PROF_LENGTH = 11;
@@ -163,6 +165,7 @@ int sort(list *&head, list *&end, short int mode = 1);
 
 int searchData(list *&head, short int mode = 0);
 
+void registerOfWorkers(list *head);
 
 /*
  * MAIN FUNCTION
@@ -285,9 +288,9 @@ int main() {
                             }
                             getch();
                         }
-                        deleteList(listHead);
-                        exit(0);
                     }
+                    deleteList(listHead);
+                    exit(0);
 
                 } else {
                     if (menuInterface(acceptMessage, acceptMessageItemsCount) == 1) {
@@ -296,8 +299,6 @@ int main() {
                     }
                     break;
                 }
-
-
             }
         }
     }
@@ -421,9 +422,13 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("RANK: ");
-    coordX = 6;
-    newElement.rank = checkNumeral(coordX, coordY, 0);
+    printf("RANK(1-%d): ",rank_count);
+    coordX = 11;
+    short int rank = 0;
+    while ((rank < 1) || (rank > 3)) {
+        rank = checkNumeral(coordX, coordY, 0, 1);
+    }
+    newElement.rank = rank;
     coordY++;
 
     gotoxy(0, coordY);
@@ -433,9 +438,13 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("DEPORTMENT #: ");
-    coordX = 14;
-    newElement.deportmentNumber = checkNumeral(coordX, coordY, 0);
+    printf("DEPORTMENT #(1-%d): ", deportment_count);
+    coordX = 19;
+    short int deportment = 0;
+    while ((deportment < 1) || (deportment > 10)) {
+        deportment = checkNumeral(coordX, coordY, 0, 2);
+    }
+    newElement.deportmentNumber = deportment;
     coordY++;
 
     gotoxy(0, coordY);
@@ -1803,4 +1812,15 @@ int searchData(list *&head, short int mode) {
     }
     deleteList(tempHead);
     return 0;
+}
+
+
+void registerOfWorkers(list *head){
+    struct workers_register{
+        unsigned short int deportment;
+        double everage_salary;
+        unsigned int rank1,rank2,rank3, total_count_workers;
+    } deportments[deportment_count];
+
+
 }
