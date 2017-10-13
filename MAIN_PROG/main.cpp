@@ -263,8 +263,16 @@ int main() {
             }
 
             case 10: {
-                registerOfWorkers(listHead);
-                cout << "10";
+                if (listHead != NULL){
+                    printf("REGISTER FILE WILL BE REWRITE, CONTINUE?");
+                    if (menuInterface(acceptMessage,acceptMessageItemsCount)){
+                        registerOfWorkers(listHead);
+                    } else {
+                        printf("DECLINED");
+                    }
+                } else {
+                    emptyMessage();
+                }
                 getch();
                 break;
             }
@@ -423,7 +431,7 @@ tableData newRecord() {
     coordY++;
 
     gotoxy(0, coordY);
-    printf("RANK(1-%d): ",rank_count);
+    printf("RANK(1-%d): ", rank_count);
     coordX = 11;
     short int rank = 0;
     while ((rank < 1) || (rank > 3)) {
@@ -1213,7 +1221,7 @@ void drawTableHead(unsigned X, unsigned Y) {
     printf("%s \n", sortMenu[sort_mode]);
 
     for (int i = 0; i < console_row_length; i++) {
-        cout << "-";
+        putch('-');
     }
 
     printf("          FIO       |");
@@ -1815,32 +1823,69 @@ int searchData(list *&head, short int mode) {
     return 0;
 }
 
-
-void registerOfWorkers(list *head){
-    struct workers_register{
+/*
+ * тсмйжхъ ондяв╗рю япедмеи гюпокюрш х йнкхвеярбю пюанрмхйнб мю свюярйе
+ * янупюмъер дюммше б тюик workers_register.txt
+ * бшбндхр яндепфхлне тюикю мю щйпюм
+ */
+void registerOfWorkers(list *head) {
+    struct workers_register {
         double total_salary = 0, everage_salary = 0;
-        unsigned int rank[3]={0,0,0}, total_count_workers = 0;
+        unsigned int rank[3] = {0, 0, 0}, total_count_workers = 0;
     } deportments[deportment_count];
 
     list *temp;
     unsigned depTempNum, rankTempNum;
-    for (temp = head; temp != NULL; temp = temp->next){
+    for (temp = head; temp != NULL; temp = temp->next) {
         depTempNum = temp->inf.deportmentNumber - 1;
         rankTempNum = temp->inf.rank - 1;
         deportments[depTempNum].total_count_workers++;
         deportments[depTempNum].total_salary += temp->inf.salary;
         deportments[depTempNum].rank[rankTempNum]++;
     }
+    system("cls");
+        char out_file_name[MAX_STR_LENGTH] = "workers_register.txt";
+        /*printf("ENTER FILE NAME: ");
+        cin.getline(out_file_name, MAX_STR_LENGTH);
+        if (cin.fail()) {             //опх оепеонкмемхх астепю бундмнцн онрнйю
+            cin.clear();            //яапня ньхайх онрнйю
+            cin.ignore(1000, '\n');   //хцмнпхпнбюмхе нярюбьхуяъ б онрнйе яхлбнкнб
+        }*/
+        FILE *out_file = fopen(out_file_name, "wt");
+        if (!out_file) {
+            printf("FILE NOT SAVED");
+        } else {
+            for (int i = 0; i < console_row_length - 27; i++) {
+                fprintf(out_file, "-");
+            }
+            fprintf(out_file, "\n\t|\t\t  |    EMPLOYEES    |       | ");
 
-    cout << "TABLE HEAD"<< endl;
-    for(int i = 0; i < deportment_count; i++){
-        if (deportments[i].total_salary){
-            deportments[i].everage_salary = deportments[i].total_salary / deportments[i].total_count_workers;
+            fprintf(out_file, "\n DEP #  |  EVERAGE SALARY |-----------------| TOTAL |\n");
+            fprintf(out_file, "\t|\t\t  |  1  |  2  |  3  |       |\n");
+
+            for (int i = 0; i < console_row_length - 27; i++) {
+                fprintf(out_file, "-");
+            }
+            fprintf(out_file, "\n");
+
+            for (int i = 0; i < deportment_count; i++) {
+                if (deportments[i].total_salary) {
+                    deportments[i].everage_salary = deportments[i].total_salary / deportments[i].total_count_workers;
+                }
+
+                fprintf(out_file, "%7d | %14.2f | %3d | %3d | %3d | %4d   |\n", i + 1, deportments[i].everage_salary,
+                        deportments[i].rank[0], deportments[i].rank[1], deportments[i].rank[2],
+                        deportments[i].total_count_workers);
+            }
+            for (int i = 0; i < console_row_length - 27; i++) {
+                fprintf(out_file, "-");
+            }
+            fprintf(out_file,"\n");
+
+            fclose(out_file);
+            system("copy workers_register.txt con");
+            printf("REGISTER SAVED ON FILE: workers_register.txt");
+            return;
         }
-        cout << setprecision(2) << fixed << setw(3) << i + 1
-             << " | " << setw(10) << deportments[i].everage_salary << " | " << deportments[i].rank[0] << " | "
-             << deportments[i].rank[1] << " | " << deportments[i].rank[2] << " | "
-             << deportments[i].total_count_workers << endl;
-    }
 
 }
