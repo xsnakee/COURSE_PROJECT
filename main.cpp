@@ -8,59 +8,61 @@ using namespace std;
 /*
  * STRUCTURES AND TYPES
  */
-const int mainMenuItemsCount = 10;
+const int mainMenuItemsCount = 12;
 const char *mainMenu[mainMenuItemsCount] = {
-        "„€‚ˆ’œ „€›…  €—…Œ",
-        "‘Œ’…’œ ˆ …„€Š’ˆ‚€’œ —……„œ",
-        "‘’ˆ‚€’œ —……„œ",
-        "ˆ‘Š ˆ„ˆ‚ˆ„“€‹œ›•/ƒ“‚›• „€›•",
-        "‘•€ˆ’œ „€…› ‚ ”€‰‹",
-        "‡€ƒ“‡ˆ’œ „€›… ˆ‡ ”€‰‹€",
-        "€‘—…’ ‘…„…‰ ‡€‹€’›  “—€‘’Š€Œ",
-        "ƒ€ˆ‡‚€’œ —……„œ",
-        "‚›•„",
-        "GET_KEY"
+        "ADD PERSONAL DATA",
+        "VIEW & NAVIGATE",
+        "ORGANIZE LIST",
+        "VIEW LIST",
+        "GET_KEY",
+        "EDIT USER DATA",
+        "SORT LIST",
+        "SAVE IN FILE",
+        "LOAD FROM FILE",
+        "SEARCH USER",
+        "CHECK NUMERAL",
+        "EXIT"
 };
 
 
 const int acceptMessageItemsCount = 2;
 const char *acceptMessage[acceptMessageItemsCount] = {
-        "’Œ…ˆ’œ",
-        "„’‚…„ˆ’œ"
+        "DECLINE",
+        "ACCEPT"
 };
 
 const int saveFileMessageItemsCount = 2;
 const char *saveFileMessage[saveFileMessageItemsCount] = {
-        "‘•€ˆ’œ ‚ ’…Š™ˆ‰ ”€‰‹",
-        "‘•€ˆ’œ ‚ „“ƒ‰ ”€‰‹"
+        "SAVE",
+        "SAVE AS"
 };
 
 const int exitMessageItemsCount = 2;
 const char *exitMessage[exitMessageItemsCount] = {
-        "‘•€ˆ’œ ˆ ‚›‰’ˆ",
-        "‚›‰’ˆ …‡ ‘•€…ˆŸ"
+        "SAVE AND EXIT",
+        "EXIT"
 };
 
 const int searchMenuItemsCount = 5;
 const char *searchMenu[searchMenuItemsCount] = {
-        "ˆ‘Š €’ˆŠ€  ”€Œˆ‹ˆˆ",
-        "ˆ‘Š €’ˆŠ€  …‘€‹œŒ“ Œ…“",
-        "‚›Š€ €’ˆŠ‚  €‡Ÿ„“",
-        "‚›Š€ €’ˆŠ‚  # –…•€",
-        "‚›Š€ €’ˆŠ‚  # “—€‘’Š€"
+        "SEARCH BY FIO",
+        "SEARCH BY ID NUMBER",
+        "SEARCH RANK GROUP",
+        "SEARCH FACTORY GROUP",
+        "SEARCH DEPORTMENT GROUP"
 };
 
 
 const int sortMenuItemsCount = 8;
 const char *sortMenu[sortMenuItemsCount] = {
-        "‘’ˆ‚Š€  ”€Œˆ‹ˆˆ",
-        "‘’ˆ‚Š€  …‘€‹œŒ“ Œ…“",
-        "‘’ˆ‚Š€  ”…‘‘ˆˆ",
-        "‘’ˆ‚Š€  # –…•“",
-        "‘’ˆ‚Š€  # “—€‘’Š€",
-        "‘’ˆ‚Š€  €‡Œ…“ ‡€‹€’›",
-        "‘’ˆ‚Š€  ‹‚Œ“ ˆ‡€Š“",
-        "‘’ˆ‚Š€  ”. €‡Ÿ„“"
+        "SORT BY FIO",
+        "SORT BY ID",
+        "SORT BY PROF",
+        "SORT BY FACTORY",
+        "SORT BY DEPORTMENT",
+        "SORT BY SALARY",
+        "SORT BY SEX",
+        "SORT BY PROF RANK"
 };
 
 const unsigned short int deportment_count = 10;
@@ -76,15 +78,15 @@ int key, main_menu_current_item = 0;
 short int sort_mode = 1;
 
 struct tableData {
-    unsigned int personalNumber;
+    int personalNumber;
     char fio[FIO_LENGTH];
-    unsigned short birth_year;
+    int birth_year;
     bool sex;
     char prof[PROF_LENGTH];
-    unsigned short exp;
-    unsigned short rank;
-    unsigned short factoryNumber;
-    unsigned short deportmentNumber;
+    int exp;
+    int rank;
+    int factoryNumber;
+    int deportmentNumber;
     float salary;
 };
 
@@ -179,16 +181,15 @@ int main() {
             case 0: {
                 if (listHead != NULL) {
                     if (!addPerson(listEnd, newRecord())) {
-                        printf("\n„€›… „€‚‹…›");
+                        printf("\nDATA ADDED!");
                         getch();
                     }
                 } else {
-                    printf("…•„ˆŒ €ˆ‡‚€’œ —……„œ!");
+                    printf("LIST NOT CREATED!");
                     getch();
                 }
                 break;
             }
-
 
             case 1: {
                 if (listHead != NULL) {
@@ -200,10 +201,39 @@ int main() {
                 break;
             }
 
-            
-
             case 2: {
-                 int sortMode = menu(sortMenu, sortMenuItemsCount);
+                if (listHead == NULL) {
+                    if (!organizeList(listHead, listEnd, newRecord())) {
+                        printf("\nDATA ADDED!");
+                        getch();
+                    }
+                } else {
+                    printf("\nLIST WAS CREATED! USE ADD FUNCTION!");
+                    getch();
+                }
+                break;
+            }
+
+            case 3: {
+                cout << "3";
+                getch();
+                break;
+            }
+
+            case 4: {
+                readTheKey();
+                getch();
+                break;
+            }
+
+            case 5: {
+                cout << "5";
+                getch();
+                break;
+            }
+
+            case 6: {
+                int sortMode = menu(sortMenu, sortMenuItemsCount);
 
                 if ((sort_mode = sort(listHead, listEnd, sortMode)) >= 0) {
                     viewList(listHead, listEnd, 0);
@@ -211,38 +241,34 @@ int main() {
                 break;
             }
 
-
-            case 3: {
-                int searchMode = menu(searchMenu, searchMenuItemsCount);
-                searchData(listHead, searchMode);
-                getch();
-                break;
-            }
-
-
-            case 4: {
+            case 7: {
                 saveFileInterface();
                 getch();
                 break;
             }
 
 
-            case 5: {
+            case 8: {
                 loadFileInterface();
                 getch();
                 sort_mode = sort(listHead, listEnd);
                 break;
             }
 
-            
+            case 9: {
+                int searchMode = menu(searchMenu, searchMenuItemsCount);
+                searchData(listHead, searchMode);
+                getch();
+                break;
+            }
 
-            case 6: {
+            case 10: {
                 if (listHead != NULL){
-                    printf("”€‰‹ ‚…„Œ‘’ˆ “„…’ ……‡€ˆ‘€, „‹†ˆ’œ?");
+                    printf("REGISTER FILE WILL BE REWRITE, CONTINUE?");
                     if (menuInterface(acceptMessage,acceptMessageItemsCount)){
                         registerOfWorkers(listHead);
                     } else {
-                        printf("‡€ˆ‘œ ’Œ……€");
+                        printf("DECLINED");
                     }
                 } else {
                     emptyMessage();
@@ -251,45 +277,23 @@ int main() {
                 break;
             }
 
-
-            case 7: {
-                if (listHead == NULL) {
-                    if (!organizeList(listHead, listEnd, newRecord())) {
-                        printf("\n„€›… „€‚‹…›! —……„œ ƒ€ˆ‡‚€€!");
-                        getch();
-                    }
-                } else {
-                    printf("\n—……„œ “†… ƒ€ˆ‡‚€€, ˆ‘„‡“‰’… ”“Š–ˆ „€‚‹…ˆŸ");
-                    getch();
-                }
-                break;
-            }
-
-
-            case 9: {
-                readTheKey();
-                getch();
-                break;
-            }
-
-
-            case 8:
+            case 11:
             case 27: {
-                printf("‚›‰’ˆ?");
+                printf("EXIT?");
                 if (listHead != NULL) {
                     unsigned exitChange = menuInterface(exitMessage, exitMessageItemsCount);
 
                     if (exitChange == 0) {
                         cleanStatusBar();
                         SetColor(12, 0);
-                        printf("……‡€ˆ‘€’œ ”€‰‹?:");
+                        printf("REWRITE?:");
                         SetColor(7, 0);
                         if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                             cleanStatusBar();
                             if (!saveFile(listHead, openFileName)) {
-                                printf("”€‰‹ ‘•€…");
+                                printf("FILE SAVED");
                             } else {
-                                printf("”€‰‹ … ‘•€…!");
+                                printf("FILE NOT SAVED!");
                             }
                             getch();
                         }
@@ -314,21 +318,21 @@ int main() {
  * FUNCTION IMPLEMENTATION
  */
 
-/*”ã­ªæ¨ï ¯®§¨æ¨®­¨à®¢ ­¨ï ªãàá®à  ¢ ª®­á®«¨*/
+/*Ôóíêöèÿ ïîçèöèîíèğîâàíèÿ êóğñîğà â êîíñîëè*/
 void gotoxy(short x, short y) {
     HANDLE StdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD coord = {x, y};
     SetConsoleCursorPosition(StdOut, coord);
 }
 
-/*”ã­ªæ¨ï ¢ë¡®à  æ¢¥â  â¥ªáâ  ¨ ä®­  ¢ ª®­á®«¨*/
+/*Ôóíêöèÿ âûáîğà öâåòà òåêñòà è ôîíà â êîíñîëè*/
 void SetColor(int text, int background) {
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdOut, (WORD) ((background << 4) | text));
 }
 
 /*
- * ”ã­ªæ¨ï ¯à®¢¥àª¨ ª®¤  ª« ¢¨è
+ * Ôóíêöèÿ ïğîâåğêè êîäà êëàâèø
  */
 void readTheKey() {
     char key2;
@@ -336,7 +340,7 @@ void readTheKey() {
         key2 = key;
         cout << key << " = " << key2 << endl;
         if (key == 13) {
-            printf("Š…–");
+            printf("Will exit");
             return;
         }
     }
@@ -344,11 +348,11 @@ void readTheKey() {
 
 
 /*
- * ”“Š–ˆŸ „‹Ÿ ‡€‹…ˆŸ „€›• ‘’“Š’“› ‹…Œ…’€
- * ‚‡‚€™€…’ ‡€‹…“ ‘’“Š’““
- * …‘‹ˆ „€›… ‹Ÿ … ‚‚…„…›:
-        ’…Š‘’‚… == "\0":
-        —ˆ‘‹‚… == 0;
+ * ÔÓÍÊÖÈß ÄËß ÇÀÏÎËÍÅÍÈß ÄÀÍÍÛÕ ÑÒĞÓÊÒÓĞÛ İËÅÌÅÍÒÀ
+ * ÂÎÇÂĞÀÙÀÅÒ ÇÀÏÎËÍÅÍÍÓŞ ÑÒĞÓÊÒÓĞÓ
+ * ÅÑËÈ ÄÀÍÍÛÅ ÏÎËß ÍÅ ÂÂÅÄÅÍÛ:
+        ÒÅÊÑÒÎÂÎÅ == "\0":
+        ×ÈÑËÎÂÎÅ == 0;
  */
 tableData newRecord() {
 
@@ -356,7 +360,7 @@ tableData newRecord() {
     tableData newElement;
 
     system("cls");
-    printf("‚‚…„ˆ’… „€›… ˆ‹ˆ €†Œˆ’… ESC „‹Ÿ ‚‡‚€’€ ‚ ‘‚… Œ…: \n");
+    printf("ENTER PERSONAL DATA OR PRESS ESC to main menu: \n");
     if (getch() == 27) {
         newElement.personalNumber = -1;
         return newElement;
@@ -378,7 +382,7 @@ tableData newRecord() {
     do {
         if (checkResult) {
             gotoxy(coordX + 11, coordY);
-            printf("‡€ˆ‘œ ‘ ’€ŠˆŒˆ Œ…Œ “†… ‘“™…‘’‚“…’!");
+            printf("RECORD WITH SUCH DATA EXISTS!");
             getch();
         }
         personal_number = checkNumeral(coordX, coordY, 0, 6);
@@ -461,13 +465,13 @@ tableData newRecord() {
 }
 
 /*
- * ”“Š–ˆŸ ‘•€…ˆŸ —……„ˆ ‚ ”€‰‹
+ * ÔÓÍÊÖÈß ÑÎÕĞÀÍÅÍÈß Î×ÅĞÅÄÈ Â ÔÀÉË
  * mode:
-    * 0 - â¥ªáâ®¢ë© ä ©« ¨«¨ ¥á«¨ ä ©« ¨¬¥¥â à áè¨à¥­¨¥ ".txt"
-        * ‘‹… ’…Š‘’‚›• ‹…‰ „€‚‹Ÿ…’ ‘ˆŒ‚‹ '\n'
-        * ‘‹… —ˆ‘‹‚›• " "
+    * 0 - òåêñòîâûé ôàéë èëè åñëè ôàéë èìååò ğàñøèğåíèå ".txt"
+        * ÏÎÑËÅ ÒÅÊÑÒÎÂÛÕ ÏÎËÅÉ ÄÎÁÀÂËßÅÒ ÑÈÌÂÎË '\n'
+        * ÏÎÑËÅ ×ÈÑËÎÂÛÕ " "
 
-    * 1 - ¡¨­ à­ë© ä ©« ¨«¨ ¥á«¨ ä ©« ¨¬¥¥â à áè¨à¥­¨¥ ".bin"
+    * 1 - áèíàğíûé ôàéë èëè åñëè ôàéë èìååò ğàñøèğåíèå ".bin"
  */
 int saveFile(list *top, char *fileName, bool mode) {
 
@@ -530,7 +534,7 @@ int saveFile(list *top, char *fileName, bool mode) {
 }
 
 /*
- * ”“Š–ˆŸ ‡€ƒ“‡Šˆ —……„ˆ ˆ‡ ”€‰‹€
+ * ÔÓÍÊÖÈß ÇÀÃĞÓÇÊÈ Î×ÅĞÅÄÈ ÈÇ ÔÀÉËÀ
  */
 int loadFile(list *&top, list *&end, char *fileName) {
 
@@ -597,7 +601,7 @@ int loadFile(list *&top, list *&end, char *fileName) {
 
 
 /*
- * ”“–ˆŸ „‹Ÿ ‚›‡‚€ ”“Š–ˆˆ ‡€ˆ‘ˆ ‚ ”€‰‹
+ * ÔÓÍÖÈß ÄËß ÂÛÇÎÂÀ ÔÓÍÊÖÈÈ ÇÀÏÈÑÈ Â ÔÀÉË
  */
 void saveFileInterface() {
     cleanStatusBar();
@@ -606,34 +610,33 @@ void saveFileInterface() {
         if ((!saveChange) && (strlen(openFileName) > 1)) {
             cleanStatusBar();
             SetColor(12, 0);
-            printf("……‡€ˆ‘€’œ?");
+            printf("REWRITE?:");
             SetColor(7, 0);
             if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
                 cleanStatusBar();
                 if (!saveFile(listHead, openFileName)) {
-                    printf("”€‰‹ ‘•€…");
+                    printf("FILE SAVED");
                 } else {
-                    printf("”€‰‹ … ‘•€…!");
+                    printf("FILE NOT SAVED!");
                 }
             }
-        } else if ((saveChange == 1) || strlen(openFileName) < 2) {
+        } else if (saveChange == 1) {
             cleanStatusBar();
             if (strlen(openFileName) < 3) {
-                printf("”€‰‹ “„…’ ‘‡„€ \n");
+                printf("FILE WILL BE CREATE");
             }
             char newFileName[MAX_STR_LENGTH];
-            printf("‚‚…„ˆ’… ˆŒŸ ”€‰‹€(*.bin - binary, *.txt - text): ");
+            printf("ENTER FILE NAME(*.bin - binary, *.txt - text): ");
             cin.getline(newFileName, MAX_STR_LENGTH);
-            if (cin.fail()) {             //ˆ ……‹…ˆˆ “”…€ ‚•„ƒ ’Š€
-                cin.clear();            //‘‘ ˜ˆŠˆ ’Š€
-                cin.ignore(1000, '\n');   //ˆƒˆ‚€ˆ… ‘’€‚˜ˆ•‘Ÿ ‚ ’Š… ‘ˆŒ‚‹‚
+            if (cin.fail()) {             //ÏĞÈ ÏÅĞÅÏÎËÍÅÍÈÈ ÁÓÔÅĞÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+                cin.clear();            //ÑÁĞÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+                cin.ignore(1000, '\n');   //ÈÃÍÎĞÈĞÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
             }
-            cleanStatusBar();
             if (!saveFile(listHead, newFileName)) {
-                printf("”€‰‹ ‘•€…");
+                printf("FILE SAVED");
                 strcpy(openFileName, newFileName);
             } else {
-                printf("”€‰‹ … ‘•€…!");
+                printf("FILE NOT SAVED!");
             }
 
         } else if (saveChange == 27) {
@@ -645,38 +648,38 @@ void saveFileInterface() {
 }
 
 /*
- * ”“–ˆŸ „‹Ÿ ‚›‡‚€ ”“Š–ˆˆ ‡€Šƒ“‡Šˆ ”€‰‹€
+ * ÔÓÍÖÈß ÄËß ÂÛÇÎÂÀ ÔÓÍÊÖÈÈ ÇÀÊÃĞÓÇÊÈ ÔÀÉËÀ
  */
 void loadFileInterface() {
     SetColor(12, 0);
-    printf("’…Š“™ˆ… „€›… “„“’ ’…Ÿ›, •’ˆ’… ‹ˆ ‚› „‹†ˆ’œ?");
+    printf("DO YOU WANT OPEN FILE(CURRENT DATA WILL BE CLEAR)?");
     SetColor(7, 0);
     unsigned loadChange = menuInterface(acceptMessage, acceptMessageItemsCount);
     if (loadChange == 1) {
         deleteList(listHead);
         cleanStatusBar();
 
-        printf("‚‚…„ˆ’… ˆŒŸ ”€‰‹€: ");
+        printf("ENTER FILE NAME: ");
         cin.getline(openFileName, MAX_STR_LENGTH);
-        if (cin.fail()) {             //ˆ ……‹…ˆˆ “”…€ ‚•„ƒ ’Š€
-            cin.clear();            //‘‘ ˜ˆŠˆ ’Š€
-            cin.ignore(1000, '\n');   //ˆƒˆ‚€ˆ… ‘’€‚˜ˆ•‘Ÿ ‚ ’Š… ‘ˆŒ‚‹‚
+        if (cin.fail()) {             //ÏĞÈ ÏÅĞÅÏÎËÍÅÍÈÈ ÁÓÔÅĞÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+            cin.clear();            //ÑÁĞÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+            cin.ignore(1000, '\n');   //ÈÃÍÎĞÈĞÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
         }
         if (!loadFile(listHead, listEnd, openFileName)) {
-            printf("”€‰‹ ’Š›’");
+            printf("FILE IS OPENED!");
         } else {
-            printf("… “„€‹‘œ ’Š›’œ ”€‰‹!");
+            printf("FILE NOT OPENED!");
         }
     }
 };
 
 
 /*
- * ”“Š–ˆŸ ƒ€ˆ‡€–ˆˆ —……„ˆ
- * ‡‚‹Ÿ…’ „€‚ˆ’œ ’‹œŠ …‚›‰ ‹…Œ…’
- * ‚‡‚€™€…’:
- *            0 - ‚ ‘‹“—€… „€‚‹…ˆŸ
- *            1 - ‚ ‘‹“—€… … “‘’ƒ ‘ˆ‘Š€
+ * ÔÓÍÊÖÈß ÎĞÃÀÍÈÇÀÖÈÈ Î×ÅĞÅÄÈ
+ * ÏÎÇÂÎËßÅÒ ÄÎÁÀÂÈÒÜ ÒÎËÜÊÎ ÏÅĞÂÛÉ İËÅÌÅÍÒ
+ * ÂÎÇÂĞÀÙÀÅÒ:
+ *            0 - Â ÑËÓ×ÀÅ ÄÎÁÀÂËÅÍÈß
+ *            1 - Â ÑËÓ×ÀÅ ÍÅ ÏÓÑÒÎÃÎ ÑÏÈÑÊÀ
  */
 int organizeList(list *&top, list *&end, tableData personalData) {
     if ((top == NULL) && (personalData.personalNumber != -1)) {
@@ -691,11 +694,11 @@ int organizeList(list *&top, list *&end, tableData personalData) {
 }
 
 /*
- * ”“Š–ˆŸ „€‚‹…ˆŸ ‹…Œ…’€ ‚ —……„œ
- * „€‚‹Ÿ…’ ‹…Œ…’› ’‹œŠ, …‘‹ˆ ‘ˆ‘Š … “‘’
- * ‚‡‚€™€…’:
- *            0 - ‚ ‘‹“—€… „€‚‹…ˆŸ
- *            1 - ‚ ‘‹“—€… “‘’ƒ ‘ˆ‘Š€
+ * ÔÓÍÊÖÈß ÄÎÁÀÂËÅÍÈß İËÅÌÅÍÒÀ Â Î×ÅĞÅÄÜ
+ * ÄÎÁÀÂËßÅÒ İËÅÌÅÍÒÛ ÒÎËÜÊÎ, ÅÑËÈ ÑÏÈÑÎÊ ÍÅ ÏÓÑÒ
+ * ÂÎÇÂĞÀÙÀÅÒ:
+ *            0 - Â ÑËÓ×ÀÅ ÄÎÁÀÂËÅÍÈß
+ *            1 - Â ÑËÓ×ÀÅ ÏÓÑÒÎÃÎ ÑÏÈÑÊÀ
  */
 int addPerson(list *&end, tableData personalData) {
     if ((end != NULL) && (personalData.personalNumber != -1)) {
@@ -711,9 +714,9 @@ int addPerson(list *&end, tableData personalData) {
 }
 
 /*
- * ”“Š–ˆŸ …„€Š’ˆ‚€ˆ… ‡€ˆ‘ˆ
- * ˆ €†€’ˆˆ: ~ - ‚‡‚€™€…’ ˆ‡Œ…ğ“ ‘’“Š’““
- *             ESC - ‘’“Š’““ …‡ ˆ‡Œ……ˆ‰
+ * ÔÓÍÊÖÈß ĞÅÄÀÊÒÈĞÎÂÀÍÈÅ ÇÀÏÈÑÈ
+ * ÏĞÈ ÍÀÆÀÒÈÈ: ~ - ÂÎÇÂĞÀÙÀÅÒ ÈÇÌÅÍ¨ÍÍÓŞ ÑÒĞÓÊÒÓĞÓ
+ *             ESC - ÑÒĞÓÊÒÓĞÓ ÁÅÇ ÈÇÌÅÍÅÍÈÉ
  */
 tableData editData(tableData mainData) {
 
@@ -795,17 +798,7 @@ tableData editData(tableData mainData) {
                     }
                     case 1: {
                         coordX = 22;
-                    //    
-                         bool checkResult = false;
-    				do {
-        				if (checkResult) {
-            			gotoxy(coordX + 11, coordY);
-           				 getch();
-        				}
-        				current.personalNumber = checkNumeral(coordX, coordY, current.personalNumber, 6);
-    				} while (checkResult = checkPersonalNumber(current.personalNumber, listHead));
-    				//
-                        //current.personalNumber = checkNumeral(coordX, coordY, current.personalNumber, 6);
+                        current.personalNumber = checkNumeral(coordX, coordY, current.personalNumber, 6);
                         break;
                     }
                     case 2: {
@@ -876,7 +869,7 @@ tableData editData(tableData mainData) {
 }
 
 /*
- * ”“Š–ˆŸ “„€‹…ˆŸ ‘ˆ‘Š€
+ * ÔÓÍÊÖÈß ÓÄÀËÅÍÈß ÑÏÈÑÊÀ
  */
 int deleteList(list *&top) {
 
@@ -894,27 +887,27 @@ int deleteList(list *&top) {
 }
 
 /*
- * ”“Š–ˆŸ “„€‹…ˆŸ „ƒ ‹…Œ…’€ ‘ˆ‘Š€
+ * ÔÓÍÊÖÈß ÓÄÀËÅÍÈß ÎÄÍÎÃÎ İËÅÌÅÍÒÀ ÑÏÈÑÊÀ
  */
 int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
-    if ((current == listHead) && (current == listEnd)) //ã¤ «¥­¨¥ ¥¤¨­áâ¢¥­­®£® í«¥¬¥­â 
+    if ((current == listHead) && (current == listEnd)) //óäàëåíèå åäèíñòâåííîãî ıëåìåíòà
     {
         listHead = NULL;
         listEnd = NULL;
         delete current;
         return 0;
-    } else if (current == listHead) { //¨§ ­ ç «  á¯¨áª 
+    } else if (current == listHead) { //èç íà÷àëà ñïèñêà
 
         listHead = listHead->next;
         listHead->pred = NULL;
         delete current;
         return 1;
-    } else if (current == listEnd) {//á ª®­æ 
+    } else if (current == listEnd) {//ñ êîíöà
         listEnd = listEnd->pred;
         listEnd->next = NULL;
         delete current;
         return 2;
-    } else { //ã¤ «¥­¨¥ ¨§ á¥à¥¤¨­ë
+    } else { //óäàëåíèå èç ñåğåäèíû
         current->pred->next = current->next;
         current->next->pred = current->pred;
         delete current;
@@ -923,7 +916,7 @@ int deletePersonalData(list *&listHead, list *&listEnd, list *current) {
 }
 
 /*
- * ”“Š–ˆŸ ‚›‚„€ „€›• ‚ Š‘‹œ(‚ „“ ‘’Š“)
+ * ÔÓÍÊÖÈß ÂÛÂÎÄÀ ÄÀÍÍÛÕ Â ÊÎÍÑÎËÜ(Â ÎÄÍÓ ÑÒĞÎÊÓ)
  */
 void outData(list *temp) {
     cout << setw(20) << temp->inf.fio << " "
@@ -939,10 +932,10 @@ void outData(list *temp) {
 }
 
 /*
- * ”“Š–ˆŸ ‘Œ’€ —……„ˆ ‘ ‚‡Œ†‘’œ €‚ˆƒ€–ˆˆ( ‡€ˆ‘ŸŒ, € ’€Š †…  ‘’€‚ˆ–€Œ)
+ * ÔÓÍÊÖÈß ÏĞÎÑÌÎÒĞÀ Î×ÅĞÅÄÈ Ñ ÂÎÇÌÎÆÍÎÑÒÜŞ ÍÀÂÈÃÀÖÈÈ(ÏÎ ÇÀÏÈÑßÌ, À ÒÀÊ ÆÅ ÏÎ ÑÒĞÀÂÍÈÖÀÌ)
  * mode:
- *      0 - äã­ªæ¨ï ¤«ï ã¤ «¥­¨ï í«¥¬¥­â®¢
- *      1 - ¤«ï á®åà ­¥­¨ï ¢ë¢¥¤¥­­®£® á¯¨áª  ¢ ä ©«
+ *      0 - ôóíêöèÿ äëÿ óäàëåíèÿ ıëåìåíòîâ
+ *      1 - äëÿ ñîõğàíåíèÿ âûâåäåííîãî ñïèñêà â ôàéë
  */
 void viewList(list *&listHead, list *&listEnd, unsigned mode) {
     if (listHead != NULL) {
@@ -1010,7 +1003,7 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
                 case 83: {
                     if (!mode) {
                         SetColor(12, 0);
-                        printf("•’ˆ’… ‹ˆ ‚› “„€‹ˆ’œ ’“ ‡€ˆ‘œ? \n");
+                        printf("DO YOU WANT DELTE THIS DATA? \n");
                         SetColor(7, 0);
 
                         if (menuInterface(acceptMessage, acceptMessageItemsCount)) {
@@ -1036,20 +1029,20 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
                 case 96: {
                     if (mode) {
                         cleanStatusBar();
-                        printf("‚‚…„ˆ’… ˆŒŸ ”€‰‹€: ");
+                        printf("ENTER FILE NAME: ");
                         char file_name[MAX_STR_LENGTH];
                         char default_name[MAX_STR_LENGTH + 11] = "selection_";
                         cin.getline(file_name, MAX_STR_LENGTH);
-                        if (cin.fail()) {             //ˆ ……‹…ˆˆ “”…€ ‚•„ƒ ’Š€
-                            cin.clear();            //‘‘ ˜ˆŠˆ ’Š€
-                            cin.ignore(1000, '\n');   //ˆƒˆ‚€ˆ… ‘’€‚˜ˆ•‘Ÿ ‚ ’Š… ‘ˆŒ‚‹‚
+                        if (cin.fail()) {             //ÏĞÈ ÏÅĞÅÏÎËÍÅÍÈÈ ÁÓÔÅĞÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+                            cin.clear();            //ÑÁĞÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+                            cin.ignore(1000, '\n');   //ÈÃÍÎĞÈĞÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
                         }
                         strcat(default_name, file_name);
 
                         if (!saveFile(listHead, default_name)) {
-                            printf("‚›Š€ ‘•€…€");
+                            printf("FILE SAVED");
                         } else {
-                            printf("‚›Š€ … ‘•€…€!");
+                            printf("FILE NOT SAVED!");
                         }
                         getch();
                     }
@@ -1091,8 +1084,8 @@ void viewList(list *&listHead, list *&listEnd, unsigned mode) {
 }
 
 /*
- * ”“Š–ˆŸ ‚›‚„€ ˆ €‚ˆƒ€–ˆˆ ‘‚ƒ Œ…
- * ‚‡‚€™€…’ Œ… “Š’€ Œ… ‚ ……„€Œ Œ€‘‘ˆ‚…
+ * ÔÓÍÊÖÈß ÂÛÂÎÄÀ È ÍÀÂÈÃÀÖÈÈ ÎÑÍÎÂÍÎÃÎ ÌÅÍŞ
+ * ÂÎÇÂĞÀÙÀÅÒ ÍÎÌÅĞ ÏÓÍÊÒÀ ÌÅÍŞ Â ÏÅĞÅÄÀÍÍÎÌ ÌÀÑÑÈÂÅ
  */
 int menu(const char **menuItems, const int itemsCount, int currentItem) {
     int i = 0;
@@ -1148,8 +1141,8 @@ int menu(const char **menuItems, const int itemsCount, int currentItem) {
 }
 
 /*
- * ”“Š–ˆŸ ‚›‚„€ ˆ €‚ˆƒ€–ˆˆ „‹ˆ’…‹œƒ Œ…(‘•€…ˆŸ ‚ ”€‰‹ ˆ‹ˆ „’‚…†„…ˆŸ …€–ˆ‰)
- * ‚‡‚€™€…’ Œ… “Š’€ Œ… ‚ ……„€Œ Œ€‘‘ˆ‚…
+ * ÔÓÍÊÖÈß ÂÛÂÎÄÀ È ÍÀÂÈÃÀÖÈÈ ÄÎÏÎËÍÈÒÅËÜÍÎÃÎ ÌÅÍŞ(ÑÎÕĞÀÍÅÍÈß Â ÔÀÉË ÈËÈ ÏÎÄÒÂÅĞÆÄÅÍÈß ÎÏÅĞÀÖÈÉ)
+ * ÂÎÇÂĞÀÙÀÅÒ ÍÎÌÅĞ ÏÓÍÊÒÀ ÌÅÍŞ Â ÏÅĞÅÄÀÍÍÎÌ ÌÀÑÑÈÂÅ
  */
 int menuInterface(const char **menuItems, const int itemsCount) {
     int currentItem = 0, i = 0;
@@ -1189,10 +1182,10 @@ int menuInterface(const char **menuItems, const int itemsCount) {
 }
 
 /*
- * ”“Š–ˆŸ …—€’ˆ „‹ˆ’…‹œƒ Œ…
+ * ÔÓÍÊÖÈß ÏÅ×ÀÒÈ ÄÎÏÎËÍÈÒÅËÜÍÎÃÎ ÌÅÍŞ
  * mode:
- *      0 - ¢ë¢®¤¨â ¯ã­ªâ "DEL - DLT";
- *      1 - ë¢®¤¨â ¯ã­ªâ " ~ - SAVE";
+ *      0 - âûâîäèò ïóíêò "DEL - DLT";
+ *      1 - ûâîäèò ïóíêò " ~ - SAVE";
  */
 void drawHelpMenu(unsigned mode) {
     gotoxy(0, 17);
@@ -1220,7 +1213,7 @@ void drawHelpMenu(unsigned mode) {
 }
 
 /*
- * ”“Š–ˆŸ ‚›‚„€ ˜€Šˆ ’€‹ˆ–›
+ * ÔÓÍÊÖÈß ÂÛÂÎÄÀ ØÀÏÊÈ ÒÀÁËÈÖÛ
  */
 void drawTableHead(unsigned X, unsigned Y) {
 
@@ -1249,7 +1242,7 @@ void drawTableHead(unsigned X, unsigned Y) {
 };
 
 /*
- * ”“Š–ˆŸ —ˆ‘’Šˆ Š‘‹ˆ ˆ†… STATUS BAR
+ * ÔÓÍÊÖÈß Î×ÈÑÒÊÈ ÊÎÍÑÎËÈ ÍÈÆÅ STATUS BAR
  */
 void cleanPlace() {
     int i;
@@ -1259,7 +1252,7 @@ void cleanPlace() {
 }
 
 /*
- * ”“Š–ˆŸ —ˆ‘’Šˆ STATUS BAR
+ * ÔÓÍÊÖÈß Î×ÈÑÒÊÈ STATUS BAR
  */
 void cleanStatusBar() {
     int i;
@@ -1270,19 +1263,19 @@ void cleanStatusBar() {
 }
 
 /*
- * ”“Š–ˆŸ ˆ„ˆŠ€’€ ‚ ‘‹“—€… “‘’ƒ ‘ˆ‘Š€
+ * ÔÓÍÊÖÈß ÈÍÄÈÊÀÒÎĞÀ Â ÑËÓ×ÀÅ ÏÓÑÒÎÃÎ ÑÏÈÑÊÀ
  */
 void emptyMessage() {
     SetColor(14, 0);
-    printf("‘ˆ‘Š “‘’ \n");
+    printf("EMPTY LIST \n");
     SetColor(7, 0);
     getch();
 }
 
 /*
- * ”“Š–ˆŸ ‚…Šˆ —ˆ‘‹€ € ‚‚„, ‘ ‚‡Œ‹†‘’œ ‚›€ Š„ˆ€’
- * ˆ ……„€—… X < 0 ˆ Y < 0 - Š„ˆ€’› … “—ˆ’›‚€’‘Ÿ
- * ˆ €†€’ˆˆ ESC - ‚‡€™€…’‘Ÿ 0, ˆ €—€‹œ… ‡€—…ˆ… ……„€… ”“Š–ˆˆ ˆ‹ˆ 0
+ * ÔÓÍÊÖÈß ÏĞÎÂÅĞÊÈ ×ÈÑËÀ ÍÀ ÂÂÎÄ, Ñ ÂÎÇÌËÆÍÎÑÒÜŞ ÂÛÁÎĞÀ ÊÎÎĞÄÈÍÀÒ
+ * ÏĞÈ ÏÅĞÅÄÀ×Å X < 0 È Y < 0 - ÊÎÎĞÄÈÍÀÒÛ ÍÅ Ó×ÈÒÛÂÀŞÒÑß
+ * ÏĞÈ ÍÀÆÀÒÈÈ ESC - ÂÎÇĞÀÙÀÅÒÑß 0, È ÍÀ×ÀËÜÍÎÅ ÇÍÀ×ÅÍÈÅ ÏÅĞÅÄÀÍÍÎÅ ÔÓÍÊÖÈÈ ÈËÈ 0
  */
 unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 
@@ -1355,7 +1348,7 @@ unsigned int checkNumeral(short X, short Y, long int num, int maxDigitCount) {
 }
 
 /*
- * ˆ‚…„…ˆ… ‘ˆŒ‚‹‚ ”€Œˆ‹ˆˆ ˆ ˆˆ–ˆ€‹‚ Š ‚…•…Œ“ …ƒˆ‘’“(“—ˆ’›‚€Ÿ “‘‘Šˆ… ‘ˆŒ‚‹›)
+ * ÏĞÈÂÅÄÅÍÈÅ ÑÈÌÂÎËÎÂ ÔÀÌÈËÈÈ È ÈÍÈÖÈÀËÎÂ Ê ÂÅĞÕÍÅÌÓ ĞÅÃÈÑÒĞÓ(Ó×ÈÒÛÂÀß ĞÓÑÑÊÈÅ ÑÈÌÂÎËÛ)
  */
 char *strToFormat(char *str, const int length) {
     int i;
@@ -1364,7 +1357,7 @@ char *strToFormat(char *str, const int length) {
 
     for (i = 0; (i < length) && (str[i] != '\0'); i++) {
 
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //¥á«¨ i-âë© í«¥¬¥­â ¯à®¡¥« ¨«¨ §­ ª - ¯à®¯ãáª
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //åñëè i-òûé ıëåìåíò ïğîáåë èëè çíàê - ïğîïóñê
 
             continue;
         } else {
@@ -1378,13 +1371,13 @@ char *strToFormat(char *str, const int length) {
             }
         }
     }
-    //„‹Ÿ ˆ‚…„…ˆŸ ‘ˆŒ‚‹‚ Š ˆ†…Œ“ ……‘’“
+    //ÄËß ÏĞÈÂÅÄÅÍÈß ÑÈÌÂÎËÎÂ Ê ÍÈÆÍÅÌÓ ĞÅÅÑÒĞÓ
 
     /*bool spaceCheck = true;
 
     for (i = 0; i < length; i++) {
 
-        if ((isspace(str[i])) || (ispunct(str[i]))) { //¥á«¨ i-âë© í«¥¬¥­â ¯à®¡¥« ¨«¨ §­ ª - ¯à®¯ãáª
+        if ((isspace(str[i])) || (ispunct(str[i]))) { //åñëè i-òûé ıëåìåíò ïğîáåë èëè çíàê - ïğîïóñê
             spaceCheck = true;
             continue;
         } else if (spaceCheck) {
@@ -1398,9 +1391,9 @@ char *strToFormat(char *str, const int length) {
 }
 
 /*
- * ”“Š–ˆŸ ‚…Šˆ ‘ˆŒ‚‹‚ € ‚‚„, ‘ ‚‡Œ‹†‘’œ ‚›€ Š„ˆ€’
- * ˆ ……„€—… X<0 ˆ Y <0 - Š„ˆ€’› … “—ˆ’›‚€’‘Ÿ
- * ˆ €†€’ˆˆ ESC - ‚‡€™€…’‘Ÿ 0 ˆ €—€‹œ… ‡€—…ˆ… ‘’Šˆ … ˆ‡Œ…Ÿ…’‘Ÿ
+ * ÔÓÍÊÖÈß ÏĞÎÂÅĞÊÈ ÑÈÌÂÎËÎÂ ÍÀ ÂÂÎÄ, Ñ ÂÎÇÌËÆÍÎÑÒÜŞ ÂÛÁÎĞÀ ÊÎÎĞÄÈÍÀÒ
+ * ÏĞÈ ÏÅĞÅÄÀ×Å X<0 È Y <0 - ÊÎÎĞÄÈÍÀÒÛ ÍÅ Ó×ÈÒÛÂÀŞÒÑß
+ * ÏĞÈ ÍÀÆÀÒÈÈ ESC - ÂÎÇĞÀÙÀÅÒÑß 0 È ÍÀ×ÀËÜÍÎÅ ÇÍÀ×ÅÍÈÅ ÑÒĞÎÊÈ ÍÅ ÈÇÌÅÍßÅÒÑß
  */
 int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 
@@ -1467,8 +1460,8 @@ int rewriteString(unsigned X, unsigned Y, const int length, char *str) {
 }
 
 /*
- * ”“Š–ˆŸ ‚…Šˆ ‘‚€„…ˆŸ ˆ„ˆ‚ˆ„“€‹œƒ Œ…€ ˆ ‚‚„… „€›•
- * ‚‡‚€™€…’ 1 - ˆ ‘‚€„…ˆˆ Œ…‚, 0 - ‚ ’ˆ‚Œ ‘‹“—€…
+ * ÔÓÍÊÖÈß ÏĞÎÂÅĞÊÈ ÑÎÂÏÀÄÅÍÈß ÈÍÄÈÂÈÄÓÀËÜÍÎÃÎ ÍÎÌÅĞÀ ÏĞÈ ÂÂÎÄÅ ÄÀÍÍÛÕ
+ * ÂÎÇÂĞÀÙÀÅÒ 1 - ÏĞÈ ÑÎÂÏÀÄÅÍÈÈ ÍÎÌÅĞÎÂ, 0 - Â ÏĞÎÒÈÂÍÎÌ ÑËÓ×ÀÅ
  */
 unsigned checkPersonalNumber(int num, list *top) {
 
@@ -1484,16 +1477,16 @@ unsigned checkPersonalNumber(int num, list *top) {
 }
 
 /*
- * ”“Š–ˆŸ ‘’ˆŠˆ ‘ˆ‘Š€  Šˆ’…ˆŸŒ
+ * ÔÓÍÊÖÈß ÑÎĞÒÈĞÎÊÈ ÑÏÈÑÊÀ ÏÎ ÊĞÈÒÅĞÈßÌ
  * mode:
- *      0 - ¯® ä ¬¨«¨¨
- *      1 - ¯® ¨­¤¨¢¨¤ã «ì­®¬ã ­®¬¥àã
- *      2 - ¯® ¯à®ää¥áá¨¨ ¨ ä ¬¨«¨¨
- *      3 - ¯® ­®¬¥àã æ¥å (factory) ¨ ä ¬¨«¨¨
- *      4 - ¯® ­®¬¥àã ãç áâª (deportment) ¨ ä ¬¨«¨¨
- *      5 - ¯® § à ¡®â­®© ¯« â¥(salary) ¨ ä ¬¨«¨¨
- *      6 - ¯® ¯®«ã(sex) ¨ ä ¬¨«¨¨
- *      7 - ¯® ¯à®ää¥áá¨¨ ¨ à §àï¤ã
+ *      0 - ïî ôàìèëèè
+ *      1 - ïî èíäèâèäóàëüíîìó íîìåğó
+ *      2 - ïî ïğîôôåññèè è ôàìèëèè
+ *      3 - ïî íîìåğó öåõà(factory) è ôàìèëèè
+ *      4 - ïî íîìåğó ó÷àñòêà(deportment) è ôàìèëèè
+ *      5 - ïî çàğàáîòíîé ïëàòå(salary) è ôàìèëèè
+ *      6 - ïî ïîëó(sex) è ôàìèëèè
+ *      7 - ïî ïğîôôåññèè è ğàçğÿäó
  */
 int sort(list *&head, list *&end, short int mode) {
 
@@ -1715,8 +1708,8 @@ int sort(list *&head, list *&end, short int mode) {
 }
 
 /*
- * ”“Š–ˆŸ „‹Ÿ ˆ‘Š€ „€›•  Š‹—…‚Œ“ ‹
- * ‚‡‚€™€…’ 1 - ‚ ‘‹“—€… “‘’ƒ ‘ˆŠ€
+ * ÔÓÍÊÖÈß ÄËß ÏÎÈÑÊÀ ÄÀÍÍÛÕ ÏÎ ÊËŞ×ÅÂÎÌÓ ÏÎËŞ
+ * ÂÎÇÂĞÀÙÀÅÒ 1 - Â ÑËÓ×ÀÅ ÏÓÑÒÎÃÎ ÑÏÈÊÀ
  */
 int searchData(list *&head, short int mode) {
     if (head == NULL) {
@@ -1734,7 +1727,7 @@ int searchData(list *&head, short int mode) {
             return 27;
         }
         case 0: {
-            printf("‚‚…„ˆ’… Š‹— ˆ‘Š€: ");
+            printf("ENTER KEY: ");
             char FIO[FIO_LENGTH];
             cin.getline(FIO, FIO_LENGTH);
             if (cin.fail()) {
@@ -1757,8 +1750,8 @@ int searchData(list *&head, short int mode) {
             break;
         }
         case 1: {
-            printf("‚‚…„ˆ’… Š‹— ˆ‘Š€: ");
-            long int tempNumber = checkNumeral(21, 19, 0, 6);
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 6);
             drawTableHead();
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.personalNumber == tempNumber) {
@@ -1774,8 +1767,8 @@ int searchData(list *&head, short int mode) {
             break;
         }
         case 2: {
-            printf("‚‚…„ˆ’… Š‹— ˆ‘Š€: ");
-            long int tempNumber = checkNumeral(21, 19, 0, 2);
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.rank == tempNumber) {
                     searchResult = true;
@@ -1790,8 +1783,8 @@ int searchData(list *&head, short int mode) {
             break;
         }
         case 3: {
-            printf("‚‚…„ˆ’… Š‹— ˆ‘Š€: ");
-            long int tempNumber = checkNumeral(21, 19, 0, 2);
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 19, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.factoryNumber == tempNumber) {
                     searchResult = true;
@@ -1807,8 +1800,8 @@ int searchData(list *&head, short int mode) {
         }
 
         case 4: {
-            printf("‚‚…„ˆ’… Š‹— ˆ‘Š€: ");
-            long int tempNumber = checkNumeral(21, 19, 0, 2);
+            printf("ENTER KEY: ");
+            long int tempNumber = checkNumeral(11, 17, 0, 2);
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.deportmentNumber == tempNumber) {
                     searchResult = true;
@@ -1824,16 +1817,16 @@ int searchData(list *&head, short int mode) {
         }
     }
     if (!searchResult) {
-        cout << "„€›… … €‰„…›" << endl;
+        cout << "DATA NOT FOUND" << endl;
     }
     deleteList(tempHead);
     return 0;
 }
 
 /*
- * ”“Š–ˆŸ „‘—ğ’€ ‘…„…‰ ‡€‹€’› ˆ Š‹ˆ—…‘’‚€ €’ˆŠ‚ € “—€‘’Š…
- * ‘•€Ÿ…’ „€›… ‚ ”€‰‹ workers_register.txt
- * ‚›‚„ˆ’ ‘„…†ˆŒ… ”€‰‹€ € Š€
+ * ÔÓÍÊÖÈß ÏÎÄÑ×¨ÒÀ ÑĞÅÄÍÅÉ ÇÀĞÏËÀÒÛ È ÊÎËÈ×ÅÑÒÂÀ ĞÀÁÎÒÍÈÊÎÂ ÍÀ Ó×ÀÑÒÊÅ
+ * ÑÎÕĞÀÍßÅÒ ÄÀÍÍÛÅ Â ÔÀÉË workers_register.txt
+ * ÂÛÂÎÄÈÒ ÑÎÄÅĞÆÈÌÎÅ ÔÀÉËÀ ÍÀ İÊĞÀÍ
  */
 void registerOfWorkers(list *head) {
     struct workers_register {
@@ -1854,13 +1847,13 @@ void registerOfWorkers(list *head) {
         char out_file_name[MAX_STR_LENGTH] = "workers_register.txt";
         /*printf("ENTER FILE NAME: ");
         cin.getline(out_file_name, MAX_STR_LENGTH);
-        if (cin.fail()) {             //ˆ ……‹…ˆˆ “”…€ ‚•„ƒ ’Š€
-            cin.clear();            //‘‘ ˜ˆŠˆ ’Š€
-            cin.ignore(1000, '\n');   //ˆƒˆ‚€ˆ… ‘’€‚˜ˆ•‘Ÿ ‚ ’Š… ‘ˆŒ‚‹‚
+        if (cin.fail()) {             //ÏĞÈ ÏÅĞÅÏÎËÍÅÍÈÈ ÁÓÔÅĞÀ ÂÕÎÄÍÎÃÎ ÏÎÒÎÊÀ
+            cin.clear();            //ÑÁĞÎÑ ÎØÈÁÊÈ ÏÎÒÎÊÀ
+            cin.ignore(1000, '\n');   //ÈÃÍÎĞÈĞÎÂÀÍÈÅ ÎÑÒÀÂØÈÕÑß Â ÏÎÒÎÊÅ ÑÈÌÂÎËÎÂ
         }*/
         FILE *out_file = fopen(out_file_name, "wt");
         if (!out_file) {
-            printf("”€‰‹ … ‘•€…");
+            printf("FILE NOT SAVED");
         } else {
             for (int i = 0; i < console_row_length - 27; i++) {
                 fprintf(out_file, "-");
@@ -1891,7 +1884,7 @@ void registerOfWorkers(list *head) {
 
             fclose(out_file);
             system("copy workers_register.txt con");
-            printf("‚…„Œ‘’œ ‘•€…€ ‚ ”€‰‹: workers_register.txt");
+            printf("REGISTER SAVED ON FILE: workers_register.txt");
             return;
         }
 
