@@ -20,18 +20,17 @@ using namespace std;
 /*
  * STRUCTURES AND TYPES
  */
-const int mainMenuItemsCount = 10;
+const int mainMenuItemsCount = 9;
 const char *mainMenu[mainMenuItemsCount] = {
         "„€‚ˆ’œ „€›…  €—…Œ",
         "‘Œ’…’œ ˆ …„€Š’ˆ‚€’œ —……„œ",
         "‘’ˆ‚€’œ —……„œ",
         "ˆ‘Š ˆ„ˆ‚ˆ„“€‹œ›•/ƒ“‚›• „€›•",
-        "‘•€ˆ’œ „€…› ‚ ”€‰‹",
+        "‘•€ˆ’œ „€›E ‚ ”€‰‹",
         "‡€ƒ“‡ˆ’œ „€›… ˆ‡ ”€‰‹€",
         "€‘—…’ ‘…„…‰ ‡€‹€’›  “—€‘’Š€Œ",
         "ƒ€ˆ‡‚€’œ —……„œ",
-        "‚›•„",
-        "GET_KEY"
+        "‚›•„"
 };
 
 

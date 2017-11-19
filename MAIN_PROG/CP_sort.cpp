@@ -281,7 +281,6 @@ int searchData(list *&head, short int mode) {
         case 1: {
             printf("‚‚…„ˆ’… Š‹ž— Žˆ‘Š€: ");
             long int tempNumber = checkNumeral(21, 19, 0, 6);
-            drawTableHead();
             for (temp = head; temp != NULL; temp = temp->next) {
                 if (temp->inf.personalNumber == tempNumber) {
                     searchResult = true;

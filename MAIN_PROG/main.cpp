@@ -102,13 +102,6 @@ int main() {
             }
 
 
-            case 9: {
-                readTheKey();
-                getch();
-                break;
-            }
-
-
             case 8:
             case 27: {
                 printf("‚›‰’ˆ?");

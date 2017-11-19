@@ -360,7 +360,7 @@ int deleteList(list *&top) {
             top = temp->next;
             delete temp;
         }
-        if (top == NULL && temp == NULL) return 1;
+        if ((top == NULL) && (temp == NULL)) return 1;
         else return 0;
     }
 }
