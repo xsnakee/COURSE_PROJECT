@@ -1,3 +1,6 @@
+//
+// Created by Íèêîëàé on 19.11.2017.
+//
 #if !defined(CP_types)
 #define CP_types
 
@@ -19,15 +22,15 @@ using namespace std;
  */
 const int mainMenuItemsCount = 10;
 const char *mainMenu[mainMenuItemsCount] = {
-        "„Ž€‚ˆ’œ „€›… Ž ‘Ž’“„ˆŠ…",
-        "Ž‘ŒŽ’…’œ ˆ …„€Š’ˆŽ‚€’œ „€›…",
-        "‘Ž’ˆŽ‚€’œ „€›…",
+        "„Ž€‚ˆ’œ „€›… Ž €Ž—…Œ",
+        "Ž‘ŒŽ’…’œ ˆ …„€Š’ˆŽ‚€’œ Ž—……„œ",
+        "‘Ž’ˆŽ‚€’œ Ž—……„œ",
         "Žˆ‘Š ˆ„ˆ‚ˆ„“€‹œ›•/ƒ“Ž‚›• „€›•",
         "‘Ž•€ˆ’œ „€›E ‚ ”€‰‹",
         "‡€ƒ“‡ˆ’œ „€›… ˆ‡ ”€‰‹€",
-        "€‘—…’ ‘…„…‰ ‡€‹€’› ‘Ž’“„ˆŠŽ‚ Ž “—€‘’Š€Œ",
-        "Žƒ€ˆ‡Ž‚€’œ Ž‚“ž ’€‹ˆ–“",
-        "Ž—ˆ‘’ˆ’œ „€›…",
+        "€‘—…’ ‘…„…‰ ‡€‹€’› Ž “—€‘’Š€Œ",
+        "Žƒ€ˆ‡Ž‚€’œ Ž—……„œ",
+        "Ž—ˆ‘’ˆ’œ Ž—……„œ",
         "‚›•Ž„"
 };
 
